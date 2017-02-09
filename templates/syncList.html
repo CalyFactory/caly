@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+
+  <head>
+
+
+<script type="text/javascript">
+
+var source = new EventSource('/stream');
+source.onmessage = function (event) {
+  if(event.data != 1){
+     alert(event.data);     
+    location.href="https://ssoma.xyz:55566/calList";
+  }
+    
+};
+  
+  function selectCalendar(){
+    document.getElementById("btn").value = '동기화 중 입니다..'
+    var calendars = document.getElementsByName("calendar");
+    var returnValue = []
+    var data = {}
+    for(var i = 0 ; i < calendars.length ; i++){
+      data = {}
+      console.log(calendars[i].name)
+      if(calendars[i].checked){
+        console.log(calendars[i].value+' is checked')
+        data['id'] = calendars[i].value
+        returnValue.push(data)        
+      }
+    }
+    console.log(returnValue)
+
+  const SET_CALENDER = "https://ssoma.xyz:55566/setCalendarList"
+  $.get(SET_CALENDER,
+  {
+    "data":JSON.stringify(returnValue),
+    "session_key":localStorage.getItem("session_key")    
+  },
+  function(data){
+
+      console.log(data);      
+  });    
+
+
+  }
+  
+
+$(document).ready(function(){
+
+  const GET_CALENDER = "https://ssoma.xyz:55566/getCalendarList"
+  $.get(GET_CALENDER,
+  {},
+  function(data){
+      
+      
+      console.log(data);
+      
+      obj = JSON.parse(data);
+      var calendarList = ''
+            
+      var session_key = $('#session_key').val();
+      console.log('session_key'+session_key);
+
+      localStorage.setItem("session_key", session_key);
+
+      $.each(obj.data, function (i, item) {
+                
+        calendarList += '<input type= "checkbox" name = calendar value = "'+item.id+'"/> '+item.name+'<br>'
+      });
+        $('#checkboxes').append(calendarList);
+  });
+
+
+  // alert(bla)
+});
+
+
+
+
+</script>  
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Bootstrap  Template</title>
+    <input type="hidden" id="session_key" value={{sessionKey}}>
+    
+
+    <!-- Bootstrap -->
+    <!-- <link href="css/bootstrap.min.css" rel="stylesheet"> -->
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+
+    <div id="checkboxes">
+
+
+    </div>
+
+    <input type="button" id="btn" value="선택완료 "onclick="selectCalendar()" />
+
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    
+  </body>
+</html>

@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+   <body>
+      	<table border = 1 style="display:block;text-algin:center;width:100%;">
+		    <tr>
+	      		<th>event id</th>
+	      		<th>event tag</th>
+	      		<th>event name</th>
+	      		<th>start time</th>
+	      		<th>end time</th>
+	      		<th>location</th>
+	  		</tr>
+	  		{% for evt in result %}
+
+	  			{% for value in evt %}
+	  			<tr>
+	  				<td> {{ value[0] }} </td>
+	  				<td> {{ value[1] }} </td>
+	  				<td> {{ value[2] }} </td>
+	  				<td> {{ value[3] }} </td>
+	  				<td> {{ value[4] }} </td>
+	  				<td> {{ value[5] }} </td>
+	  			</tr>
+	  			{% endfor %}
+	  		{% endfor %}
+  		</table>
+  	</body>
+</html>

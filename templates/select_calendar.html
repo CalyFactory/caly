@@ -1,0 +1,17 @@
+<html>
+
+<body>
+    Calendar Information <br/><br/>
+{% for calendar in calendarList %}
+<input type=checkbox name=chk_info value='{{ calendar.calendarUrl }}'>{{ calendar.calendarName }} <br/>
+{% endfor %}
+<input type=button onclick=button_submit() value="동기화 알림 등록"/>
+<script>
+function button_submit(){
+    alert("click");
+}
+
+</script>
+</body>
+
+</html>

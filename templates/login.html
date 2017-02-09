@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>jQuery UI Dialog - Modal form</title>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="/resources/demos/style.css">
+  <style>
+    label, input { display:block; }
+    input.text { margin-bottom:12px; width:95%; padding: .4em; }
+    fieldset { padding:0; border:0; margin-top:25px; }
+    h1 { font-size: 1.2em; margin: .6em 0; }
+    div#users-contain { width: 350px; margin: 20px 0; }
+    div#users-contain table { margin: 1em 0; border-collapse: collapse; width: 100%; }
+    div#users-contain table td, div#users-contain table th { border: 1px solid #eee; padding: .6em 10px; text-align: left; }
+    .ui-dialog .ui-state-error { padding: .3em; }
+    .validateTips { border: 1px solid transparent; padding: 0.3em; }
+  </style>
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script>
+
+  $( function() {
+    var dialog, form,
+      name = $( "#name" ),
+      hostname = $( "#hostname" ),
+      password = $( "#password" ),
+      allFields = $( [] ).add( name ).add( hostname ).add( password ),
+      tips = $( ".validateTips" );
+    
+
+    // jquery extend function
+    $.extend(
+    {
+        redirectPost: function(location, args)
+        {
+            var form = '';
+            $.each( args, function( key, value ) {
+                value = value.split('"').join('\"')
+                form += '<input type="hidden" name="'+key+'" value="'+value+'">';
+            });
+            $('<form action="' + location + '" method="POST">' + form + '</form>').appendTo($(document.body)).submit();
+        }
+    });
+
+    function addUser() {
+        $.redirectPost("/calendar", {hostname: hostname.val(), userId: name.val(), userPw: password.val()});
+    }
+ 
+    dialog = $( "#dialog-form" ).dialog({
+      autoOpen: false,
+      height: 400,
+      width: 350,
+      modal: true,
+      buttons: {
+        "Create an account": addUser,
+        Cancel: function() {
+          dialog.dialog( "close" );
+        }
+      },
+      close: function() {
+        form[ 0 ].reset();
+        allFields.removeClass( "ui-state-error" );
+      }
+    });
+ 
+    form = dialog.find( "form" ).on( "submit", function( event ) {
+      event.preventDefault();
+      addUser();
+    });
+ 
+    $( "#btn1" ).button().on( "click", function() { // google 
+      alert('안만들엇지롱~~')
+    });
+    $( "#btn2" ).button().on( "click", function() { // naver
+        tips.text("naver")
+        hostname.val("https://caldav.calendar.naver.com/principals/users/jspiner")
+      dialog.dialog( "open" );
+    });
+    $( "#btn3" ).button().on( "click", function() { //apple 
+        tips.text("apple")
+        hostname.val("https://caldav.icloud.com")
+      dialog.dialog( "open" );
+    });
+    $( "#btn4" ).button().on( "click", function() { // etc
+        hostname.val("https://")
+        tips.text("etc")
+      dialog.dialog( "open" );
+    });
+  } );
+  </script>
+</head>
+<body>
+
+
+  <input type='button' id='btn1' value='구글로 로그인' />
+  <input type='button' id='btn2' value='네이버로 로그인' />
+  <input type='button' id='btn3' value='애플로 로그인' />
+  <input type='button' id='btn4' value='기타 caldav 로그인' />
+ 
+<div id="dialog-form" title="Create new user">
+  <p class="validateTips">All form fields are required.</p>
+ 
+  <form action="/calendar" method="post">
+    <fieldset>
+      <label for="hostname">hostname</label>
+      <input type="text" name="hostname" id="hostname" value="https://caldav.xxxx.com" class="text ui-widget-content ui-corner-all">
+      <label for="name">Name</label>
+      <input type="text" name="name" id="name" value="" class="text ui-widget-content ui-corner-all">
+      <label for="password">Password</label>
+      <input type="password" name="password" id="password" value="" class="text ui-widget-content ui-corner-all">
+ 
+      <!-- Allow form submission with keyboard without duplicating the dialog button -->
+      <input type="submit" tabindex="-1" style="position:absolute; top:-1000px" value="dd">
+    </fieldset>
+  </form>
+</div>
+ 
+ 
+ 
+ 
+</body>
+</html>
