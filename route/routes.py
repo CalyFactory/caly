@@ -1,7 +1,34 @@
 from route.googleAuth import GoogleAuth
 from route.schedule import Schedule
+from route.member import Member
 
 def initRoute(app):
+	member = Member.as_view('member')
+	app.add_url_rule(
+						'/v1.0/member/loginCheck',
+						defaults = {'action':'loginCheck'},
+						view_func = member, 
+						methods = ['POST', ]
+					)
+	app.add_url_rule(
+						'/v1.0/member/signUp',
+						defaults = {'action':'signUp'},
+						view_func = member, 
+						methods = ['POST', ]
+					)
+	app.add_url_rule(
+						'/v1.0/member/registerDevice',
+						defaults = {'action':'registerDevice'},
+						view_func = member, 
+						methods = ['POST', ]
+					)
+	app.add_url_rule(
+						'/v1.0/member/updatePushToken',
+						defaults = {'action':'updatePushToken'},
+						view_func = member, 
+						methods = ['POST', ]
+					)
+
 	googleAuth = GoogleAuth.as_view('gAuthAPI')
 	app.add_url_rule(
 						'/', 
