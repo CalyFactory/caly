@@ -1,9 +1,12 @@
 #-*- coding: utf-8 -*-
+#author : yenos
+#descrip : 멤버의 회원가입, 로그인 및 세션등을 만들어주는 페이지다.
 from flask.views import MethodView
 from common.util import utils
 from manager import db_manager
 import flask
 from common.util import utils
+from manager.redis import redis
 # yenos
 # 유저의관한 api 리스트이다.
 class Member(MethodView):
@@ -115,6 +118,10 @@ class Member(MethodView):
 			device_hashkey = utils.makeHashKey(account_hashkey)
 			session_key = utils.makeHashKey(device_hashkey)
 
+			#세션관리를 위해 세션키를 키로 해시키로 매핑시킨다.
+			#로그아웃시 해당 세션키를 보내서 날린다.
+			redis.set(session_key,user_hashkey)
+
 			try:
 				db_manager.query(
 					"INSERT INTO USER " 
@@ -169,7 +176,7 @@ class Member(MethodView):
 				return utils.resErr(str(e))		
 		elif action == 'registerDevice':
 			
-			account_hashkey = flask.request.form['accountHasheky']
+			account_hashkey = flask.request.form['accountHashkey']
 			device_hashkey = utils.makeHashKey(account_hashkey)
 			session_key = utils.makeHashKey(device_hashkey)
 			push_token = flask.request.form['pushToken']
@@ -177,8 +184,24 @@ class Member(MethodView):
 			app_version = flask.request.form['appVersion']
 			device_info = flask.request.form['deviceInfo']
 			uuid = flask.request.form['uuid']
+			
 
 			try:
+				result = db_manager.query(
+					"SELECT * FROM USERACCOUNT " 
+					"WHERE account_hashkey = %s "
+					,
+					(									
+						account_hashkey,
+					)
+				)
+				rows = utils.fetch_all_json(result)
+				
+				if len(rows) != 0:
+					print('[redis] seeionkey = '+session_key)					
+					redis.set(session_key,str(rows[0]['user_hashkey']))
+					print('hashkey'+redis.get(session_key))
+
 				db_manager.query(
 					"INSERT INTO USERDEVICE " 
 					"(device_hashkey,account_hashkey,session_key,push_token,device_type,app_version,device_info,uuid)"
@@ -216,6 +239,28 @@ class Member(MethodView):
 				return utils.resSuccess('success')
 			except Exception as e:
 				return utils.resErr(str(e))		
+
+			#로그아웃에선 레디스에서 해당 세션키를 날리고, is_active 를 false로
+			#서버에서도 날려준다음
+			#로그서버에 해당 사항을 저장해준다.
+		elif action == 'logout':
+			sessionkey = flask.request.form['sessionkey']
+			try:
+				db_manager.query(
+					"UPDATE USERDEVICE " 
+					"SET session_key = null, is_active = 0 "
+					"WHERE session_key = %s",
+					(									
+						sessionkey,						
+					)
+				)	
+				print('[redis]exist sessionkey result => '+ str(redis.get(sessionkey)))
+				redis.delete(sessionkey)
+				print('[redis]remvoe sessionkey! result=> '+str(redis.get(sessionkey)))
+				
+				return utils.resSuccess('logout success')
+			except Exception as e:
+				return utils.resErr(str(e))
 
 
 
