@@ -72,7 +72,7 @@ class Schedule(MethodView):
 							"type" : "web_hook",
 							"address" : "https://ssoma.xyz:55566/googleReceive"
 						}						
-						res =network_manager.reqPOST(URL,body)
+						res = network_manager.reqPOST(URL,body)
 						print('notification result =>'+res)
 						if(res == 'Not Found'):
 							print('Nope!')
