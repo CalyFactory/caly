@@ -7,7 +7,7 @@ from xml.etree.ElementTree import *
 from caldavclient import caldavclient
 from datetime import datetime
 import json
-from icalendar import Calendar
+#from icalendar import Calendar
 def requestData(method = "PROPFIND", hostname = "", depth = 0, data = "", auth = ("","")):
     response = requests.request(
         method,
@@ -24,6 +24,7 @@ def requestData(method = "PROPFIND", hostname = "", depth = 0, data = "", auth =
 
     return response
 
+"""
 # Convert ics to json format
 def convert_ics_to_json(homeset_cal_id, cal_id, evt_id, acc_auth): # acc_auth="Basic user_base64_hash_key"
     # Open .ics
@@ -55,7 +56,7 @@ def convert_ics_to_json_with_hscalID(homeset_cal_id, cal_id, evt_id):
         return #handle error message
     acc_auth=rows[0]['user_base64']
     convert_ics_to_json(homeset_cal_id, cal_id, evt_id, acc_auth)
-
+"""
 
 def dtConverter(dt_ics):
     # ICS Date time format : TZID=Asia/Seoul:20170117T090000
