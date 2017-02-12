@@ -1,4 +1,7 @@
 #-*- coding: utf-8 -*-
+#author : yenos
+#descrip : 구글 인증 로직을 가지고있다.
+
 from flask.views import MethodView
 
 import json
@@ -29,7 +32,7 @@ class GoogleAuth(MethodView):
 			
 			flow = client.flow_from_clientsecrets(
 				'./key/client_secret.json',
-				scope='https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/calendar.readonly',
+				scope='https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.profile  https://www.googleapis.com/auth/calendar.readonly',
 				redirect_uri='https://ssoma.xyz:55566/googleAuthCallBack'
 			)
 			if 'key' in session:
@@ -42,55 +45,66 @@ class GoogleAuth(MethodView):
 				auth_uri = flow.step1_get_authorize_url()
 				return flask.redirect(auth_uri)		
 			else:
+
 				#최초 로그인일 경우.
 				auth_code = flask.request.args.get('code')				
 				#유저정보를 받아온다.
 				credentials = json.loads(flow.step2_exchange(auth_code).to_json())
 				print(credentials)
 				print(credentials['access_token'])
-				print(credentials['id_token']['email'])
+				
+				
+				redis.set('user_access_token',credentials['access_token'])
+
+				URL = 'https://www.googleapis.com/oauth2/v1/userinfo'		
+				res = network_manager.reqGET(URL)
+				print('res==>'+res)
+
+				#유저가 무조건 전송하도록 되어있다.
+				#최초 로그인을 할경우.			
+				#유저에게1
 
 				# redis.set('access_token',credentials['access_token'])
 				
-				user_email = credentials['id_token']['email']
-				user_access_token = credentials['access_token']
-				redis.set('user_access_token',credentials['access_token'])
-				current_time = str(int(time()))
+				# user_email = credentials['id_token']['email']
+				# user_access_token = credentials['access_token']
+				# redis.set('user_access_token',credentials['access_token'])
+				# current_time = str(int(time()))
 				
-				# print("userName+current =>"+user_email+current_time)
+				# # print("userName+current =>"+user_email+current_time)
 				
-				# session['key'] = 'user_email'
+				# # session['key'] = 'user_email'
 				
-				#TODO				
+				# #TODO				
 						
-				#유저가 없다면.
-				result = db_manager.query(
-					"SELECT * FROM user WHERE mail = %s",(credentials['id_token']['email'],)
-				)
-				rows = utils.fetch_all_json(result)
+				# #유저가 없다면.
+				# result = db_manager.query(
+				# 	"SELECT * FROM user WHERE mail = %s",(credentials['id_token']['email'],)
+				# )
+				# rows = utils.fetch_all_json(result)
 				
-				#조회결과 없다면!디비에 넣는다. 
-				if len(rows) == 0:
-					#디비없으면 최초 1회만 넣어준다.					
-					user_hashkey = hashlib.md5(str(user_email+current_time+'u').encode('utf-8')).hexdigest()
-					session_key = hashlib.md5(str(user_email+current_time+'s').encode('utf-8')).hexdigest()					
+				# #조회결과 없다면!디비에 넣는다. 
+				# if len(rows) == 0:
+				# 	#디비없으면 최초 1회만 넣어준다.					
+				# 	user_hashkey = hashlib.md5(str(user_email+current_time+'u').encode('utf-8')).hexdigest()
+				# 	session_key = hashlib.md5(str(user_email+current_time+'s').encode('utf-8')).hexdigest()					
 
-					redis.set(session_key,user_hashkey)
+				# 	redis.set(session_key,user_hashkey)
 
-					db_manager.query(
-						"INSERT INTO user " 
-						"(mail, access_token,session_key,user_hashkey)"
-						"VALUES"
-						"(%s, %s, %s, %s)",
-						(			
-							user_email,
-							user_access_token,
-							session_key,
-							user_hashkey
-						)
-					)
+				# 	db_manager.query(
+				# 		"INSERT INTO user " 
+				# 		"(mail, access_token,session_key,user_hashkey)"
+				# 		"VALUES"
+				# 		"(%s, %s, %s, %s)",
+				# 		(			
+				# 			user_email,
+				# 			user_access_token,
+				# 			session_key,
+				# 			user_hashkey
+				# 		)
+				# 	)
 
-				return render_template('syncList.html', sessionKey=session_key)			
+				# return render_template('syncList.html', sessionKey=session_key)			
 				# return flask.redirect('/calendarSync')
 		# elif action == 'calendarSync':
 		# 	return redirect('https://ssoma.xyz:55566/syncList.html')
