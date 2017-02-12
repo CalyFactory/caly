@@ -27,13 +27,18 @@ from route.routes import initRoute
 from manager.redis import redis
 from flask import render_template
 
+
 app = flask.Flask(__name__, static_url_path='')
 
 initRoute(app)
+# print(utils.makeHashKey('test'))
 
 
 
-#for event push 
+##############
+#  테스트요청	 #
+##############
+
 def event_stream():
     pubsub = redis.pubsub()
     pubsub.subscribe('syncAlert')
