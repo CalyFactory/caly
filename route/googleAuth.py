@@ -47,7 +47,8 @@ class GoogleAuth(MethodView):
 			else:
 
 				#최초 로그인일 경우.
-				auth_code = flask.request.args.get('code')				
+				auth_code = flask.request.args.get('code')	
+				
 				#유저정보를 받아온다.
 				credentials = json.loads(flow.step2_exchange(auth_code).to_json())
 				print(credentials)

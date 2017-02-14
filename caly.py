@@ -31,6 +31,8 @@ from flask import render_template
 app = flask.Flask(__name__, static_url_path='')
 
 initRoute(app)
+
+
 # print(utils.makeHashKey('test'))
 
 
