@@ -54,3 +54,13 @@ def setGoogleUserAccount(account_hashkey,user_hashkey,login_platform,u_id,access
 				)			
 
 						
+
+#sync						
+def getUserAccount(user_hashkey):
+	return utils.fetch_all_json(
+				db_manager.query(
+						"SELECT * FROM USERACCOUNT WHERE user_hashkey = %s "
+						,
+						(user_hashkey,) 						
+				)			
+			)	

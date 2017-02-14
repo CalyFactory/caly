@@ -5,6 +5,7 @@
 #TODO!!!
 #NOSQL로 세션로그를 관리해줘야한다
 #(언제 세션이 끊기고(로그아웃) 언제다시연결됬는지 등의 정보)
+from common import caldavWrapper
 
 from flask.views import MethodView
 from common.util import utils
@@ -113,17 +114,18 @@ class Member(MethodView):
 				#calendar HomeSat
 				#google_expire_time 설정
 				if login_platform == 'naver' or login_platform == 'ical':
-					if login_platform == 'naver':
-						hostname = 'https://caldav.calendar.naver.com/principals/users/' + str(u_id)
-					elif login_platform == 'ical':
-						hostname = 'https://caldav.icloud.com/'
+					# if login_platform == 'naver':
+					# 	hostname = 'https://caldav.calendar.naver.com/principals/users/' + str(u_id)
+					# elif login_platform == 'ical':
+					# 	hostname = 'https://caldav.icloud.com/'
 
-					#클라에서 loginState확인을 거쳐온 id/pw임으로 무조건 인증된 정보이다.
-					calDavclient = CaldavClient(
-					    hostname,
-					    u_id,
-					    u_pw
-					)
+					# #클라에서 loginState확인을 거쳐온 id/pw임으로 무조건 인증된 정보이다.
+					# calDavclient = CaldavClient(
+					#     hostname,
+					#     u_id,
+					#     u_pw
+					# )
+					calDavclient = caldavWrapper.getCalDavClient(login_platform,u_id,u_pw)
 					
 					principal = calDavclient.getPrincipal()
 					homeset = principal.getHomeSet()
