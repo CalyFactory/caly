@@ -10,6 +10,11 @@ from common.util import utils
 
 
 class Schedule(MethodView):
+
+	#post일 경우.
+	# def post(self,action):
+		
+
 	def get(self,action):
 		if action == 'getCalendarList':
 			calendarListURL = 'https://www.googleapis.com/calendar/v3/users/me/calendarList'

@@ -13,8 +13,18 @@ import flask
 from common.util import utils
 from manager.redis import redis
 from manager import login_manager
+from manager import network_manager
 from common.util.statics import *
 import json
+import datetime
+
+from caldavclient import CaldavClient
+from oauth2client import client
+
+
+from model import userDeviceModel
+from model import userAccountModel
+from model import userModel
 # yenos
 # 유저의관한 api 리스트이다.
 class Member(MethodView):
@@ -23,118 +33,67 @@ class Member(MethodView):
 		if action == 'loginCheck':
 			#TODO
 			#앱 버전을 꾸준히 체크해줘야한다.
-			#app_version = flask.request.form['app_version']			
-			
-
+			#app_version = flask.request.form['app_version']						
+			print('hig')
 			# try:
-				who_am_i = login_manager.checkLoginState(flask)									
-				# print(json.loads(who_am_i)['state'])
-				# print(json.loads(who_am_i)['state'])
-				if who_am_i['state'] == LOGIN_STATE_AUTO:
-					return utils.resSuccess('auto login success')
+			who_am_i = login_manager.checkLoginState(flask)									
+							
+			if who_am_i['state'] == LOGIN_STATE_AUTO:
+				return utils.resSuccess('auto login success')
 
-				elif who_am_i['state'] == LOGIN_STATE_FIRST:
-					return utils.resCustom(201,'first sign up')
+			elif who_am_i['state'] == LOGIN_STATE_FIRST:
+				return utils.resCustom(201,'first sign up')
 
-				elif who_am_i['state'] == LOGIN_STATE_OTHERDEVICE:
-					return utils.resCustom(207,who_am_i['data'])	
+			elif who_am_i['state'] == LOGIN_STATE_OTHERDEVICE:
+				return utils.resCustom(207,who_am_i['data'])	
 
-				elif who_am_i['state'] == LOGIN_STATE_RELOGIN:				
-					return utils.resCustom(205,who_am_i['data'])
+			elif who_am_i['state'] == LOGIN_STATE_RELOGIN:				
+				return utils.resCustom(205,who_am_i['data'])
 
-				elif who_am_i['state'] == LOGIN_ERROR_INVALID:
-					return utils.resErr(LOGIN_ERROR_INVALID)
-
-			# except Exception as e:
-			# 	return utils.resErr(str(e))	
-
-			# #세션키가 존재한다면 일반로그인이다.
-			# if sessionkey != 'null':			
-			# 	try:
-			# 		result = db_manager.query(
-			# 				"SELECT * FROM USERDEVICE WHERE session_key = %s "
-			# 				,
-			# 				(sessionkey,) 						
-			# 		)
-			# 		rows = utils.fetch_all_json(result)
-			# 		if len(rows) != 0:
-			# 			return utils.resSuccess('auto login success')						
-			# 		else :
-			# 			return utils.reserr('inValid sessionKey')						
-
-			# 	except Exception as e:
-			# 		return utils.resErr(str(e))							
-
-			# #최초 회원가입할 경우.
-			# # 새로운 기기에서 등록하였을 경우.
-			# # 같은 디바이스에서 로그아웃하여 다시 접속하려고하는 경우.
-			# else:
-
-			# 	u_id = flask.request.form['uId']
-			# 	u_pw = flask.request.form['uPw']
-			# 	uuid = flask.request.form['uuid']
-
-			# 	#id pw 에 맞는 유저가 있느니 검색하는 로직이다. 
-			# 	try:
-			# 		result = db_manager.query(
-			# 				"SELECT * FROM USERACCOUNT WHERE user_id = %s AND access_token = %s "
-			# 				,
-			# 				(u_id,u_pw) 						
-			# 		)
-			# 		rows = utils.fetch_all_json(result)
-			# 	except Exception as e:
-			# 		return utils.resErr(str(e))				
-			# 	## 존재하지 않을경우 => 최초로그인
-			# 	if len(rows) == 0:
-			# 		isFirst = True
-			# 	### id pw 값이 존재할경우. => 로그아웃 이거나 다른 디바이스에서 로그인
-			# 	else :
-			# 		account_hashkey = rows[0]['account_hashkey']
-			# 		isFirst = False
-				
-			# 	print('isFirst => '+str(isFirst))
-
-			# 	#세션키가 없는경우이면 최초 로그인  로그아웃 이다
-			# 	if sessionkey == 'null' :
-			# 		print('sessioneky none')
-			# 		try:
-			# 			result = db_manager.query(
-			# 					"SELECT * FROM USERDEVICE WHERE uuid = %s "
-			# 					,
-			# 					(uuid,) 						
-			# 			)
-			# 			rows = utils.fetch_all_json(result)
-			# 		except Exception as e:
-			# 			return utils.resErr(str(e))
-			# 		#최초 회원가입인경우.
-			# 		#id/ow가 없다면 최초인경우다.
-			# 		if  isFirst == True:
-			# 			return utils.resCustom(201,'first sign up')
-					
-			# 		#uuid가 db에 없고	id/pw가 있다면 새로운 기기에서의 등록이다.
-			# 		elif len(rows)== 0 and isFirst == False:
-
-			# 			return utils.resCustom(207,{'account_hashkey':account_hashkey})	
-
-			# 		#로그아웃인 경우.
-			# 		#uuid가 존재하고, id/;pw가 있다면 로그아웃 했던경우이다.
-			# 		# 혹은 
-			# 		elif len(rows)!=0 and isFirst == False:
-			# 			return utils.resCustom(205,'u will logout')
-
+			elif who_am_i['state'] == LOGIN_ERROR_INVALID:
+				return utils.resErr(LOGIN_ERROR_INVALID)
+			
+			elif who_am_i['state'] == LOGIN_ERROR:
+				return utils.resErr(who_am_i['data'])
 			
 		elif action == 'signUp':
-			print('signup')
-			u_id = flask.request.form['uId']
-			u_pw = flask.request.form['uPw']
-			#1남자 2여자
-			gender = flask.request.form['gender']
-			birth = flask.request.form['birth']
+			
 			login_platform = flask.request.form['loginPlatform']
-			#TODO
-			#caldav_homeset = flask.request.form['caldavHomeset']
-			#googleExpireTime = flask.request.form['googleExpireTime']
+			
+			#naver 나 ical일경우, id 와 pw를 받는다.
+			if login_platform == 'naver' or login_platform == 'ical':	
+				print('naver')
+				u_id = flask.request.form['uId']
+				u_pw = flask.request.form['uPw']				
+				
 
+			elif login_platform == 'google':
+				print('google')
+				authCode = flask.request.form['authCode']
+				
+				flow = client.flow_from_clientsecrets(					
+					'./key/client_secret.json',
+					scope='https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/calendar.readonly',
+					redirect_uri='https://ssoma.xyz:55566/googleAuthCallBack'
+				)				
+				credentials = json.loads(flow.step2_exchange(authCode).to_json())
+				access_token = credentials['token_response']['access_token']
+				email = credentials['id_token']['email']
+				subject = credentials['id_token']['sub']
+
+				current_date_time = datetime.datetime.now()
+				google_expire_time = current_date_time + datetime.timedelta(seconds=credentials['token_response']['expires_in'])
+
+				
+				print('current now => '+str(datetime.datetime.now()))
+				print('credi'+str(credentials))
+				print('accessToken'+access_token)
+				print('extime'+str(google_expire_time))
+				print('extime'+str(email))
+				
+
+			gender = flask.request.form['gender']			
+			birth = flask.request.form['birth']		
 			push_token = flask.request.form['pushToken']
 			device_type = flask.request.form['deviceType']
 			app_version = flask.request.form['appVersion']
@@ -144,69 +103,54 @@ class Member(MethodView):
 			user_hashkey = utils.makeHashKey(uuid)
 			account_hashkey = utils.makeHashKey(user_hashkey)
 			device_hashkey = utils.makeHashKey(account_hashkey)
-			session_key = utils.makeHashKey(device_hashkey)
-
-			#세션관리를 위해 세션키를 키로 해시키로 매핑시킨다.
-			#로그아웃시 해당 세션키를 보내서 날린다.
-			redis.set(session_key,user_hashkey)
+			sessionkey = utils.makeHashKey(device_hashkey)
 
 			try:
-				db_manager.query(
-					"INSERT INTO USER " 
-					"(user_hashkey,user_gender,user_birth)"
-					"VALUES"
-					"(%s, %s, %s)",
-					(			
-						user_hashkey,
-						gender,
-						birth
-					)
-				)
+
+				userModel.setUser(user_hashkey,gender,birth)
 
 				#TODO
 				#calendar HomeSat
 				#google_expire_time 설정
-				db_manager.query(
-					"INSERT INTO USERACCOUNT " 
-					"(account_hashkey,user_hashkey,login_platform,user_id,access_token)"
-					"VALUES"
-					"(%s, %s, %s, %s, %s)",
-					(			
-						account_hashkey,
-						user_hashkey,
-						login_platform,
-						u_id,
-						u_pw
-					)
-				)
+				if login_platform == 'naver' or login_platform == 'ical':
+					if login_platform == 'naver':
+						hostname = 'https://caldav.calendar.naver.com/principals/users/' + str(u_id)
+					elif login_platform == 'ical':
+						hostname = 'https://caldav.icloud.com/'
 
-				#TODO
-				#calendar HomeSat
-				#google_expire_time 설정
-				db_manager.query(
-					"INSERT INTO USERDEVICE " 
-					"(device_hashkey,account_hashkey,session_key,push_token,device_type,app_version,device_info,uuid)"
-					"VALUES"
-					"(%s, %s, %s, %s, %s, %s, %s, %s)",
-					(			
-						device_hashkey,
-						account_hashkey,
-						session_key,
-						push_token,
-						device_type,
-						app_version,
-						device_info,
-						uuid
+					#클라에서 loginState확인을 거쳐온 id/pw임으로 무조건 인증된 정보이다.
+					calDavclient = CaldavClient(
+					    hostname,
+					    u_id,
+					    u_pw
 					)
-				)
+					
+					principal = calDavclient.getPrincipal()
+					homeset = principal.getHomeSet()
+					caldav_homeset = homeset.homesetUrl			
+
+					userAccountModel.setCaldavUserAccount(account_hashkey,user_hashkey,login_platform,u_id,u_pw,caldav_homeset)
+
+				elif login_platform =='google':
+					#구글에서 email이 userId로 들어간다
+					u_id = email
+					userAccountModel.setGoogleUserAccount(account_hashkey,user_hashkey,login_platform,u_id,access_token,google_expire_time,subject)
+
+				
+				#login_manager
+				userDeviceModel.setGoogleUserDevice(device_hashkey,account_hashkey,sessionkey,push_token,device_type,app_version,device_info,uuid)
+				#세션관리를 위해 세션키를 키로 해시키로 매핑시킨다.
+				#로그아웃시 해당 세션키를 보내서 날린다.
+				redis.set(sessionkey,user_hashkey)
 				return utils.resSuccess({'sessionkey':sessionkey})
 			except Exception as e:
 				return utils.resErr(str(e))		
+
 		elif action == 'registerDevice':
 			
-			account_hashkey = flask.request.form['accountHashkey']
-			device_hashkey = utils.makeHashKey(account_hashkey)
-			session_key = utils.makeHashKey(device_hashkey)
+			sessionkey = flask.request.form['sessionkey']
+			# device_hashkey = utils.makeHashKey(account_hashkey)
+			# session_key = utils.makeHashKey(device_hashkey)
 			push_token = flask.request.form['pushToken']
 			device_type = flask.request.form['deviceType']
 			app_version = flask.request.form['appVersion']
@@ -215,38 +159,16 @@ class Member(MethodView):
 			
 
 			try:
-				result = db_manager.query(
-					"SELECT * FROM USERACCOUNT " 
-					"WHERE account_hashkey = %s "
-					,
-					(									
-						account_hashkey,
-					)
-				)
-				rows = utils.fetch_all_json(result)
-				
-				if len(rows) != 0:
-					print('[redis] seeionkey = '+session_key)					
-					redis.set(session_key,str(rows[0]['user_hashkey']))
-					print('hashkey'+redis.get(session_key))
 
-				db_manager.query(
-					"INSERT INTO USERDEVICE " 
-					"(device_hashkey,account_hashkey,session_key,push_token,device_type,app_version,device_info,uuid)"
-					"VALUES"
-					"(%s, %s, %s, %s, %s, %s, %s, %s)",
-					(			
-						device_hashkey,
-						account_hashkey,
-						session_key,
-						push_token,
-						device_type,
-						app_version,
-						device_info,
-						uuid
-					)
-				)
-				return utils.resSuccess({'sessionkey':session_key})
+				rows = userDeviceModel.getUserHashkey(sessionkey)
+
+				if len(rows) != 0:
+					print('save redis hashkey '+str(rows[0]['user_hashkey']))
+					redis.set(sessionkey,str(rows[0]['user_hashkey']))
+				
+
+				userDeviceModel.updateUserDevice(push_token,device_type,app_version,device_info,uuid,sessionkey)
+				return utils.resSuccess({'sessionkey':sessionkey})
 			except Exception as e:
 				return utils.resErr(str(e))		
 
@@ -255,15 +177,7 @@ class Member(MethodView):
 			sessionkey = flask.request.form['sessionkey']
 
 			try:
-				db_manager.query(
-					"UPDATE USERDEVICE SET push_token = %s " 
-					"WHERE session_key = %s "
-					,
-					(			
-						push_token,
-						sessionkey,						
-					)
-				)
+				userDeviceModel.updatePushToken(push_token,sessionkey)
 				return utils.resSuccess('success')
 			except Exception as e:
 				return utils.resErr(str(e))		
@@ -274,14 +188,9 @@ class Member(MethodView):
 		elif action == 'logout':
 			sessionkey = flask.request.form['sessionkey']
 			try:
-				db_manager.query(
-					"UPDATE USERDEVICE " 
-					"SET session_key = null, is_active = 0 "
-					"WHERE session_key = %s",
-					(									
-						sessionkey,						
-					)
-				)	
+			
+				userDeviceModel.logout(sessionkey)
+
 				print('[redis]exist sessionkey result => '+ str(redis.get(sessionkey)))
 				redis.delete(sessionkey)
 				print('[redis]remvoe sessionkey! result=> '+str(redis.get(sessionkey)))

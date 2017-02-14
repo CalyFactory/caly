@@ -31,9 +31,42 @@ from flask import render_template
 app = flask.Flask(__name__, static_url_path='')
 
 initRoute(app)
+
+
 # print(utils.makeHashKey('test'))
+# from caldavclient import CaldavClient
+
+# client = CaldavClient(
+#     'https://caldav.calendar.naver.com/principals/users/kkk1140' ,
+#     'kkk1140',
+#     'tkdaud123'
+# )
+
+# principal = client.getPrincipal()
+# homeset = principal.getHomeSet()
+# calendars = homeset.getCalendars()
 
 
+# arrQueryString = []
+# arrQueryString.append('INSERT INTO CALENDAR (calendar_hashkey,account_hashkey,calendar_id,calendar_name,caldav_calendar_url,caldav_ctag) values ')
+# for calendar in calendars:
+# 	arrQueryString.append('(calhash,accoutHash"' + calendar.calendarId + '","'+ calendar.calendarName+'","'+calendar.calendarUrl+'","'+calendar.cTag+ '")')
+# 	arrQueryString.append(',')
+
+# arrQueryString.pop()
+# lastQuery = "".join(arrQueryString)
+
+# print('string=>'+str(lastQuery))
+
+# db_manager.query(
+# 						"SELECT * FROM USERACCOUNT WHERE subject = %s "
+# 						,
+# 						(subject,) 						
+# # 				)	
+# db_manager.query(
+# 						arrQueryString
+						
+# 				)					
 
 ##############
 #  테스트요청	 #
