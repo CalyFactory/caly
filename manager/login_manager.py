@@ -7,6 +7,7 @@ from common.util import utils
 from common.util.statics import *
 
 from caldavclient import CaldavClient
+from common import caldavWrapper
 import base64
 from common import gAPI
 import datetime
@@ -45,22 +46,22 @@ def checkLoginState(flask):
 			u_id = flask.request.form['uId']
 			u_pw = flask.request.form['uPw']
 				
-			if login_platform == 'naver':
-				hostname = 'https://caldav.calendar.naver.com/principals/users/' + str(u_id)
-			elif login_platform == 'ical':
-				hostname = 'https://caldav.icloud.com/'
+			# if login_platform == 'naver':
+			# 	hostname = 'https://caldav.calendar.naver.com/principals/users/' + str(u_id)
+			# elif login_platform == 'ical':
+			# 	hostname = 'https://caldav.icloud.com/'
 
-			client = CaldavClient(
-			    hostname,
-			    u_id,
-			    u_pw
-			)
-
+			# client = CaldavClient(
+			#     hostname,
+			#     u_id,
+			#     u_pw
+			# )
+			calDavclient = caldavWrapper.getCalDavClient(login_platform,u_id,u_pw)
 			#FIXME!!! 
 			#현재 로그인 실해일 경우 에러가 나서 유효하지않은 id/pw일것이다.
 			#이를 에러가 아니라 특정 정보를 주어야한다. 400 msg 와 같이말이다.
 			try:
-				principal = client.getPrincipal()				
+				principal = calDavclient.getPrincipal()				
 			except Exception as e:
 				return utils.loginState(LOGIN_ERROR,'invalid id/pw')
 			

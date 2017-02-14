@@ -1,8 +1,17 @@
 from route.googleAuth import GoogleAuth
 from route.schedule import Schedule
 from route.member import Member
+from route.sync import Sync
 
 def initRoute(app):
+	sync = Sync.as_view('sync')
+	app.add_url_rule(
+						'/v1.0/sync',
+						defaults = {'action':'sync'},
+						view_func = sync, 
+						methods = ['POST', ]
+					)
+
 	member = Member.as_view('member')
 	app.add_url_rule(
 						'/v1.0/member/loginCheck',

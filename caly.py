@@ -11,7 +11,7 @@ from oauth2client import client
 from manager import db_manager
 from manager import network_manager
 
-from flask import redirect, url_for,session
+
 
 from juggernaut import Juggernaut
 
@@ -19,6 +19,7 @@ import urllib
 
 
 from common.util import utils
+
 #route 안에 googleAuth파일로 들어가서 클래스인 GoogleAuth를 임포트하겠다.
 from route.googleAuth import GoogleAuth
 from route.schedule import Schedule
@@ -26,51 +27,34 @@ from route.schedule import Schedule
 from route.routes import initRoute
 from manager.redis import redis
 from flask import render_template
-
+from flask import redirect, url_for,session
 
 app = flask.Flask(__name__, static_url_path='')
 
 initRoute(app)
+# from common import caldavWrapper
+# # caldavWrapper
+# wrap = caldavWrapper.caldavWrapper('foo')
+# x=caldavWrapper.caldavWrapper('sausage')
+# y=caldavWrapper.caldavWrapper('eggs')
+# z=caldavWrapper.caldavWrapper('spam')
+# print(x)
+# print(y)
+# print(z)
+# print(x is y is z)
 
+# caldavWrapper('20')
 
 # print(utils.makeHashKey('test'))
-# from caldavclient import CaldavClient
-
-# client = CaldavClient(
-#     'https://caldav.calendar.naver.com/principals/users/kkk1140' ,
-#     'kkk1140',
-#     'tkdaud123'
-# )
-
-# principal = client.getPrincipal()
-# homeset = principal.getHomeSet()
-# calendars = homeset.getCalendars()
-
-
-# arrQueryString = []
-# arrQueryString.append('INSERT INTO CALENDAR (calendar_hashkey,account_hashkey,calendar_id,calendar_name,caldav_calendar_url,caldav_ctag) values ')
-# for calendar in calendars:
-# 	arrQueryString.append('(calhash,accoutHash"' + calendar.calendarId + '","'+ calendar.calendarName+'","'+calendar.calendarUrl+'","'+calendar.cTag+ '")')
-# 	arrQueryString.append(',')
-
-# arrQueryString.pop()
-# lastQuery = "".join(arrQueryString)
-
-# print('string=>'+str(lastQuery))
-
-# db_manager.query(
-# 						"SELECT * FROM USERACCOUNT WHERE subject = %s "
-# 						,
-# 						(subject,) 						
-# # 				)	
-# db_manager.query(
-# 						arrQueryString
-						
-# 				)					
 
 ##############
 #  테스트요청	 #
 ##############
+# from common import caldavWrapper
+@app.route('/caldavTest')
+def caldavTest():
+	caldavWrapper.updateCal()
+	return 'hi'
 
 def event_stream():
     pubsub = redis.pubsub()
