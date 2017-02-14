@@ -177,15 +177,6 @@ class Member(MethodView):
 			sessionkey = flask.request.form['sessionkey']
 
 			try:
-				# db_manager.query(
-				# 	"UPDATE USERDEVICE SET push_token = %s " 
-				# 	"WHERE session_key = %s "
-				# 	,
-				# 	(			
-				# 		push_token,
-				# 		sessionkey,						
-				# 	)
-				# )
 				userDeviceModel.updatePushToken(push_token,sessionkey)
 				return utils.resSuccess('success')
 			except Exception as e:
