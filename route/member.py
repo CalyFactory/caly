@@ -11,7 +11,6 @@ from common.util import utils
 from manager import db_manager
 import flask
 from common.util import utils
-from common import gAPI
 from manager.redis import redis
 from manager import login_manager
 from manager import network_manager
@@ -20,8 +19,12 @@ import json
 import datetime
 
 from caldavclient import CaldavClient
+from oauth2client import client
 
 
+from model import userDeviceModel
+from model import userAccountModel
+from model import userModel
 # yenos
 # 유저의관한 api 리스트이다.
 class Member(MethodView):
@@ -56,117 +59,55 @@ class Member(MethodView):
 		elif action == 'signUp':
 			
 			login_platform = flask.request.form['loginPlatform']
+			
+			#naver 나 ical일경우, id 와 pw를 받는다.
+			if login_platform == 'naver' or login_platform == 'ical':	
+				print('naver')
+				u_id = flask.request.form['uId']
+				u_pw = flask.request.form['uPw']				
+				
+
+			elif login_platform == 'google':
+				print('google')
+				authCode = flask.request.form['authCode']
+				
+				flow = client.flow_from_clientsecrets(					
+					'./key/client_secret.json',
+					scope='https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/calendar.readonly',
+					redirect_uri='https://ssoma.xyz:55566/googleAuthCallBack'
+				)				
+				credentials = json.loads(flow.step2_exchange(authCode).to_json())
+				access_token = credentials['token_response']['access_token']
+				email = credentials['id_token']['email']
+				subject = credentials['id_token']['sub']
+
+				current_date_time = datetime.datetime.now()
+				google_expire_time = current_date_time + datetime.timedelta(seconds=credentials['token_response']['expires_in'])
+
+				
+				print('current now => '+str(datetime.datetime.now()))
+				print('credi'+str(credentials))
+				print('accessToken'+access_token)
+				print('extime'+str(google_expire_time))
+				print('extime'+str(email))
+				
+
 			gender = flask.request.form['gender']			
 			birth = flask.request.form['birth']		
 			push_token = flask.request.form['pushToken']
 			device_type = flask.request.form['deviceType']
 			app_version = flask.request.form['appVersion']
 			device_info = flask.request.form['deviceInfo']
+			uuid = flask.request.form['uuid']
 
-
-			#naver 나 ical일경우, id 와 pw를 받는다.
-			if login_platform == 'naver' or login_platform == 'ical':	
-				print('naver')
-				u_id = flask.request.form['uId']
-				u_pw = flask.request.form['uPw']	
-				uuid = flask.request.form['uuid']
-				user_hashkey = utils.makeHashKey(uuid)
-				account_hashkey = utils.makeHashKey(user_hashkey)
-				device_hashkey = utils.makeHashKey(account_hashkey)
-				session_key = utils.makeHashKey(device_hashkey)
-
-				#구글일경우 authcode작업하면서 미리 업데이트해놓는다.
-				try:
-					db_manager.query(
-						"INSERT INTO USER " 
-						"(user_hashkey,user_gender,user_birth)"
-						"VALUES"
-						"(%s, %s, %s)",
-						(			
-							user_hashkey,
-							gender,
-							birth
-						)
-					)
-				except Exception as e:
-					return utils.resErr(str(e))		
-
-				
-
-			elif login_platform == 'google':
-				print('google')
-				sessionkey = flask.request.form['sessionkey']
-				#google인증일때는 세션키가 필요하다.				
-				result = db_manager.query(
-					"SELECT user_hashkey from USERDEVICE " +				
-					"INNER JOIN USERACCOUNT on USERDEVICE.account_hashkey = USERACCOUNT.account_hashkey " +					
-					"WHERE USERDEVICE.session_key = %s "
-					,
-					(									
-						sessionkey,
-					)
-				)
-				rows = utils.fetch_all_json(result)
-
-				if len(rows) != 0:
-					user_hashkey = rows[0]['user_hashkey']
-				
-			
-				db_manager.query(
-					"UPDATE USER " 
-					"SET user_gender = %s, "
-					"user_birth = %s "
-					"WHERE user_hashkey = %s "
-					,
-					(			
-						gender,birth,user_hashkey
-					)
-				)				
-				db_manager.query(
-					"UPDATE USERDEVICE " 
-					"SET push_token = %s, "
-					"device_type = %s, "
-					"app_version = %s, "
-					"device_info = %s "					
-					"WHERE session_key = %s "
-					,
-					(			
-						push_token,device_type,app_version,device_info,sessionkey
-					)
-				)				
-				# authCode = flask.request.form['authCode']
-
-				# credentials = gAPI.getOauthCredentials(authCode)				
-
-				# access_token = credentials['token_response']['access_token']
-				# email = credentials['id_token']['email']
-				# subject = credentials['id_token']['sub']
-
-				# current_date_time = datetime.datetime.now()
-				# google_expire_time = current_date_time + datetime.timedelta(seconds=credentials['token_response']['expires_in'])
-
-				
-				# print('current now => '+str(datetime.datetime.now()))
-				# print('credi'+str(credentials))
-				# print('accessToken'+access_token)
-				# print('extime'+str(google_expire_time))
-				# print('extime'+str(email))
-				
-				#유저정보를 가져올 필요가없다 => 성별을 선택으로 받도록 하기 위해.
-				# URL = 'https://www.googleapis.com/oauth2/v1/userinfo'		
-				# res = network_manager.reqGET(URL,access_token)
-				# print('userInfo = '+res)
-				# user_gender = json.loads(res)['gender']				
-				# print('user_gender = '+user_gender)
-				# if user_gender == 'male':	
-				# 	gender = 1
-				# elif user_gender == 'female':
-				# 	gender = 2
-
-
-			
+			user_hashkey = utils.makeHashKey(uuid)
+			account_hashkey = utils.makeHashKey(user_hashkey)
+			device_hashkey = utils.makeHashKey(account_hashkey)
+			sessionkey = utils.makeHashKey(device_hashkey)
 
 			try:
+
+				userModel.setUser(user_hashkey,gender,birth)
 
 				#TODO
 				#calendar HomeSat
@@ -184,66 +125,23 @@ class Member(MethodView):
 					    u_pw
 					)
 					
-					caldav_homeset = calDavclient.getPrincipal()
+					principal = calDavclient.getPrincipal()
 					homeset = principal.getHomeSet()
 					caldav_homeset = homeset.homesetUrl			
 
-					db_manager.query(
-						"INSERT INTO USERACCOUNT " 
-						"(account_hashkey,user_hashkey,login_platform,user_id,access_token,caldav_homeset)"
-						"VALUES"
-						"(%s, %s, %s, %s, %s, %s)",
-						(			
-							account_hashkey,
-							user_hashkey,
-							login_platform,
-							u_id,
-							u_pw,
-							caldav_homeset
-						)
-					)
-					db_manager.query(
-						"INSERT INTO USERDEVICE " 
-						"(device_hashkey,account_hashkey,session_key,push_token,device_type,app_version,device_info,uuid)"
-						"VALUES"
-						"(%s, %s, %s, %s, %s, %s, %s, %s)",
-						(			
-							device_hashkey,
-							account_hashkey,
-							session_key,
-							push_token,
-							device_type,
-							app_version,
-							device_info,
-							uuid
-						)
-					)					
-					redis.set(session_key,user_hashkey)
-				# elif login_platform =='google':
+					userAccountModel.setCaldavUserAccount(account_hashkey,user_hashkey,login_platform,u_id,u_pw,caldav_homeset)
+
+				elif login_platform =='google':
 					#구글에서 email이 userId로 들어간다
-					# u_id = email
-					# db_manager.query(
-					# 		"INSERT INTO USERACCOUNT " 
-					# 		"(account_hashkey,user_hashkey,login_platform,user_id,access_token,google_expire_time,subject)"
-					# 		"VALUES"
-					# 		"(%s, %s, %s, %s, %s, %s, %s)",
-					# 		(			
-					# 			account_hashkey,
-					# 			user_hashkey,
-					# 			login_platform,
-					# 			u_id,
-					# 			access_token,
-					# 			google_expire_time,
-					# 			subject
-					# 		)
-					# 	)
-					
+					u_id = email
+					userAccountModel.setGoogleUserAccount(account_hashkey,user_hashkey,login_platform,u_id,access_token,google_expire_time,subject)
 
-
-
+				
+				#login_manager
+				userDeviceModel.setGoogleUserDevice(device_hashkey,account_hashkey,sessionkey,push_token,device_type,app_version,device_info,uuid)
 				#세션관리를 위해 세션키를 키로 해시키로 매핑시킨다.
 				#로그아웃시 해당 세션키를 보내서 날린다.
-				
+				redis.set(sessionkey,user_hashkey)
 				return utils.resSuccess({'sessionkey':sessionkey})
 			except Exception as e:
 				return utils.resErr(str(e))		
@@ -262,41 +160,14 @@ class Member(MethodView):
 
 			try:
 
-				#usder hashkey 를 받아내는 과정
-				result = db_manager.query(
-					"SELECT user_hashkey from USERDEVICE " +				
-					"INNER JOIN USERACCOUNT on USERDEVICE.account_hashkey = USERACCOUNT.account_hashkey " +					
-					"WHERE USERDEVICE.session_key = %s "
-					,
-					(									
-						sessionkey,
-					)
-				)
-				rows = utils.fetch_all_json(result)
+				rows = userDeviceModel.getUserHashkey(sessionkey)
 
 				if len(rows) != 0:
 					print('save redis hashkey '+str(rows[0]['user_hashkey']))
 					redis.set(sessionkey,str(rows[0]['user_hashkey']))
 				
 
-				db_manager.query(
-					"UPDATE USERDEVICE " +				
-					"SET push_token = %s, " +
-					"device_type = %s, " +
-					"app_version = %s, " +
-					"device_info = %s, " +
-					"uuid = %s " +
-					"WHERE session_key = %s "
-					,
-					(									
-						push_token,
-						device_type,
-						app_version,
-						device_info,
-						uuid,
-						sessionkey
-					)
-				)
+				userDeviceModel.updateUserDevice(push_token,device_type,app_version,device_info,uuid,sessionkey)
 				return utils.resSuccess({'sessionkey':sessionkey})
 			except Exception as e:
 				return utils.resErr(str(e))		
@@ -306,15 +177,16 @@ class Member(MethodView):
 			sessionkey = flask.request.form['sessionkey']
 
 			try:
-				db_manager.query(
-					"UPDATE USERDEVICE SET push_token = %s " 
-					"WHERE session_key = %s "
-					,
-					(			
-						push_token,
-						sessionkey,						
-					)
-				)
+				# db_manager.query(
+				# 	"UPDATE USERDEVICE SET push_token = %s " 
+				# 	"WHERE session_key = %s "
+				# 	,
+				# 	(			
+				# 		push_token,
+				# 		sessionkey,						
+				# 	)
+				# )
+				userDeviceModel.updatePushToken(push_token,sessionkey)
 				return utils.resSuccess('success')
 			except Exception as e:
 				return utils.resErr(str(e))		
@@ -325,14 +197,9 @@ class Member(MethodView):
 		elif action == 'logout':
 			sessionkey = flask.request.form['sessionkey']
 			try:
-				db_manager.query(
-					"UPDATE USERDEVICE " 
-					"SET session_key = null, is_active = 0 "
-					"WHERE session_key = %s",
-					(									
-						sessionkey,						
-					)
-				)	
+			
+				userDeviceModel.logout(sessionkey)
+
 				print('[redis]exist sessionkey result => '+ str(redis.get(sessionkey)))
 				redis.delete(sessionkey)
 				print('[redis]remvoe sessionkey! result=> '+str(redis.get(sessionkey)))
