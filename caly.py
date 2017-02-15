@@ -33,8 +33,8 @@ from common import redisSession
 app = flask.Flask(__name__, static_url_path='')
 
 initRoute(app)
-print(utils.makeHashKey('hi'))
-print(utils.makeHashKey('hi'))
+# jungsungyung@gmail.com
+
 
 
 ##############
@@ -108,7 +108,7 @@ if __name__ == '__main__':
 	app.session_interface = redisSession.RedisSessionInterface()
 	
 	
-	# app.permanent_session_lifetime = timedelta(seconds=3600)
+		# app.permanent_session_lifetime = timedelta(seconds=3600)
 
 	ssl_context = ('./key/last.crt', './key/ssoma.key')
 	app.run(host='0.0.0.0', debug = True, port = 55566, ssl_context = ssl_context,threaded=True)

@@ -197,18 +197,26 @@ class Member(MethodView):
 		elif action == 'checkVersion':
 			app_version = flask.request.form['app_version']
 			sessionkey = flask.request.form['sessionkey']
-			userDeviceModel.setVersion(sessionkey,app_version)
 
+			session['hi'] = 'val'
+			print(session['hi'])
+			session.pop('hi',None)
+					
 
-
+			try:				
+				userDeviceModel.setVersion(sessionkey,app_version)
+				return utils.resSuccess('successd')
+			except Exception as e:
+				return utils.resErr(str(e))				
+			
 		elif action == 'logout':
 			sessionkey = flask.request.form['sessionkey']
 			try:
 			
 				userDeviceModel.logout(sessionkey)
-
 				print('[redis]exist sessionkey result => '+ str(redis.get(sessionkey)))
-				redis.delete(sessionkey)
+				session.pop[sessionkey]
+				
 				print('[redis]remvoe sessionkey! result=> '+str(redis.get(sessionkey)))
 				
 				return utils.resSuccess('logout success')

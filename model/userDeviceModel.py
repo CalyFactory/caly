@@ -122,7 +122,7 @@ def setVersion(sessionkey,app_version):
 					"SET app_version = %s "
 					"WHERE session_key = %s",
 					(									
-						sessionkey,app_version					
+						app_version,sessionkey					
 					)
 				)	
 
