@@ -10,12 +10,16 @@ resCustom = lambda code,payload : json.dumps({'code':code,'payload':payload})
 loginState = lambda state,data : {'state':state,'data':data}
 
 def makeHashKey(solt):
-	soltt = str(solt)+str(int(time.time()))
+	soltt = str(solt)+str(time.time()*1000)
+	print(soltt)
 	soltt = soltt.encode('utf-8')
 	return hashlib.sha224(soltt).hexdigest()
-	# m = hashlib.md5()
-	# m.update(soltt)
-	# return m.digest().decode('')
+
+def makeHashKeyNoneTime(solf):
+
+	soltt = str(solt+'secrettskkey')
+	soltt = soltt.encode('utf-8')
+	return hashlib.sha224(soltt).hexdigest()
 
 def fetch_all_json(result):
 	lis = []

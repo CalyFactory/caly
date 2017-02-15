@@ -9,7 +9,6 @@ from common.util.statics import *
 from caldavclient import CaldavClient
 from common import caldavWrapper
 import base64
-from common import gAPI
 import datetime
 
 from model import userDeviceModel

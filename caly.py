@@ -28,24 +28,14 @@ from route.routes import initRoute
 from manager.redis import redis
 from flask import render_template
 from flask import redirect, url_for,session
+from common import redisSession
 
 app = flask.Flask(__name__, static_url_path='')
 
 initRoute(app)
-# from common import caldavWrapper
-# # caldavWrapper
-# wrap = caldavWrapper.caldavWrapper('foo')
-# x=caldavWrapper.caldavWrapper('sausage')
-# y=caldavWrapper.caldavWrapper('eggs')
-# z=caldavWrapper.caldavWrapper('spam')
-# print(x)
-# print(y)
-# print(z)
-# print(x is y is z)
+print(utils.makeHashKey('hi'))
+print(utils.makeHashKey('hi'))
 
-# caldavWrapper('20')
-
-# print(utils.makeHashKey('test'))
 
 ##############
 #  테스트요청	 #
@@ -97,13 +87,15 @@ def test_fetchFire():
 def stopNoti():
 	channel_id = flask.request.args.get('channel_id')		
 	resource_id = flask.request.args.get('resource_id')		
+	access_token = flask.request.args.get('access_token')		
+
 	URL = 'https://www.googleapis.com/calendar/v3/channels/stop'
 	body = {
 		"id" : channel_id,
   		"resourceId": resource_id
 	}	
 	# print(network_manager.reqPOST(URL,body))
-	return network_manager.reqPOST(URL,body) 
+	return network_manager.reqPOST(URL,access_token,body) 
 
 
 
@@ -113,6 +105,9 @@ if __name__ == '__main__':
 	#session사용응ㄹ 위해선 secret_key가 존재해야한다.	
 	# md5를 사용한다고합니다 uuid4
 	app.secret_key = str(uuid.uuid4())	
+	app.session_interface = redisSession.RedisSessionInterface()
+	
+	
 	# app.permanent_session_lifetime = timedelta(seconds=3600)
 
 	ssl_context = ('./key/last.crt', './key/ssoma.key')

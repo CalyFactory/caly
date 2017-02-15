@@ -18,9 +18,11 @@ from manager import network_manager
 from common.util.statics import *
 import json
 import datetime
+from flask import session
 
 from caldavclient import CaldavClient
 from oauth2client import client
+from common import gAPI
 
 
 from model import userDeviceModel
@@ -71,13 +73,14 @@ class Member(MethodView):
 			elif login_platform == 'google':
 				print('google')
 				authCode = flask.request.form['authCode']
-				
-				flow = client.flow_from_clientsecrets(					
-					'./key/client_secret.json',
-					scope='https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/calendar.readonly',
-					redirect_uri='https://ssoma.xyz:55566/googleAuthCallBack'
-				)				
-				credentials = json.loads(flow.step2_exchange(authCode).to_json())
+				# gAPI.getOauthCredentials(authCode)
+				# flow = client.flow_from_clientsecrets(					
+				# 	'./key/client_secret.json',
+				# 	scope='https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/calendar.readonly',
+				# 	redirect_uri='https://ssoma.xyz:55566/googleAuthCallBack'
+				# )				
+				# # credentials = json.loads(flow.step2_exchange(authCode).to_json())
+				credentials = gAPI.getOauthCredentials(authCode)
 				access_token = credentials['token_response']['access_token']
 				email = credentials['id_token']['email']
 				subject = credentials['id_token']['sub']
@@ -143,7 +146,9 @@ class Member(MethodView):
 				userDeviceModel.setGoogleUserDevice(device_hashkey,account_hashkey,sessionkey,push_token,device_type,app_version,device_info,uuid)
 				#세션관리를 위해 세션키를 키로 해시키로 매핑시킨다.
 				#로그아웃시 해당 세션키를 보내서 날린다.
-				redis.set(sessionkey,user_hashkey)
+				# redis.set(sessionkey,user_hashkey)
+				session[sessionkey] = user_hashkey
+
 				return utils.resSuccess({'sessionkey':sessionkey})
 			except Exception as e:
 				return utils.resErr(str(e))		
@@ -166,7 +171,9 @@ class Member(MethodView):
 
 				if len(rows) != 0:
 					print('save redis hashkey '+str(rows[0]['user_hashkey']))
+
 					redis.set(sessionkey,str(rows[0]['user_hashkey']))
+					session[sessionkey] = str(rows[0]['user_hashkey'])
 				
 
 				userDeviceModel.updateUserDevice(push_token,device_type,app_version,device_info,uuid,sessionkey)
@@ -187,6 +194,13 @@ class Member(MethodView):
 			#로그아웃에선 레디스에서 해당 세션키를 날리고, is_active 를 false로
 			#서버에서도 날려준다음
 			#로그서버에 해당 사항을 저장해준다.
+		elif action == 'checkVersion':
+			app_version = flask.request.form['app_version']
+			sessionkey = flask.request.form['sessionkey']
+			userDeviceModel.setVersion(sessionkey,app_version)
+
+
+
 		elif action == 'logout':
 			sessionkey = flask.request.form['sessionkey']
 			try:
