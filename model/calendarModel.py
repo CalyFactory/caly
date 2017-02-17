@@ -54,5 +54,12 @@ def getHashkey(channel_id):
 					,(channel_id,)
 				)		
 			)		
-
-# 
+#sync
+def getLatestSyncToken(calendar_hashkey):
+	return utils.fetch_all_json(
+				db_manager.query(
+					"select * from CALENDAR left join SYNC on SYNC.calendar_hashkey = CALENDAR.calendar_hashkey  where SYNC.calendar_hashkey = %s order by SYNC.ctime desc limit 1"
+					,(calendar_hashkey,)
+				)	
+			)	 
+	

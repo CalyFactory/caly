@@ -2,10 +2,19 @@ from route.googleAuth import GoogleAuth
 from route.schedule import Schedule
 from route.member import Member
 from route.sync import Sync
+from route.events import Events
 
 def initRoute(app):
-	sync = Sync.as_view('sync')
+	events = Events.as_view('events')	
+	app.add_url_rule(
+						'/v1.0/events/getList',
+						defaults = {'action':'getList'},
+						view_func = events, 
+						methods = ['POST', ]
+					)
 	
+
+	sync = Sync.as_view('sync')	
 	app.add_url_rule(
 						'/v1.0/sync',
 						defaults = {'action':'sync'},

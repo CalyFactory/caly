@@ -1,3 +1,7 @@
+#-*- coding: utf-8 -*-
+# author : yenos
+# describe : sync로직을 담당하는 api이다.
+
 from flask.views import MethodView
 import flask
 from manager.redis import redis
@@ -27,10 +31,6 @@ class Sync(MethodView):
 			# session['key'] = '123'
 
 			sessionkey = flask.request.form['sessionkey']
-			# session[sessionkey] = 'cd303e159f5e37a7724e760915b3171ea257445169094a31d31a25c9'
-			print(session[sessionkey])
-
-			# redis.set(sessionkey,'cd303e159f5e37a7724e760915b3171ea257445169094a31d31a25c9')
 			#세션키에대한 해시키를 가져온다.
 			user_hashkey = session[sessionkey]
 			print('hashekuy = >'+session[sessionkey])
@@ -86,21 +86,108 @@ class Sync(MethodView):
 			account = calendarModel.getHashkey(channelId)
 			#해당채널아이다로 가지고있는 것을 찾고
 			rows = calendarModel.getCalendar(channelId)
+			print(rows)
+
+			if len(rows) != 0:
 			#해당 푸시컴프리트 값을 1로 바꿔준다.(푸시가 잘왔으니까.)
-			if len(rows) != 0 and rows[0]['google_push_complete'] == 0 and state == 'sync':
-				calendarModel.updatePushComplete(channelId)
-				# event를세팅해준다.
+			
+				if len(rows) != 0 and rows[0]['google_push_complete'] == 0 and state == 'sync':
+					calendarModel.updatePushComplete(channelId)
+					# event를세팅해준다.
 
-				for row in rows:	
-					#최초 요청은 nextPageToken이 존재하지 않는다.
+					for row in rows:	
+						#최초 요청은 nextPageToken이 존재하지 않는다.
+						body = {
+									'maxResults': 10
+								}
+						calendar_hashkey = str(row['calendar_hashkey']);
+						calendar_id = str(row['calendar_id']);
+						print(calendar_id)
+						self.reqEventsList(account[0]['access_token'],calendar_hashkey,calendar_id,body)				
+				else:
+					
+					calendar_hashkey = str(rows[0]['calendar_hashkey'])
+					calendar_id = str(rows[0]['calendar_id'])
+					print('call change!')
+					#가장 최근의 sync토큰을 가져온다.
+					row = calendarModel.getLatestSyncToken(calendar_hashkey)
+					
+					sync_token = row[0]['sync_token'];
+					calendar_hashkey = row[0]['calendar_hashkey'];
+					calendar_id = row[0]['calendar_id'];
+
+					print('synctoke = >'+sync_token)
+					print('calendar_id = >'+calendar_id)				
+
+					
+					URL = 'https://www.googleapis.com/calendar/v3/calendars/'+urllib.request.pathname2url(calendar_id)+'/events'
 					body = {
-								'maxResults': 10
-							}
-					calendar_hashkey = str(row['calendar_hashkey']);
-					calendar_id = str(row['calendar_id']);
-					print(calendar_id)
-					self.reqEventsList(account[0]['access_token'],calendar_hashkey,calendar_id,body)				
+						'syncToken':sync_token
+					}
+					res = json.loads(network_manager.reqGET(URL,account[0]['access_token'],body))				
+					print(res)
+					print(res['items'])
 
+					next_sync_token = res['nextSyncToken']								
+					syncModel.setSync(calendar_hashkey,next_sync_token)			
+
+					#기본적으로 아이템에 값이 있어야한다.
+					if len(res['items']) != 0:					
+
+						for item in res['items']:
+							
+							# add/update/delete 모든 공통적인부분 id를 가진다.
+							event_id = item['id']
+							status = item['status']
+							location = 'noLocation'
+							if('location' in item):
+								location = item['location']													
+
+							#삭제는 아래와같은 키값들을 제공해주지 않는다.
+							if status != 'cancelled':
+							#confirmed, canceled							
+								created = item['created']
+								updated = item['updated']					
+								print('created => '+ created)
+								print('updated => '+ updated)
+								created = created[:len(created)-5]
+								updated = updated[:len(updated)-5]	
+								summary = 'noTitle'
+								if('summary' in item):												
+									summary = item['summary']
+								print('created => '+ created)
+								print('updated => '+ updated)
+								print('status => '+ status)
+							
+							# 만들어진 경우 or 수정일 경우이다.
+							# created 와 updated가 같은경우 추가한경우다
+							# 아예 instrt해주면된다.
+								if('date' in item['start'] ):					
+									start_date = item['start']['date']
+									end_date = item['end']['date']
+
+								elif('dateTime' in item['start']):		
+									start_date = utils.date_utc_to_current(str(item['start']['dateTime']))
+									end_date = utils.date_utc_to_current(str(item['end']['dateTime']))					
+
+							if status == 'confirmed' and created == updated:
+								print('add events')
+								event_hashkey = utils.makeHashKey(event_id)
+
+								eventModel.setEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location)
+					
+							#업데이트 한 경우이다. 
+							#id값을 찾아서 변환된값을 바꿔준다.
+							elif status =='confirmed' and created != updated:
+								print("updated!!")
+								# update events set calendar_id = 'testid', summary = 'sum' where id = '67'
+								eventModel.updateEvents(summary,start_date,end_date,created,updated,location,event_id)
+							
+
+							elif status == 'cancelled':
+								print('cancelled!')							
+								eventModel.deleteEvents(event_id)
+								
 						
 			return 'hi'
 
@@ -140,7 +227,7 @@ class Sync(MethodView):
 			created = str(item['created'])[:-1]
 			updated = str(item['updated'])[:-1]
 			event_hashkey = utils.makeHashKey(event_id)
-			eventModel.getCaldavUserAccount(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location)
+			eventModel.setEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location)
 
 
 
@@ -155,5 +242,5 @@ class Sync(MethodView):
 		else :
 			print('sync==>'+res['nextSyncToken'])
 			syncToken = res['nextSyncToken']
-			syncModel.setSync(calendar_id,syncToken)
+			syncModel.setSync(calendar_hashkey,syncToken)
 		
