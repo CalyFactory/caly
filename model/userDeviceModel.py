@@ -108,7 +108,7 @@ def updatePushToken(push_token,sessionkey):
 				)	
 #logout				
 def logout(sessionkey):
-	return 				db_manager.query(
+	return 	db_manager.query(
 					"UPDATE USERDEVICE " 
 					"SET session_key = null, is_active = 0 "
 					"WHERE session_key = %s",
@@ -116,3 +116,13 @@ def logout(sessionkey):
 						sessionkey,						
 					)
 				)	
+def setVersion(sessionkey,app_version):
+	return 	db_manager.query(
+					"UPDATE USERDEVICE " 
+					"SET app_version = %s "
+					"WHERE session_key = %s",
+					(									
+						app_version,sessionkey					
+					)
+				)	
+

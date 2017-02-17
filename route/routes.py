@@ -2,15 +2,32 @@ from route.googleAuth import GoogleAuth
 from route.schedule import Schedule
 from route.member import Member
 from route.sync import Sync
+from route.events import Events
 
 def initRoute(app):
-	sync = Sync.as_view('sync')
+	events = Events.as_view('events')	
+	app.add_url_rule(
+						'/v1.0/events/getList',
+						defaults = {'action':'getList'},
+						view_func = events, 
+						methods = ['POST', ]
+					)
+	
+
+	sync = Sync.as_view('sync')	
 	app.add_url_rule(
 						'/v1.0/sync',
 						defaults = {'action':'sync'},
 						view_func = sync, 
 						methods = ['POST', ]
 					)
+	app.add_url_rule(
+						'/v1.0/sync/watchReciver',
+						defaults = {'action':'watchReciver'},
+						view_func = sync, 
+						methods = ['POST', ]
+					)
+
 
 	member = Member.as_view('member')
 	app.add_url_rule(
@@ -40,6 +57,12 @@ def initRoute(app):
 	app.add_url_rule(
 						'/v1.0/member/logout',
 						defaults = {'action':'logout'},
+						view_func = member, 
+						methods = ['POST', ]
+					)
+	app.add_url_rule(
+						'/v1.0/member/checkVersion',
+						defaults = {'action':'checkVersion'},
 						view_func = member, 
 						methods = ['POST', ]
 					)

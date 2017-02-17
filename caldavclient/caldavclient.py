@@ -1,12 +1,13 @@
 from caldavclient import static
 from xml.etree.ElementTree import *
 from caldavclient import util
+import jicson
 
 class CaldavClient:
 
-    def __init__(self, hostname, id, pw):
+    def __init__(self, hostname, auth = None):
         self.hostname = hostname
-        self.auth = (id, pw)
+        self.auth = auth
         self.principal = None
     
     def getPrincipal(self):
@@ -195,7 +196,62 @@ class CaldavClient:
             if self.eventList is None:
                 self.updateAllEvent()
             return self.eventList
+
+        def getCalendarData(self, eventList):
+
+            sendDataList = []
+
+            for eventItem in eventList:
+                sendDataList.append("<D:href xmlns:D=\"DAV:\">%s</D:href>" % (eventItem.eventUrl))
+            sendData = "\n".join(sendDataList)
+
+            ret = util.requestData(
+                method = "REPORT",
+                hostname=self.domainUrl,
+                depth=1,
+                data=static.XML_REQ_CALENDARDATA % (sendData),
+                auth = self.client.auth
+            )
         
+            xmlTree = util.XmlObject(ret.content)
+
+            eventList = []
+            for response in xmlTree.iter():
+                if response.find("href").text == self.calendarUrl:
+                    continue
+                event = self.client.Event(
+                    eventUrl = response.find("href").text(),
+                    eTag = response.find("propstat").find("prop").find("getetag").text(),
+                    eventData = response.find("propstat").find("prop").find("calendar-data").text()
+                )
+                eventList.append(event)
+
+            return eventList
+
+
+        def getEventByRange(self, stDate, edDate):
+            ret = util.requestData(
+                method = "REPORT",
+                hostname=self.domainUrl,
+                depth=1,
+                data=static.XML_REQ_CALENDARDATEFILTER % (stDate, edDate),
+                auth = self.client.auth
+            )
+        
+            xmlTree = util.XmlObject(ret.content)
+
+            eventList = []
+            for response in xmlTree.iter():
+                if response.find("href").text == self.calendarUrl:
+                    continue
+                event = self.client.Event(
+                    eventUrl = response.find("href").text(),
+                    eTag = response.find("propstat").find("prop").find("getetag").text()
+                )
+                eventList.append(event)
+
+            return eventList
+
         def updateAllEvent(self):
             ## load all event (etag, info)
             ret = util.requestData(
@@ -237,7 +293,8 @@ class CaldavClient:
             return cTag
 
     class Event:
-        def __init__(self, eventUrl, eTag):
+        def __init__(self, eventUrl, eTag, eventData = None):
             self.eventUrl = eventUrl
             self.eventId = util.splitIdfromUrl(eventUrl)
             self.eTag = eTag
+            self.eventData = jicson.fromText(eventData)
