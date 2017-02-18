@@ -42,8 +42,100 @@ class Sync(MethodView):
 				u_id = user[0]['user_id']
 				u_pw = user[0]['access_token']
 				account_hashkey = user[0]['account_hashkey']			
+				
 				calDavclient = caldavWrapper.getCalDavClient(login_platform,u_id,u_pw)
-				calendarModel.setCaldavCalendar(calDavclient.getPrincipal().getHomeSet().getCalendars(),account_hashkey)
+
+				principal = calDavclient.getPrincipal()
+				homeset = principal.getHomeSet()
+				calendars = homeset.getCalendars()				
+
+				
+					#캘린더 해시키를 먼저 만든다.
+				arr_calendar_hashkey = []
+				for calendar in calendars:
+					calendar_hashkey = utils.makeHashKey(calendar.calendarId)
+					arr_calendar_hashkey.append(calendar_hashkey)
+				try:
+					calendarModel.setCaldavCalendar(calendars,account_hashkey,arr_calendar_hashkey)
+				except Exception as e:
+				    return utils.resErr(str(e))	
+
+				for calendar in calendars:
+				    print('calnedarsss=> '+calendar.calendarName + " " + calendar.calendarUrl + " " + calendar.cTag)
+
+				    eventList = calendar.getEventByRange( "20151117T000000Z", "20170208T000000Z")
+				    print('evetnsList = >'+ str(eventList))
+				    eventDataList = calendar.getCalendarData(eventList)
+					# print('eventDataList = >'+ str(eventDataList))
+				    for idx,_ in enumerate(eventDataList):
+						#리턴이 배열이라면 여러개가 올수도있나요?
+
+					    event = _.eventData['VCALENDAR'][0]['VEVENT'][0]
+					    print(_)
+					    # print('event==>'+str(_.eventId))
+					    # print('event==>'+str(_.eventUrl))
+
+						#임시
+					    calendar_hashkey = arr_calendar_hashkey[idx]
+					    
+					    # #uid를 eventId로 쓰면되나
+					    event_id = _.eventId
+					    event_hashkey = utils.makeHashKey(event_id)
+					    # eventurl은 무엇을 저장해야되나여
+					    caldav_event_url = _.eventUrl
+					    #etag는 어디서 얻을수 있죠?
+					    caldav_etag = _.eTag
+					    summary = event['SUMMARY']
+					    print('sum'+summary)
+					    start_dt = None
+					    end_dt = None
+
+					    for _ in event.keys():
+					    	if 'DTSTART' in _:
+					    		print('find start ! =>'+_)
+					    		start_dt = event[_] 
+					    	elif 'DTEND' in _:
+					    		print('find end ! =>'+_)
+					    		end_dt = event[_]
+
+					    created_dt = event['CREATED'][:-1]
+					    created_dt =datetime.strptime(created_dt, "%Y%m%dT%H%M%S") + timedelta(hours=9)	    
+
+
+					    if 'LAST-MODIFIED' in event:
+					        # print('has modifie')
+					        updated_dt = event['LAST-MODIFIED'][:-1]
+					        updated_dt = datetime.strptime(updated_dt, "%Y%m%dT%H%M%S") + timedelta(hours=9)
+					    else:		
+						    updated_dt = created_dt
+					    if event['LOCATION'] == '':
+					    	location = 'noLocation'
+					    else:
+					    	location = event['LOCATION']
+
+					 #    if '' == event['LOCATION':
+						#     location = 'noLocation'
+						# else:
+					 #        location = event['LOCATION']
+
+					    #print(calendar_hashkey)
+					    # print(event_hashkey)
+					    # print(event_id)
+					    # print(caldav_event_url)
+					    # print(caldav_etag)
+					    #print(summary)
+					    #print(start_dt)
+					    #print(end_dt)
+					    #print(created_dt)
+					    #print(updated_dt)
+					    #print(location)
+					    try:
+					        eventModel.setCaldavEvents(event_hashkey,calendar_hashkey,event_id,summary,start_dt,end_dt,created_dt,updated_dt,location,caldav_event_url,caldav_etag)
+					    except Exception as e:
+						    return utils.resErr(str(e))
+	
+
+				
 			
 			elif login_platform == 'google':
 				access_token = user[0]['access_token']
@@ -174,7 +266,7 @@ class Sync(MethodView):
 								print('add events')
 								event_hashkey = utils.makeHashKey(event_id)
 
-								eventModel.setEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location)
+								eventModel.setGoogleEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location)
 					
 							#업데이트 한 경우이다. 
 							#id값을 찾아서 변환된값을 바꿔준다.
@@ -227,7 +319,7 @@ class Sync(MethodView):
 			created = str(item['created'])[:-1]
 			updated = str(item['updated'])[:-1]
 			event_hashkey = utils.makeHashKey(event_id)
-			eventModel.setEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location)
+			eventModel.setGoogleEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location)
 
 
 

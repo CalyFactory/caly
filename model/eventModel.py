@@ -2,7 +2,7 @@ from common.util import utils
 from manager import db_manager
 
 #eventModel
-def setEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location):
+def setGoogleEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location):
 	return db_manager.query(
 								"INSERT INTO EVENT " 
 								"(event_hashkey,calendar_hashkey,event_id,summary,start_dt,end_dt,created_dt,updated_dt,location) "
@@ -12,6 +12,17 @@ def setEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_dat
 									event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location
 								)
 							)
+#caldav
+def setCaldavEvents(event_hashkey,calendar_hashkey,event_id,summary,start_dt,end_dt,created_dt,updated_dt,location,caldav_event_url,caldav_etag):
+	return db_manager.query(
+								"INSERT INTO EVENT " 
+								"(event_hashkey,calendar_hashkey,event_id,summary,start_dt,end_dt,created_dt,updated_dt,location,caldav_event_url,caldav_etag) "
+								"VALUES "
+								"(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ",
+								(			
+									event_hashkey,calendar_hashkey,event_id,summary,start_dt,end_dt,created_dt,updated_dt,location,caldav_event_url,caldav_etag
+								)
+							)	
 
 def updateEvents(summary,start_date,end_date,created,updated,location,event_id):
 	return db_manager.query(

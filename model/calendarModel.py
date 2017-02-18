@@ -1,12 +1,12 @@
 from common.util import utils
 from manager import db_manager
 #sync
-def setCaldavCalendar(calendars,account_hashkey):
+def setCaldavCalendar(calendars,account_hashkey,arr_calendar_hashkey):
 	arrQueryString = []
 	arrQueryString.append('INSERT INTO CALENDAR (calendar_hashkey,account_hashkey,calendar_id,calendar_name,caldav_calendar_url,caldav_ctag) values ')
-	for calendar in calendars:
-		calendar_hashkey = utils.makeHashKey(calendar.calendarId)
-		arrQueryString.append('("'+ calendar_hashkey +'","'+ account_hashkey + '","' + calendar.calendarId + '","'+ calendar.calendarName+'","'+calendar.calendarUrl+'","'+calendar.cTag+ '")')
+	for idx,calendar in enumberate(calendars):
+		# calendar_hashkey = utils.makeHashKey(calendar.calendarId)
+		arrQueryString.append('("'+ arr_calendar_hashkey[idx] +'","'+ account_hashkey + '","' + calendar.calendarId + '","'+ calendar.calendarName+'","'+calendar.calendarUrl+'","'+calendar.cTag+ '")')
 		arrQueryString.append(',')
 
 	arrQueryString.pop()

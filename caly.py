@@ -34,9 +34,18 @@ from caldavclient import CaldavClient
 app = flask.Flask(__name__, static_url_path='')
 
 initRoute(app)
-# jungsungyung@gmail.com
+# with open('./APP_CONFIGURE.json') as conf_json:
+# 	app_conf = json.load(conf_json)			
 
-# Add Comment
+# app_version = '1.0.0'
+# if app_version == 'null':
+# 	pass						
+# elif app_version == app_conf['version']	:
+# 	print('nice')
+# 	# return utils.resCustom(200,{'msg':'your version so nice!'})
+# else :
+# 	print('basd')
+	# return utils.resCustom(205,{'msg':'강제업데이트 필요'})
 
 ##############
 #  테스트요청	 #
@@ -107,76 +116,89 @@ def teCaldavEvent():
 	    print(userId)
 	    print(userPw)
 	clientcal = CaldavClient(
-	    'https://caldav.calendar.naver.com/principals/users/'+userId,
-	    (userId,userPw)
-	    
-	)
+		    'https://caldav.calendar.naver.com/principals/users/'+userId,
+		    (userId,userPw)	    
+		)
 
 	principal = clientcal.getPrincipal()
 	homeset = principal.getHomeSet()
 	calendars = homeset.getCalendars()
 
 	for calendar in calendars:
-	    print(calendar.calendarName + " " + calendar.calendarUrl + " " + calendar.cTag)
+	    print('calnedarsss=> '+calendar.calendarName + " " + calendar.calendarUrl + " " + calendar.cTag)
 
-	eventList = calendars[0].getEventByRange( "20151117T000000Z", "20170125T000000Z")
-	print('evetnsList = >'+ str(eventList))
-	eventDataList = calendars[0].getCalendarData(eventList)
-	# print('eventDataList = >'+ str(eventDataList))
-	for _ in eventDataList:
-		#리턴이 배열이라면 여러개가 올수도있나요?
-	    event = _.eventData['VCALENDAR'][0]['VEVENT'][0]
-	    print('event==>'+str(_))
-	    calendar_hashkey = 'calHashkey'
-	    event_hashkey = 'eventHashkey'
-	    # #uid를 eventId로 쓰면되나
-	    eventId = event['UID']
-	    # eventurl은 무엇을 저장해야되나여
-	    # caldav_event_url = 
-	    #etag는 어디서 얻을수 있죠?
-	    caldav_etag = 'etag'
-	    summary = event['SUMMARY']
-	    start_dt = None
-	    end_dt = None
+	    eventList = calendar.getEventByRange( "20151117T000000Z", "20170208T000000Z")
+	    print('evetnsList = >'+ str(eventList))
+	    eventDataList = calendar.getCalendarData(eventList)
+		# print('eventDataList = >'+ str(eventDataList))
+	    for _ in eventDataList:
+			#리턴이 배열이라면 여러개가 올수도있나요?
 
-	    for _ in event.keys():
-	    	if 'DTSTART' in _:
-	    		print('find start ! =>'+_)
-	    		start_dt = event[_] 
-	    	elif 'DTEND' in _:
-	    		print('find end ! =>'+_)
-	    		end_dt = event[_]
+		    event = _.eventData['VCALENDAR'][0]['VEVENT'][0]
+		    print(_)
+		    # print('event==>'+str(_.eventId))
+		    # print('event==>'+str(_.eventUrl))
 
-	    created_dt = event['CREATED'][:-1]
-	    created_dt =datetime.strptime(created_dt, "%Y%m%dT%H%M%S") + timedelta(hours=9)	    
+			#임시
+		    calendar_hashkey = 'd18b6c447d2896fd591f38e9b2a4a134f0804a65f4e281d653d3db45'
+		    
+		    # #uid를 eventId로 쓰면되나
+		    event_id = _.eventId
+		    event_hashkey = utils.makeHashKey(event_id)
+		    # eventurl은 무엇을 저장해야되나여
+		    caldav_event_url = _.eventUrl
+		    #etag는 어디서 얻을수 있죠?
+		    caldav_etag = _.eTag
+		    summary = event['SUMMARY']
+		    print('sum'+summary)
+		    start_dt = None
+		    end_dt = None
+
+		    for _ in event.keys():
+		    	if 'DTSTART' in _:
+		    		print('find start ! =>'+_)
+		    		start_dt = event[_] 
+		    	elif 'DTEND' in _:
+		    		print('find end ! =>'+_)
+		    		end_dt = event[_]
+
+		    created_dt = event['CREATED'][:-1]
+		    created_dt =datetime.strptime(created_dt, "%Y%m%dT%H%M%S") + timedelta(hours=9)	    
 
 
-	    if 'LAST-MODIFIED' in event:
-	        print('has modifie')
-	        updated_dt = event['LAST-MODIFIED'][:-1]
-	        updated_dt = datetime.strptime(updated_dt, "%Y%m%dT%H%M%S") + timedelta(hours=9)
-	    else:		
-		    updated_dt = created_dt
-	    if event['LOCATION'] == '':
-	    	location = 'noLocation'
-	    else:
-	    	location = event['LOCATION']
+		    if 'LAST-MODIFIED' in event:
+		        # print('has modifie')
+		        updated_dt = event['LAST-MODIFIED'][:-1]
+		        updated_dt = datetime.strptime(updated_dt, "%Y%m%dT%H%M%S") + timedelta(hours=9)
+		    else:		
+			    updated_dt = created_dt
+		    if event['LOCATION'] == '':
+		    	location = 'noLocation'
+		    else:
+		    	location = event['LOCATION']
 
-	 #    if '' == event['LOCATION':
-		#     location = 'noLocation'
-		# else:
-	 #        location = event['LOCATION']
+		 #    if '' == event['LOCATION':
+			#     location = 'noLocation'
+			# else:
+		 #        location = event['LOCATION']
 
-	    print(calendar_hashkey)
-	    print(event_hashkey)
-	    print(eventId)
-	    print(caldav_etag)
-	    print(summary)
-	    print(start_dt)
-	    print(end_dt)
-	    print(created_dt)
-	    print(updated_dt)
-	    print(location)
+		    #print(calendar_hashkey)
+		    # print(event_hashkey)
+		    # print(event_id)
+		    # print(caldav_event_url)
+		    # print(caldav_etag)
+		    #print(summary)
+		    #print(start_dt)
+		    #print(end_dt)
+		    #print(created_dt)
+		    #print(updated_dt)
+		    #print(location)
+		    try:
+		    	from model import eventModel
+
+		    	eventModel.setCaldavEvents(event_hashkey,calendar_hashkey,event_id,summary,start_dt,end_dt,created_dt,updated_dt,location,caldav_event_url,caldav_etag)
+		    except Exception as e:
+		    	return str(e)
 
 
 			 
