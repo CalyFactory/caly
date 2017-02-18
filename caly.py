@@ -10,7 +10,7 @@ from googleapiclient import discovery
 from oauth2client import client
 from manager import db_manager
 from manager import network_manager
-
+from datetime import datetime, timedelta
 
 
 from juggernaut import Juggernaut
@@ -29,13 +29,14 @@ from manager.redis import redis
 from flask import render_template
 from flask import redirect, url_for,session
 from common import redisSession
+from caldavclient import CaldavClient
 
 app = flask.Flask(__name__, static_url_path='')
 
 initRoute(app)
 # jungsungyung@gmail.com
 
-
+# Add Comment
 
 ##############
 #  테스트요청	 #
@@ -97,8 +98,100 @@ def stopNoti():
 	# print(network_manager.reqPOST(URL,body))
 	return network_manager.reqPOST(URL,access_token,body) 
 
+@app.route('/teCaldavEvent')
+def teCaldavEvent():
+	with open('./key/conf.json') as conf_json:
+	    conf = json.load(conf_json)
+	    userId = conf['naver']['id']
+	    userPw = conf['naver']['pw']
+	    print(userId)
+	    print(userPw)
+	clientcal = CaldavClient(
+	    'https://caldav.calendar.naver.com/principals/users/'+userId,
+	    (userId,userPw)
+	    
+	)
+
+	principal = clientcal.getPrincipal()
+	homeset = principal.getHomeSet()
+	calendars = homeset.getCalendars()
+
+	for calendar in calendars:
+	    print(calendar.calendarName + " " + calendar.calendarUrl + " " + calendar.cTag)
+
+	eventList = calendars[0].getEventByRange( "20151117T000000Z", "20170125T000000Z")
+	print('evetnsList = >'+ str(eventList))
+	eventDataList = calendars[0].getCalendarData(eventList)
+	# print('eventDataList = >'+ str(eventDataList))
+	for _ in eventDataList:
+		#리턴이 배열이라면 여러개가 올수도있나요?
+	    event = _.eventData['VCALENDAR'][0]['VEVENT'][0]
+	    print('event==>'+str(_))
+	    calendar_hashkey = 'calHashkey'
+	    event_hashkey = 'eventHashkey'
+	    # #uid를 eventId로 쓰면되나
+	    eventId = event['UID']
+	    # eventurl은 무엇을 저장해야되나여
+	    # caldav_event_url = 
+	    #etag는 어디서 얻을수 있죠?
+	    caldav_etag = 'etag'
+	    summary = event['SUMMARY']
+	    start_dt = None
+	    end_dt = None
+
+	    for _ in event.keys():
+	    	if 'DTSTART' in _:
+	    		print('find start ! =>'+_)
+	    		start_dt = event[_] 
+	    	elif 'DTEND' in _:
+	    		print('find end ! =>'+_)
+	    		end_dt = event[_]
+
+	    created_dt = event['CREATED'][:-1]
+	    created_dt =datetime.strptime(created_dt, "%Y%m%dT%H%M%S") + timedelta(hours=9)	    
 
 
+	    if 'LAST-MODIFIED' in event:
+	        print('has modifie')
+	        updated_dt = event['LAST-MODIFIED'][:-1]
+	        updated_dt = datetime.strptime(updated_dt, "%Y%m%dT%H%M%S") + timedelta(hours=9)
+	    else:		
+		    updated_dt = created_dt
+	    if event['LOCATION'] == '':
+	    	location = 'noLocation'
+	    else:
+	    	location = event['LOCATION']
+
+	 #    if '' == event['LOCATION':
+		#     location = 'noLocation'
+		# else:
+	 #        location = event['LOCATION']
+
+	    print(calendar_hashkey)
+	    print(event_hashkey)
+	    print(eventId)
+	    print(caldav_etag)
+	    print(summary)
+	    print(start_dt)
+	    print(end_dt)
+	    print(created_dt)
+	    print(updated_dt)
+	    print(location)
+
+
+			 
+			
+		#최초 생성일경우 updated는 created랑 같다.	
+
+		# #수정이 생길경우 LAST-MODIFIED가 존재한다.
+		
+
+		
+	    # start_dt = event[] a.split(':')
+
+
+
+	return 'hi'
 
 
 if __name__ == '__main__':
