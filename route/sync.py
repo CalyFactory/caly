@@ -2,6 +2,7 @@
 # author : yenos
 # describe : sync로직을 담당하는 api이다.
 
+import logging
 from flask.views import MethodView
 import flask
 from flask import session
@@ -32,19 +33,19 @@ class Sync(MethodView):
 
 	def post(self,action):
 		if action == 'sync':
-			# session['key'] = '123'
 
 			sessionkey = flask.request.form['sessionkey']
 			#세션키에대한 해시키를 가져온다.
-			# user_hashkey = session[sessionkey]
 			user_hashkey = redis.get(sessionkey)
-			print('hashekuy = >'+str(user_hashkey))
+
+			logging.debug('sessionkey = >'+str(sessionkey))
+			logging.debug('hashkey = >'+str(user_hashkey))
+			
 
 			user = userAccountModel.getUserAccount(user_hashkey)
-
-
-			print('user'+str(user))
+			
 			login_platform = user[0]['login_platform']
+
 			if login_platform == 'naver' or login_platform == 'ical':
 				u_id = user[0]['user_id']
 				u_pw = user[0]['access_token']
@@ -65,19 +66,21 @@ class Sync(MethodView):
 					calendarModel.setCaldavCalendar(calendars,account_hashkey,arr_calendar_hashkey)
 				except Exception as e:
 				    return utils.resErr(str(e))	
-				print('calendar hashkeyss'+str(arr_calendar_hashkey))
+				
+				logging.debug('hashkey = >' + str(arr_calendar_hashkey))
 
 				for idx,calendar in enumerate(calendars):
-				    print('calnedarsss=> '+calendar.calendarName + " " + calendar.calendarUrl + " " + calendar.cTag)
+				    
+				    logging.debug('calnedarsss=> ' + calendar.calendarName)
 
-				    eventList = calendar.getEventByRange( "20170128T000000Z", "20170208T000000Z")
-				    print('evetnsList = >'+ str(eventList))
+				    eventList = calendar.getEventByRange( "20170128T000000Z", "20170208T000000Z")				    
 				    eventDataList = calendar.getCalendarData(eventList)
 				    calendar_hashkey = arr_calendar_hashkey[idx]
 					# print('eventDataList = >'+ str(eventDataList))
 				    for event_set in eventDataList:				    	
 					    event = event_set.eventData['VCALENDAR'][0]['VEVENT'][0]
-					    print('eventset'+str(event_set))					    
+					    logging.debug('eventset => '+str(event_set))
+					    
 					   
 					    # #uid를 eventId로 쓰면되나
 					    event_id = event_set.eventId
@@ -91,19 +94,12 @@ class Sync(MethodView):
 					    start_dt = None
 					    end_dt = None
 
-					    #codereview
-					    #dtstart in event
-					    # for _ in event.keys():
+					    
 					    if 'DTSTART' in event:
 					    	start_dt = event['DTSTART']
 					    elif 'DTEND' in event:
 					    	end_dt = event['DTEND']
-				  #       if 'DTSTART' in event:
-				  #           print('find start ! =>'+_)
-						#     start_dt = event['DTSTART'] 
-						# elif 'DTEND' in event:
-						#     print('find end ! =>'+_)
-				  #   	    end_dt = event['DTEND']
+				  
 					    #coderReview
 					    #타임존 라이브러리정하기
 					    created_dt = event['CREATED'][:-1]
@@ -111,7 +107,6 @@ class Sync(MethodView):
 
 
 					    if 'LAST-MODIFIED' in event:
-					        # print('has modifie')
 					        updated_dt = event['LAST-MODIFIED'][:-1]
 					        updated_dt = datetime.strptime(updated_dt, "%Y%m%dT%H%M%S") + timedelta(hours=9)
 					    else:		
@@ -121,17 +116,19 @@ class Sync(MethodView):
 					    else:
 					    	location = event['LOCATION']
 
-					    #print(calendar_hashkey)
-					    # print(event_hashkey)
-					    # print(event_id)
-					    # print(caldav_event_url)
-					    # print(caldav_etag)
-					    #print(summary)
-					    #print(start_dt)
-					    #print(end_dt)
-					    #print(created_dt)
-					    #print(updated_dt)
-					    #print(location)
+					    
+					    logging.debug('hashkey=>' + calendar_hashkey)	
+					    logging.debug('event_hashkey=>' + event_hashkey)	
+					    logging.debug('event_id=>' + event_id)	
+					    logging.debug('caldav_event_url=>' + caldav_event_url)	
+					    logging.debug('caldav_etag=>' + caldav_etag)	
+					    logging.debug('summary=>' + summary)
+					    logging.debug('start_dt=>' + start_dt)
+					    logging.debug('end_dt=>' + end_dt)
+					    logging.debug('created_dt=>' + created_dt)
+					    logging.debug('updated_dt=>' + updated_dt)
+					    logging.debug('location=>' + location)
+					    
 					    try:
 					        eventModel.setCaldavEvents(event_hashkey,calendar_hashkey,event_id,summary,start_dt,end_dt,created_dt,updated_dt,location,caldav_event_url,caldav_etag)
 					    except Exception as e:
@@ -142,25 +139,27 @@ class Sync(MethodView):
 			elif login_platform == 'google':
 				access_token = user[0]['access_token']
 				account_hashkey = user[0]['account_hashkey']
-				# push_token = userDeviceModel.getPushToken(sessionkey)
 
 				calendar_list_URL = 'https://www.googleapis.com/calendar/v3/users/me/calendarList'
 				calendar_list = json.loads(network_manager.reqGET(calendar_list_URL,access_token))
-				print(calendar_list)
+				
+				logging.debug('calendarList=>' + calendar_list)	
+				
 				calendars = calendar_list['items']
 
 				arr_channel_id = []
 				for calendar in calendars:
 					calendar_channelId = utils.makeHashKey(calendar['id'])
 					arr_channel_id.append(calendar_channelId)
+						
+				logging.debug('channl=> ' + str(arr_channel_id))	
 
-				print('ca;=> '+ str(calendars))		
-				print('channl=> '+str(arr_channel_id))		
 				calendarModel.setGoogleCalendar(calendars,account_hashkey,arr_channel_id)
 
 				#notification 저장.
 				for idx, calendar in enumerate(calendars):
-					print('calender id =>'+calendar['id'])
+					
+					logging.debug('calender id =>'+calendar['id'])
 					watch_URL = 'https://www.googleapis.com/calendar/v3/calendars/'+calendar['id']+'/events/watch'
 					body = {
 						"id" : arr_channel_id[idx],
@@ -172,10 +171,11 @@ class Sync(MethodView):
 					#status code 를 202등으로 바꾼다.
 				return utils.resSuccess({'msg':'Google Sync Loading'})
 
-	#watchReciver를 테스트해봐야됨.ㅇㅇ
+	#watchReciver를 테스트해봐야됨.
 		elif action == 'watchReciver':
-			print('watche call')
-			print('cid=> '+str(flask.request.headers))						
+			
+			logging.info('watch')
+			logging.info(str(flask.request.headers))				
 
 			channelId = flask.request.headers['X-Goog-Channel-Id']
 			state = flask.request.headers['X-Goog-Resource-State']
@@ -183,7 +183,7 @@ class Sync(MethodView):
 			account = calendarModel.getHashkey(channelId)
 			#해당채널아이다로 가지고있는 것을 찾고
 			rows = calendarModel.getCalendar(channelId)
-			print('rows==>'+str(rows))
+			logging.debug('calender id =>' + str(rows))
 			#pushtoken으로부터 acocunt_hashkey를 가지는 모든 googe_pushComplete를 확인핸다.
 			#모두 다 1이되어있으면 완료되었음을 푸시로보낸다.
 
@@ -211,7 +211,7 @@ class Sync(MethodView):
 					
 					calendar_hashkey = str(rows[0]['calendar_hashkey'])
 					calendar_id = str(rows[0]['calendar_id'])
-					print('call change!')
+					
 					#가장 최근의 sync토큰을 가져온다.
 					row = calendarModel.getLatestSyncToken(calendar_hashkey)
 					
@@ -219,17 +219,16 @@ class Sync(MethodView):
 					calendar_hashkey = row[0]['calendar_hashkey'];
 					calendar_id = row[0]['calendar_id'];
 
-					print('synctoke = >'+sync_token)
-					print('calendar_id = >'+calendar_id)				
-
+					logging.debug('synctoken =>' + sync_token)
+					logging.debug('calendar_id = >'+calendar_id)
+					
 					
 					URL = 'https://www.googleapis.com/calendar/v3/calendars/'+urllib.request.pathname2url(calendar_id)+'/events'
 					body = {
 						'syncToken':sync_token
 					}
 					res = json.loads(network_manager.reqGET(URL,account[0]['access_token'],body))				
-					print(res)
-					print(res['items'])
+					logging.debug('nextPage' + res)					
 
 					next_sync_token = res['nextSyncToken']								
 					syncModel.setSync(calendar_hashkey,next_sync_token)			
@@ -250,17 +249,18 @@ class Sync(MethodView):
 							if status != 'cancelled':
 							#confirmed, canceled							
 								created = item['created']
-								updated = item['updated']					
-								print('created => '+ created)
-								print('updated => '+ updated)
+								updated = item['updated']
+
+								
 								created = created[:len(created)-5]
 								updated = updated[:len(updated)-5]	
 								summary = 'noTitle'
 								if('summary' in item):												
 									summary = item['summary']
-								print('created => '+ created)
-								print('updated => '+ updated)
-								print('status => '+ status)
+								logging.debug('created => '+ created)
+								logging.debug('updated => '+ updated)
+								logging.debug('status => ' + status)									
+								
 							
 							# 만들어진 경우 or 수정일 경우이다.
 							# created 와 updated가 같은경우 추가한경우다
@@ -274,7 +274,7 @@ class Sync(MethodView):
 									end_date = utils.date_utc_to_current(str(item['end']['dateTime']))					
 
 							if status == 'confirmed' and created == updated:
-								print('add events')
+								logging.debug('addEvent')
 								event_hashkey = utils.makeHashKey(event_id)
 
 								eventModel.setGoogleEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location)
@@ -282,16 +282,17 @@ class Sync(MethodView):
 							#업데이트 한 경우이다. 
 							#id값을 찾아서 변환된값을 바꿔준다.
 							elif status =='confirmed' and created != updated:
-								print("updated!!")
+								logging.debug('updated')
 								# update events set calendar_id = 'testid', summary = 'sum' where id = '67'
 								eventModel.updateEvents(summary,start_date,end_date,created,updated,location,event_id)
 							
 
 							elif status == 'cancelled':
-								print('cancelled!')							
+								logging.debug('cancelled')							
 								eventModel.deleteEvents(event_id)
 			elif len(rows)==0:
-				print('none events!!')
+				#이벤트가없을경우 원래 이벤틀르 가져올수없는경우다. 동기화한샘친다.
+				logging.debug('no Event')
 				calendarModel.updateEventEnd(channelId)					
 						
 			return 'hi'
@@ -302,11 +303,14 @@ class Sync(MethodView):
 		
 		res = json.loads(network_manager.reqGET(URL,access_token,body))
 		# print('calender_id=>'+row['calendar_id'])
-		print('ressss=>'+str(res))
+		
+		logging.debug('ress=>'+str(res))
 	
 
 		for item in res['items']:
-			print('event_id=>'+str(item['id']))
+			
+			logging.debug('event_id=>'+str(item['id']))
+
 			event_id = item['id']		
 			summary = 'noTitle'
 			start_date = None
@@ -344,15 +348,18 @@ class Sync(MethodView):
 					}
 			self.reqEventsList(channelId,account_hashkey,access_token,calendar_hashkey,calendar_id,body)
 		else :
-			print('sync==>'+res['nextSyncToken'])
+			
+			logging.debug('sync==>'+res['nextSyncToken'])
+
 			syncToken = res['nextSyncToken']
 			syncModel.setSync(calendar_hashkey,syncToken)
 
 			calendarModel.updateEventEnd(channelId)
 			completeCalendars = calendarModel.getGooglePushComplete(account_hashkey)
-			print('calendarSync =>'+str(CALENDAR_SYNC))
-			print('calendarSync =>'+str(completeCalendars))
-
+			
+			logging.debug('calendarSync =>'+str(CALENDAR_SYNC))
+			logging.debug('calendarSync =>'+str(completeCalendars))
+			
 			is_finished_sync = True
 			for completeCalendar in completeCalendars:
 				if completeCalendar['google_push_complete'] != CALENDAR_SYNC:
@@ -360,43 +367,17 @@ class Sync(MethodView):
 
 			#다 정상적으로 끝냇으면
 			if is_finished_sync:
-				print('succes! push!')
+				
+				logging.inf('sync success')
 				push_token = userDeviceModel.getPushToken(account_hashkey)[0]['pushToken']
-				print('pushtoken =>' + push_token)
+				
+				logging.debug('pushtoken =>' + push_token)
 				data_message = {
 				    "type" : "sync",
 				    "action" : "actions"
 				}
 				
-				FCM.sendOnlyData(push_token,data_message)
-				# return FCM.sendOnlyData(push_token,data_message)
+				FCM.sendOnlyData(push_token,data_message)				
 
 			else:
-				print('faile!')
-
-			# print(str(rows))
-			# push_complete_sum = 0
-			
-			#codeReview
-			#a->2
-			#b->2
-			#c->2
-			#d->0
-			
-
-			# for row in rows:
-			# 	if row['google_push_complete'] != CALENDER_SYNC:
-			# 		is_finished_sync = false
-			
-			# if is_finished_sync: #len(rows) == push_complete_sum/2:
-			# 	#fcm으로전송
-			# 	# pks = "ejmnO9bSKDs:APA91bHyHu_W-jnnYWQqzEmvmlNarRZqJYEsC_6UHPCjpHmV0-0YrLA0-PXvfpYLarXg62qhZ6b_GFpg8yfqTL_fm8EEvM5PViF6mVbjSrSN4su9NwrY9bngzQSUMynJIB4LAIsSWzbl"
-			# 	# arr = ["cFK43rjMHoQ:APA91bE3HyJ1BVCI2Xrq3YJCrFll1Cjea3n8wVavHKiYVm1ktzRnbOrwICaSlBOcRP7Vg4c7fAFhBV4JdZd3fF-FZ49G8EgYgiozpKVAuXKU-3eI5YLleqghdBI521gvS4W_soc-vd4v","ejmnO9bSKDs:APA91bHyHu_W-jnnYWQqzEmvmlNarRZqJYEsC_6UHPCjpHmV0-0YrLA0-PXvfpYLarXg62qhZ6b_GFpg8yfqTL_fm8EEvM5PViF6mVbjSrSN4su9NwrY9bngzQSUMynJIB4LAIsSWzbl"]
-			# 	rows = userDeviceModel.getPushToken(account_hashkey)
-			# 	print(rows)
-			# 	print('pushToken==>'+rows[0]['push_token'])
-			# 	return FCM.send(rows[0]['push_token'],'알림!','동기화가 완료되었습니다!')
-			# else:
-			# 	print('fail')		
-						
-		
+				logging.inf('sync fail')
