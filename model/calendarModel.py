@@ -46,11 +46,16 @@ def updatePushComplete(channel_id):
 	return db_manager.query(
 				"UPDATE CALENDAR SET google_push_complete = 1 WHERE google_channel_id = %s"
 				,(channel_id,)
-			)		
+			)
+def updateEventEnd(channel_id):
+	return db_manager.query(
+				"UPDATE CALENDAR SET google_push_complete = 2 WHERE google_channel_id = %s"
+				,(channel_id,)
+			)
 def getHashkey(channel_id):			
 	return utils.fetch_all_json(
 				db_manager.query(
-					"SELECT access_token from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %s"
+					"SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %s"
 					,(channel_id,)
 				)		
 			)		
@@ -62,4 +67,13 @@ def getLatestSyncToken(calendar_hashkey):
 					,(calendar_hashkey,)
 				)	
 			)	 
-	
+def getGooglePushComplete(account_hashkey):
+	return utils.fetch_all_json(
+				db_manager.query(
+						"SELECT * from CALENDAR "+
+						"where account_hashkey = %s "+
+						"AND google_push_complete > 0"
+						,
+						(account_hashkey,) 						
+				)
+			)		

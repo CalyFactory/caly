@@ -4,7 +4,7 @@ from model import eventModel
 from model import userAccountModel
 from flask import session
 from common.util import utils
-
+from manager.redis import redis
 import flask
 
 class Events(MethodView):
@@ -13,7 +13,8 @@ class Events(MethodView):
 			sessionkey = flask.request.form['sessionkey']
 			#pageNum = 0 부터 시작된다.
 			pageNum = flask.request.form['pageNum']
-			user_hashkey = session[sessionkey]			
+			
+			user_hashkey = redis.get(sessionkey)			
 			rangee = 3
 			# 0 3 6 9.. 
 			pager = int(pageNum) * int(rangee)

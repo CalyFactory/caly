@@ -2,9 +2,8 @@
 #author : yenos
 #descrip : 멤버의 회원가입, 로그인 및 세션등을 만들어주는 페이지다.
 #
-#TODO!!!
-#NOSQL로 세션로그를 관리해줘야한다
-#(언제 세션이 끊기고(로그아웃) 언제다시연결됬는지 등의 정보)
+
+import logging
 from common import caldavWrapper
 
 from flask.views import MethodView
@@ -12,13 +11,12 @@ from common.util import utils
 from manager import db_manager
 import flask
 from common.util import utils
-from manager.redis import redis
+
 from manager import login_manager
 from manager import network_manager
 from common.util.statics import *
 import json
 import datetime
-from flask import session
 
 from caldavclient import CaldavClient
 from oauth2client import client
@@ -28,29 +26,25 @@ from common import gAPI
 from model import userDeviceModel
 from model import userAccountModel
 from model import userModel
+from manager.redis import redis
+
 # yenos
 # 유저의관한 api 리스트이다.
 class Member(MethodView):
 
 	def post(self,action):
 		if action == 'loginCheck':
-
-			
-			if 'sdkLevel' in flask.request.form:
-				print('has sdk')
-				sdkLevel = flask.request.form['sdkLevel']
-				userDeviceModel.setSdkLevel(sessionkey,sdkLevel)
-
+				
 			with open('./APP_CONFIGURE.json') as conf_json:
 				app_conf = json.load(conf_json)			
 			#TODO
 			#앱 버전을 꾸준히 체크해줘야한다.
-			app_version = flask.request.form['app_version']
+			app_version = flask.request.form['appVersion']
 			
 			#app_version이 null이거나. 버전이 현재최신이랑 같을경우 는 로그인 로직을탄다.
 			if app_version == app_conf['version'] or app_version == 'null':
 				who_am_i = login_manager.checkLoginState(flask)									
-								
+				logging.debug('whoam_i'+ str(who_am_i))
 				if who_am_i['state'] == LOGIN_STATE_AUTO:
 					return utils.resSuccess({'msg':'auto login success'})
 
@@ -81,13 +75,13 @@ class Member(MethodView):
 			
 			#naver 나 ical일경우, id 와 pw를 받는다.
 			if login_platform == 'naver' or login_platform == 'ical':	
-				print('naver')
+				logging.info('naver')
 				u_id = flask.request.form['uId']
 				u_pw = flask.request.form['uPw']				
 				
 
 			elif login_platform == 'google':
-				print('google')
+				logging.info('google')
 				authCode = flask.request.form['authCode']
 				# gAPI.getOauthCredentials(authCode)
 				# flow = client.flow_from_clientsecrets(					
@@ -104,12 +98,10 @@ class Member(MethodView):
 				current_date_time = datetime.datetime.now()
 				google_expire_time = current_date_time + datetime.timedelta(seconds=credentials['token_response']['expires_in'])
 
-				
-				print('current now => '+str(datetime.datetime.now()))
-				print('credi'+str(credentials))
-				print('accessToken'+access_token)
-				print('extime'+str(google_expire_time))
-				print('extime'+str(email))
+				logging.debug('current now => '+str(datetime.datetime.now()))
+				logging.debug('credi'+str(credentials))
+				logging.debug('accessToken'+access_token)
+				logging.debug('extime'+str(google_expire_time))				
 				
 
 			gender = flask.request.form['gender']			
@@ -129,10 +121,7 @@ class Member(MethodView):
 			try:
 
 				userModel.setUser(user_hashkey,gender,birth)
-
-				#TODO
-				#calendar HomeSat
-				#google_expire_time 설정
+				
 				if login_platform == 'naver' or login_platform == 'ical':
 					calDavclient = caldavWrapper.getCalDavClient(login_platform,u_id,u_pw)
 					
@@ -152,7 +141,10 @@ class Member(MethodView):
 				userDeviceModel.setGoogleUserDevice(device_hashkey,account_hashkey,sessionkey,push_token,device_type,app_version,device_info,uuid,sdkLevel)
 				#세션관리를 위해 세션키를 키로 해시키로 매핑시킨다.
 				#로그아웃시 해당 세션키를 보내서 날린다.
-				session[sessionkey] = user_hashkey
+				
+				redis.set(sessionkey,user_hashkey)
+				logging.debug('sessionkey' + sessionkey)				
+				logging.debug('user_hashkey' + user_hashkey)											
 
 				return utils.resSuccess({'sessionkey':sessionkey})
 			except Exception as e:
@@ -161,8 +153,6 @@ class Member(MethodView):
 		elif action == 'registerDevice':
 			
 			sessionkey = flask.request.form['sessionkey']
-			# device_hashkey = utils.makeHashKey(account_hashkey)
-			# session_key = utils.makeHashKey(device_hashkey)
 			push_token = flask.request.form['pushToken']
 			device_type = flask.request.form['deviceType']
 			app_version = flask.request.form['appVersion']
@@ -174,14 +164,14 @@ class Member(MethodView):
 
 			try:
 
-				rows = userDeviceModel.getUserHashkey(sessionkey)
+				devices = userDeviceModel.getUserHashkey(sessionkey)
 
-				if len(rows) != 0:
-					print('save redis hashkey '+str(rows[0]['user_hashkey']))
+				if len(devices) != 0:
+					userHashkey = devices[0]['user_hashkey']
+					redis.set(sessionkey,devices[0]['user_hashkey'])
 
-					redis.set(sessionkey,str(rows[0]['user_hashkey']))
-					session[sessionkey] = str(rows[0]['user_hashkey'])
-				
+					logging.debug('sessionkey' + sessionkey)
+					logging.debug('user_hashkey' + userHashkey)
 
 				userDeviceModel.updateUserDevice(push_token,device_type,app_version,device_info,uuid,sessionkey)
 				return utils.resSuccess({'sessionkey':sessionkey})
@@ -201,12 +191,7 @@ class Member(MethodView):
 		elif action == 'checkVersion':
 			app_version = flask.request.form['appVersion']
 			sessionkey = flask.request.form['sessionkey']
-
-			session['hi'] = 'val'
-			print(session['hi'])
-			session.pop('hi',None)
-					
-
+			
 			try:				
 				userDeviceModel.setVersion(sessionkey,app_version)
 				return utils.resSuccess('successd')
@@ -222,11 +207,9 @@ class Member(MethodView):
 			try:
 			
 				userDeviceModel.logout(sessionkey)
-				print('[redis]exist sessionkey result => '+ str(redis.get(sessionkey)))
-				session.pop[sessionkey]
-				
-				print('[redis]remvoe sessionkey! result=> '+str(redis.get(sessionkey)))
-				
+				redis.delete(sessionkey)
+				logging.debug('delte sessionkey => ' + sessionkey)
+										
 				return utils.resSuccess('logout success')
 			except Exception as e:
 				return utils.resErr(str(e))
