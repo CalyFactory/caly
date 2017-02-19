@@ -204,7 +204,6 @@ class CaldavClient:
             for eventItem in eventList:
                 sendDataList.append("<D:href xmlns:D=\"DAV:\">%s</D:href>" % (eventItem.eventUrl))
             sendData = "\n".join(sendDataList)
-
             ret = util.requestData(
                 method = "REPORT",
                 hostname=self.domainUrl,

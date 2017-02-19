@@ -30,9 +30,9 @@ class Events(MethodView):
 			else:
 				return utils.resCustom(201,'Data End')
 
-
-			# user = userAccountModel.getUserAccount(user_hashkey)
-
+		elif action == 'userAction':			
+			sessionkey = flask.request.form['sessionkey']
+			user_hashkey = session[sessionkey]
 
 			
 

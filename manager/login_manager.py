@@ -16,10 +16,9 @@ from model import userAccountModel
 from model import userModel
 def checkLoginState(flask):
 
-	sessionkey = flask.request.form['sessionkey']			
-	login_platform = flask.request.form['loginPlatform']
-	uuid = flask.request.form['uuid']
-	
+	sessionkey = flask.request.form['sessionkey']
+
+
 	#세션키가 존재한다면 일반로그인이다.
 	#google / caldav 모두같음.	
 	if sessionkey != 'null':
@@ -37,7 +36,9 @@ def checkLoginState(flask):
 			return utils.loginState(LOGIN_ERROR_INVALID,None)			
 
 	else:
-		
+			
+		login_platform = flask.request.form['loginPlatform']
+		uuid = flask.request.form['uuid']		
 		#회원가입/로그아웃 재로그인/ 다른디바이스 로그인 경우이다.
 		#캘데브일때는 캘데브 서버에서 인증확인을 받아야한다.
 		if login_platform == 'naver' or login_platform == 'ical':
@@ -45,16 +46,6 @@ def checkLoginState(flask):
 			u_id = flask.request.form['uId']
 			u_pw = flask.request.form['uPw']
 				
-			# if login_platform == 'naver':
-			# 	hostname = 'https://caldav.calendar.naver.com/principals/users/' + str(u_id)
-			# elif login_platform == 'ical':
-			# 	hostname = 'https://caldav.icloud.com/'
-
-			# client = CaldavClient(
-			#     hostname,
-			#     u_id,
-			#     u_pw
-			# )
 			calDavclient = caldavWrapper.getCalDavClient(login_platform,u_id,u_pw)
 			#FIXME!!! 
 			#현재 로그인 실해일 경우 에러가 나서 유효하지않은 id/pw일것이다.

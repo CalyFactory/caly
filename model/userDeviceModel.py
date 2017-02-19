@@ -44,12 +44,12 @@ def updateUserDeviceLogout(sessionkey,uuid):
 				)		
 
 #member
-def setGoogleUserDevice(device_hashkey,account_hashkey,sessionkey,push_token,device_type,app_version,device_info,uuid):
+def setGoogleUserDevice(device_hashkey,account_hashkey,sessionkey,push_token,device_type,app_version,device_info,uuid,sdkLevel):
 	return 	db_manager.query(
 					"INSERT INTO USERDEVICE " 
-					"(device_hashkey,account_hashkey,session_key,push_token,device_type,app_version,device_info,uuid)"
+					"(device_hashkey,account_hashkey,session_key,push_token,device_type,app_version,device_info,uuid,sdkLevel)"
 					"VALUES"
-					"(%s, %s, %s, %s, %s, %s, %s, %s)",
+					"(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
 					(			
 						device_hashkey,
 						account_hashkey,
@@ -58,7 +58,8 @@ def setGoogleUserDevice(device_hashkey,account_hashkey,sessionkey,push_token,dev
 						device_type,
 						app_version,
 						device_info,
-						uuid
+						uuid,
+						sdkLevel
 					)
 				)
 #registerDevice
@@ -75,7 +76,7 @@ def getUserHashkey(sessionkey):
 				)		
 			)	
 #registerDevice
-def updateUserDevice(push_token,device_type,app_version,device_info,uuid,sessionkey):
+def updateUserDevice(push_token,device_type,app_version,device_info,uuid,sessionkey,sdkLevel):
 	return db_manager.query(
 					"UPDATE USERDEVICE " +				
 					"SET push_token = %s, " +
@@ -83,7 +84,9 @@ def updateUserDevice(push_token,device_type,app_version,device_info,uuid,session
 					"app_version = %s, " +
 					"device_info = %s, " +
 					"uuid = %s " +
+					"sdkLevel = %s " +
 					"WHERE session_key = %s "
+
 					,
 					(									
 						push_token,
@@ -91,7 +94,9 @@ def updateUserDevice(push_token,device_type,app_version,device_info,uuid,session
 						app_version,
 						device_info,
 						uuid,
+						sdkLevel,
 						sessionkey
+
 					)
 				)		
 			
@@ -125,4 +130,13 @@ def setVersion(sessionkey,app_version):
 						app_version,sessionkey					
 					)
 				)	
+def setSdkLevel(sessionkey,sdkLevel):
+	return 	db_manager.query(
+					"UPDATE USERDEVICE " 
+					"SET sdkLevel = %s "
+					"WHERE session_key = %s",
+					(									
+						sdkLevel,sessionkey					
+					)
+				)
 

@@ -37,8 +37,7 @@ def getCalDavClient(login_platform,u_id,u_pw):
 	#클라에서 loginState확인을 거쳐온 id/pw임으로 무조건 인증된 정보이다.
 	calDavclient = CaldavClient(
 	    hostname,
-	    u_id,
-	    u_pw
+	    (u_id,u_pw)
 	)
 	
 	return calDavclient;
@@ -48,8 +47,8 @@ def getCalDavClient(login_platform,u_id,u_pw):
 # def updateCal(account_hashkey):
 # 	client = CaldavClient(
 # 	    'https://caldav.calendar.naver.com/principals/users/kkk1140' ,
-# 	    'kkk1140',
-# 	    'tkdaud123'
+# 	    'd',
+# 	    'd'
 # 	)
 
 # 	principal = client.getPrincipal()
