@@ -30,7 +30,9 @@ from common.util import utils
 #         return 'self' + self.val
 def getCalDavClient(login_platform,u_id,u_pw):
 	if login_platform == 'naver':
-		hostname = 'https://caldav.calendar.naver.com/principals/users/' + str(u_id)
+		#codeReview 
+		hostname = 'https://caldav.calendar.naver.com/principals/'
+		# hostname = 'https://caldav.calendar.naver.com/principals/users/' + str(u_id)
 	elif login_platform == 'ical':
 		hostname = 'https://caldav.icloud.com/'
 

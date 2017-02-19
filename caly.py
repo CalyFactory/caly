@@ -25,15 +25,38 @@ from route.googleAuth import GoogleAuth
 from route.schedule import Schedule
 
 from route.routes import initRoute
-from manager.redis import redis
+
 from flask import render_template
 from flask import redirect, url_for,session
 from common import redisSession
 from caldavclient import CaldavClient
 
 app = flask.Flask(__name__, static_url_path='')
+# import logging
+# logging.info("I told you so")
 
 initRoute(app)
+
+import logging
+import optparse
+
+LOGGING_LEVELS = {'critical': logging.CRITICAL,
+                  'error': logging.ERROR,
+                  'warning': logging.WARNING,
+                  'info': logging.INFO,
+                  'debug': logging.DEBUG}
+
+
+def main():
+  parser = optparse.OptionParser()
+  parser.add_option('-l', '--logging-level', help='Logging level')
+  parser.add_option('-f', '--logging-file', help='Logging file name')
+  (options, args) = parser.parse_args()
+  logging_level = LOGGING_LEVELS.get(options.logging_level, logging.NOTSET)
+  logging.basicConfig(level=logging_level, filename=options.logging_file,
+                      format='%(asctime)s %(levelname)s: %(message)s',
+                      datefmt='%Y-%m-%d %H:%M:%S')
+
 # with open('./APP_CONFIGURE.json') as conf_json:
 # 	app_conf = json.load(conf_json)			
 
@@ -106,6 +129,30 @@ def stopNoti():
 	}	
 	# print(network_manager.reqPOST(URL,body))
 	return network_manager.reqPOST(URL,access_token,body) 
+@app.route('/fireFcm')
+def fireFcm():
+	token = flask.request.args.get('token')		
+
+	# from pyfcm import FCMNotification
+	# push_service = FCMNotification(api_key="AAAAzTAKDHU:APA91bE60nkbS9rIEqZbAmhjFTu3jFeYL1wPTnDpVZKEtTf4p02hipmCEMpF8ZhflRo_8Ofb2EspYKqpSoWR1qxKw8mDA4d1HxGSCordjbUwpOGlt1PP5gtcGGTET74xxk5bS0gGv2ig")
+	# registration_id = ["cFK43rjMHoQ:APA91bE3HyJ1BVCI2Xrq3YJCrFll1Cjea3n8wVavHKiYVm1ktzRnbOrwICaSlBOcRP7Vg4c7fAFhBV4JdZd3fF-FZ49G8EgYgiozpKVAuXKU-3eI5YLleqghdBI521gvS4W_soc-vd4v","ejmnO9bSKDs:APA91bHyHu_W-jnnYWQqzEmvmlNarRZqJYEsC_6UHPCjpHmV0-0YrLA0-PXvfpYLarXg62qhZ6b_GFpg8yfqTL_fm8EEvM5PViF6mVbjSrSN4su9NwrY9bngzQSUMynJIB4LAIsSWzbl"]
+	# message_title = "Uber update"
+	# message_body = "Hi john, your customized news for today is ready"
+	# # result = push_service.notify_single_device(registration_ids=registration_id, message_title=message_title, message_body=message_body)
+	# result = push_service.notify_multiple_devices(registration_ids=registration_id, message_title=message_title, message_body=message_body)
+	
+	from common import FCM
+
+	pks = "dtolwBZTUXk:APA91bH0WSHNkw8sF7syIMKKcyjmzpeUEh4NzsAenuaNPX36lOwezlz0_X7yVp8b2CUmFKoo1lJkKFXiEPcex9LgOj2RqV07Rdgxy17PEAOfDIMVblJC4Pss-HHGpf7v8WLsPIEUVXx-"
+	arr = ["cFK43rjMHoQ:APA91bE3HyJ1BVCI2Xrq3YJCrFll1Cjea3n8wVavHKiYVm1ktzRnbOrwICaSlBOcRP7Vg4c7fAFhBV4JdZd3fF-FZ49G8EgYgiozpKVAuXKU-3eI5YLleqghdBI521gvS4W_soc-vd4v","ejmnO9bSKDs:APA91bHyHu_W-jnnYWQqzEmvmlNarRZqJYEsC_6UHPCjpHmV0-0YrLA0-PXvfpYLarXg62qhZ6b_GFpg8yfqTL_fm8EEvM5PViF6mVbjSrSN4su9NwrY9bngzQSUMynJIB4LAIsSWzbl"]
+	data_message = {
+	    "type" : "sync",
+	    "action" : "actions"
+	}
+	print(FCM.sendOnlyData(token,data_message))
+	return FCM.sendOnlyData(token,data_message)
+	# return FCM.send(pks,'title','body',data_message)
+
 
 @app.route('/teCaldavEvent')
 def teCaldavEvent():
@@ -217,10 +264,17 @@ def teCaldavEvent():
 
 
 if __name__ == '__main__':
+	main() 
+	logging.debug("디버깅용 로그~~")
+	logging.info("도움이 되는 정보를 남겨요~")
+	logging.warning("주의해야되는곳!")
+	logging.error("에러!!!")
+	logging.critical("심각한 에러!!")
+			
 	#session사용응ㄹ 위해선 secret_key가 존재해야한다.	
 	# md5를 사용한다고합니다 uuid4
-	app.secret_key = str(uuid.uuid4())	
-	app.session_interface = redisSession.RedisSessionInterface()
+	# app.secret_key = str(uuid.uuid4())	
+	# app.session_interface = redisSession.RedisSessionInterface()
 	
 	
 		# app.permanent_session_lifetime = timedelta(seconds=3600)

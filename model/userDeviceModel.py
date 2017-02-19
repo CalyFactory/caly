@@ -34,7 +34,7 @@ def setUserDevice(device_hashkey,account_hashkey,sessionkey):
 				)
 			)		
 #login_manager			
-def updateUserDeviceLogout(sessionkey,uuid):
+def updateUserSession(sessionkey,uuid):
 	return db_manager.query(
 						"UPDATE USERDEVICE " +
 						"SET session_key = %s " +
@@ -139,4 +139,15 @@ def setSdkLevel(sessionkey,sdkLevel):
 						sdkLevel,sessionkey					
 					)
 				)
+
+def getPushToken(account_hashkey):
+	return utils.fetch_all_json(
+				db_manager.query(
+						"SELECT push_token "
+						+ "FROM USERDEVICE "
+						+ "WHERE account_hashkey = %s "
+						,
+						(account_hashkey,) 						
+				)
+			)	
 
