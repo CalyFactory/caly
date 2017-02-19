@@ -38,9 +38,6 @@ app = flask.Flask(__name__, static_url_path='')
 initRoute(app)
 logSet.init()
 
-
-
-
 ##############
 #  테스트요청	 #
 ##############
