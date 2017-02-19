@@ -21,6 +21,10 @@ from manager import network_manager
 from manager import db_manager
 import json
 import urllib
+from datetime import timedelta,datetime
+
+
+
 
 
 class Sync(MethodView):
@@ -59,24 +63,21 @@ class Sync(MethodView):
 					calendarModel.setCaldavCalendar(calendars,account_hashkey,arr_calendar_hashkey)
 				except Exception as e:
 				    return utils.resErr(str(e))	
+				print('calendar hashkeyss'+str(arr_calendar_hashkey))
 
-				for calendar in calendars:
+				for idx,calendar in enumerate(calendars):
 				    print('calnedarsss=> '+calendar.calendarName + " " + calendar.calendarUrl + " " + calendar.cTag)
 
-				    eventList = calendar.getEventByRange( "20151117T000000Z", "20170208T000000Z")
+				    eventList = calendar.getEventByRange( "20170128T000000Z", "20170208T000000Z")
 				    print('evetnsList = >'+ str(eventList))
 				    eventDataList = calendar.getCalendarData(eventList)
+				    calendar_hashkey = arr_calendar_hashkey[idx]
 					# print('eventDataList = >'+ str(eventDataList))
-				    for idx,_ in enumerate(eventDataList):
+				    for _ in eventDataList:				    	
 						#리턴이 배열이라면 여러개가 올수도있나요?
-
+					    print('idxxx==> '+str(idx))
 					    event = _.eventData['VCALENDAR'][0]['VEVENT'][0]
-					    print(_)
-					    # print('event==>'+str(_.eventId))
-					    # print('event==>'+str(_.eventUrl))
-
-						#임시
-					    calendar_hashkey = arr_calendar_hashkey[idx]
+					    print(_)					    
 					    
 					    # #uid를 eventId로 쓰면되나
 					    event_id = _.eventId
@@ -133,10 +134,9 @@ class Sync(MethodView):
 					        eventModel.setCaldavEvents(event_hashkey,calendar_hashkey,event_id,summary,start_dt,end_dt,created_dt,updated_dt,location,caldav_event_url,caldav_etag)
 					    except Exception as e:
 						    return utils.resErr(str(e))
-	
-
-				
 			
+				return utils.resSuccess({'msg':'Caldav Sync Success'})
+
 			elif login_platform == 'google':
 				access_token = user[0]['access_token']
 				account_hashkey = user[0]['account_hashkey']
@@ -165,7 +165,7 @@ class Sync(MethodView):
 					}						
 					res = network_manager.reqPOST(watch_URL,access_token,body)
 
-				return 'hi'
+				return utils.resSuccess({'msg':'Google Sync Loading'})
 
 	#watchReciver를 테스트해봐야됨.ㅇㅇ
 		elif action == 'watchReciver':

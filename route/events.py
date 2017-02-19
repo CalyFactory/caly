@@ -13,8 +13,7 @@ class Events(MethodView):
 			sessionkey = flask.request.form['sessionkey']
 			#pageNum = 0 부터 시작된다.
 			pageNum = flask.request.form['pageNum']
-			user_hashkey = session[sessionkey]
-			print('pageNum' + pageNum)
+			user_hashkey = session[sessionkey]			
 			rangee = 3
 			# 0 3 6 9.. 
 			pager = int(pageNum) * int(rangee)
