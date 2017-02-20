@@ -173,7 +173,7 @@ class Member(MethodView):
 					logging.debug('sessionkey' + sessionkey)
 					logging.debug('user_hashkey' + userHashkey)
 
-				userDeviceModel.updateUserDevice(push_token,device_type,app_version,device_info,uuid,sessionkey)
+				userDeviceModel.updateUserDevice(push_token,device_type,app_version,device_info,uuid,sdkLevel,sessionkey)
 				return utils.resSuccess({'sessionkey':sessionkey})
 			except Exception as e:
 				return utils.resErr(str(e))		

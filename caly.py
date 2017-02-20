@@ -42,6 +42,48 @@ logSet.init()
 #  테스트요청	 #
 ##############
 # from common import caldavWrapper
+import logging
+@app.route('/refresh')
+def refresh():
+	acToken = flask.request.args.get('acToken')
+	calendar_list_URL = 'https://www.googleapis.com/calendar/v3/users/me/calendarList'
+	calendar_list = json.loads(network_manager.reqGET(calendar_list_URL,acToken))
+	
+	logging.debug('calendarList=>' + str(calendar_list))
+	from common import gAPI
+	#에러가 존재한다면 다시 토큰을 요청한다.
+	if 'error' in calendar_list:
+		refreshToken = '1/Xvx2_sr-AR0Rp9MCl7ToVltY9Xcf0v1u_9E7yw0W7z-kFF_DS7BDzafawYyFZGPW'
+		return gAPI.getRefreshAccessToken(refreshToken)
+		# logging.debug('error! request reToken')
+		# return gAPI.getOauthCredentials(refreshToken)
+
+	return str(calendar_list)
+
+# @app.route('/testOauth')
+# def testOauth():
+# 	from common import gAPI
+# 	authCode = flask.request.args.get('authCode')
+# 	return str(gAPI.getOauthCredentials(authCode))
+
+    # from oauth2client.client import OAuth2WebServerFlow
+    # from oauth2client.tools import run_flow
+    # from oauth2client.file import Storage
+    # authCode = flask.request.args.get('authCode')
+    # CLIENT_ID = '<client_id>'
+    # CLIENT_SECRET = '<client_secret>'
+    # flow = OAuth2WebServerFlow(client_id=CLIENT_ID,
+	   #                      client_secret=CLIENT_SECRET,
+				# 		    scope='https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/calendar.readonly',
+				# 		    redirect_uri='https://ssoma.xyz:55566/googleAuthCallBack',
+    #         	            prompt='consent')
+    # storage = Storage('creds.data')
+    # credentials = run_flow(flow, storage)
+    # logging.info(str(credentials))
+    # print "access_token: %s" % credentials.access_token
+
+
+
 @app.route('/caldavTest')
 def caldavTest():
 	caldavWrapper.updateCal()

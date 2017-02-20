@@ -76,14 +76,14 @@ def getUserHashkey(sessionkey):
 				)		
 			)	
 #registerDevice
-def updateUserDevice(push_token,device_type,app_version,device_info,uuid,sessionkey,sdkLevel):
+def updateUserDevice(push_token,device_type,app_version,device_info,uuid,sdkLevel,sessionkey,):
 	return db_manager.query(
 					"UPDATE USERDEVICE " +				
 					"SET push_token = %s, " +
 					"device_type = %s, " +
 					"app_version = %s, " +
 					"device_info = %s, " +
-					"uuid = %s " +
+					"uuid = %s, " +
 					"sdkLevel = %s " +
 					"WHERE session_key = %s "
 

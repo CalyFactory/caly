@@ -1,5 +1,8 @@
 import json
 from oauth2client import client
+import requests
+with open('./key/client_secret.json') as conf_json:
+    conf = json.load(conf_json)
 
 def getOauthCredentials(authCode):
     flow = client.flow_from_clientsecrets(					
@@ -7,15 +10,16 @@ def getOauthCredentials(authCode):
     	scope='https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/calendar.readonly',
     	redirect_uri='https://ssoma.xyz:55566/googleAuthCallBack'
     	
-    )				
+    )	
+    flow.params['prompt'] = 'consent'   			
 	#     # flow = OAuth2WebServerFlow(client_id=CLIENT_ID,
  #     #                       client_secret=CLIENT_SECRET,
  #     #                       scope='https://spreadsheets.google.com/feeds https://docs.google.com/feeds',
  #     #                       redirect_uri='http://example.com/auth_return',
  #     #                       prompt='consent')
-    flow.params['include_granted_scopes'] = True
-    flow.params['access_type'] = 'offline'
-    flow.params['approval_prompt'] = 'force'
+    # flow.params['include_granted_scopes'] = True
+    # flow.params['access_type'] = 'offline'
+    # flow.params['approval_prompt'] = 'force'
 
     credentials = json.loads(flow.step2_exchange(authCode).to_json())
     # from oauth2client.client import OAuth2WebServerFlow
@@ -32,3 +36,19 @@ def getOauthCredentials(authCode):
     # storage = Storage('creds.data')
     # credentials = run_flow(flow, storage)
     return credentials
+
+def getRefreshAccessToken(refresh_token):
+    URL = 'https://www.googleapis.com/oauth2/v3/token'
+    headers = {
+        'content-Type': 'application/x-www-form-urlencoded'
+    }
+    body = {
+        'client_id' :conf['web']['client_id'],
+        'client_secret': conf['web']['client_secret']+'&',
+        'refresh_token':refresh_token,
+        'grant_type':'refresh_token'
+    }
+    print('body'+str(body))
+    response = requests.post(URL,data = json.dumps(body),headers = headers)
+    print(str(response))
+    return json.loads(response)

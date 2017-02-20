@@ -123,11 +123,11 @@ class Sync(MethodView):
 					    logging.debug('caldav_event_url=>' + caldav_event_url)	
 					    logging.debug('caldav_etag=>' + caldav_etag)	
 					    logging.debug('summary=>' + summary)
-					    logging.debug('start_dt=>' + start_dt)
-					    logging.debug('end_dt=>' + end_dt)
-					    logging.debug('created_dt=>' + created_dt)
-					    logging.debug('updated_dt=>' + updated_dt)
-					    logging.debug('location=>' + location)
+					    logging.debug('start_dt=>' + str(start_dt))
+					    logging.debug('end_dt=>' + str(end_dt))
+					    logging.debug('created_dt=>' + str(created_dt))
+					    logging.debug('updated_dt=>' + str(updated_dt))
+					    logging.debug('location=>' + str(location))
 					    
 					    try:
 					        eventModel.setCaldavEvents(event_hashkey,calendar_hashkey,event_id,summary,start_dt,end_dt,created_dt,updated_dt,location,caldav_event_url,caldav_etag)
