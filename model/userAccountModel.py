@@ -64,3 +64,12 @@ def getUserAccount(user_hashkey):
 						(user_hashkey,) 						
 				)			
 			)	
+
+def getUserAccountWithAccessToken(access_token):	
+	return utils.fetch_all_json(
+				db_manager.query(
+						"SELECT * FROM USERACCOUNT WHERE access_token = %s "
+						,
+						(access_token,) 						
+				)			
+			)	

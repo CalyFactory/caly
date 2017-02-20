@@ -103,6 +103,7 @@ class Sync(MethodView):
 					    #coderReview
 					    #타임존 라이브러리정하기
 					    created_dt = event['CREATED'][:-1]
+					    #문자열을 날짜시간으로 변경해줌. 
 					    created_dt = datetime.strptime(created_dt, "%Y%m%dT%H%M%S") + timedelta(hours=9)	    
 
 

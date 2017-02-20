@@ -2,11 +2,24 @@ from datetime import datetime
 import hashlib
 import time
 import json
+from time import gmtime, strftime
+from datetime import datetime
+
 
 resSuccess = lambda payload : json.dumps({'code':200,'payload':payload})
 resErr = lambda err : json.dumps({'code':400,'payload':err})
 resCustom = lambda code,payload : json.dumps({'code':code,'payload':payload})
 loginState = lambda state,data : {'state':state,'data':data}
+
+def subDateWithCurrent(date):
+	cur_date = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+	print(cur_date)
+	#타임을 맞춰줘야함.
+	time_stamp_cur = time.mktime(datetime.strptime(cur_date, '%Y-%m-%d %H:%M:%S').timetuple()) + 9*3600
+	time_stamp_date = time.mktime(datetime.strptime(date, '%Y-%m-%d %H:%M:%S').timetuple())
+	return time_stamp_cur - time_stamp_date
+	
+
 
 def makeHashKey(solt):
 	soltt = str(solt)+str(time.time()*1000)

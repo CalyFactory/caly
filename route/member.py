@@ -95,8 +95,12 @@ class Member(MethodView):
 				email = credentials['id_token']['email']
 				subject = credentials['id_token']['sub']
 
+				#3분정도 여유 시간을 준다. 
+				#시간에 타이트하게하면 불안정하다.
+				expires_in = int(credentials['token_response']['expires_in']) - EXPIRE_SAFE_RANGE 
+
 				current_date_time = datetime.datetime.now()
-				google_expire_time = current_date_time + datetime.timedelta(seconds=credentials['token_response']['expires_in'])
+				google_expire_time = current_date_time + datetime.timedelta(seconds=expires_in)
 
 				logging.debug('current now => '+str(datetime.datetime.now()))
 				logging.debug('credi'+str(credentials))

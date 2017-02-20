@@ -41,22 +41,36 @@ logSet.init()
 ##############
 #  테스트요청	 #
 ##############
-# from common import caldavWrapper
 import logging
+from datetime import datetime
+from common.util import utils
+print(utils.subDateWithCurrent('2017-02-20 17:34:33'))
+
+
 @app.route('/refresh')
 def refresh():
 	acToken = flask.request.args.get('acToken')
-	calendar_list_URL = 'https://www.googleapis.com/calendar/v3/users/me/calendarList'
-	calendar_list = json.loads(network_manager.reqGET(calendar_list_URL,acToken))
+
+	# from common import gAPI	
+	#유효성 검사를 하고, 
+	#유효하지 않으면 디비를 업데이트 한다. 
+	# print(gAPI.checkValidAccessToken(acToken))
+
+
+	# print(acToken)
+	# calendar_list_URL = 'https://www.googleapis.com/calendar/v3/users/me/calendarList'
+	# calendar_list = json.loads(network_manager.reqGET(calendar_list_URL,acToken))
 	
-	logging.debug('calendarList=>' + str(calendar_list))
-	from common import gAPI
+	# logging.debug('data' + str(calendar_list))
+
+	
 	#에러가 존재한다면 다시 토큰을 요청한다.
-	if 'error' in calendar_list:
-		refreshToken = '1/Xvx2_sr-AR0Rp9MCl7ToVltY9Xcf0v1u_9E7yw0W7z-kFF_DS7BDzafawYyFZGPW'
-		return gAPI.getRefreshAccessToken(refreshToken)
-		# logging.debug('error! request reToken')
-		# return gAPI.getOauthCredentials(refreshToken)
+	# if 'error' in calendar_list:
+	# 	logging.info('noErr!!')
+	# 	refreshToken = '1/Xvx2_sr-AR0Rp9MCl7ToVltY9Xcf0v1u_9E7yw0W7z-kFF_DS7BDzafawYyFZGPW'
+	# 	return gAPI.getRefreshAccessToken(refreshToken)
+	# 	# logging.debug('error! request reToken')
+	# 	# return gAPI.getOauthCredentials(refreshToken)
 
 	return str(calendar_list)
 
