@@ -49,9 +49,15 @@ class Events(MethodView):
 			print(rows)
 
 			if len(rows) != 0:
-				return utils.resSuccess(rows)
+				return utils.resSuccess(
+											{'data':rows}
+										)
+
 			else:
-				return utils.resCustom(201,{'msg':'Data End'})
+				return utils.resCustom(
+											201,
+											{'data':'Data End'}
+										)
 
 		# elif action == 'userAction':			
 		# 	sessionkey = flask.request.form['sessionkey']

@@ -6,8 +6,16 @@ from time import gmtime, strftime
 from datetime import datetime
 
 
-resSuccess = lambda payload : json.dumps({'code':200,'payload':payload})
-resErr = lambda err : json.dumps({'code':400,'payload':err})
+resSuccess = lambda payload : json.dumps({
+											'code':200,
+											'payload':payload
+										})
+
+resErr = lambda err : json.dumps({
+									'code':400,
+									'payload':err
+								})
+
 resCustom = lambda code,payload : json.dumps({'code':code,'payload':payload})
 loginState = lambda state,data : {'state':state,'data':data}
 

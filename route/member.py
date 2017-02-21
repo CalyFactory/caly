@@ -46,16 +46,24 @@ class Member(MethodView):
 				who_am_i = login_manager.checkLoginState(flask)									
 				logging.debug('whoam_i'+ str(who_am_i))
 				if who_am_i['state'] == LOGIN_STATE_AUTO:
-					return utils.resSuccess({'msg':'auto login success'})
+					return utils.resSuccess(
+												{'msg':'auto login success'}
+											)
 
 				elif who_am_i['state'] == LOGIN_STATE_FIRST:
-					return utils.resCustom(201,{'msg':'first sign up'})
+					return utils.resCustom(
+												201,
+												{'msg':'first sign up'}
+											)
 
 				elif who_am_i['state'] == LOGIN_STATE_OTHERDEVICE:
-					return utils.resCustom(207,who_am_i['data'])	
+					return utils.resCustom(
+												207,
+												{'msg':who_am_i['data']}
+											)	
 
 				elif who_am_i['state'] == LOGIN_STATE_RELOGIN:				
-					return utils.resCustom(205,who_am_i['data'])
+					return utils.resCustom(205,{'msg':who_am_i['data']})
 
 				elif who_am_i['state'] == LOGIN_ERROR_INVALID:
 					return utils.resErr({'msg':LOGIN_ERROR_INVALID})
@@ -63,7 +71,7 @@ class Member(MethodView):
 				elif who_am_i['state'] == LOGIN_ERROR:
 					return utils.resErr({'msg':who_am_i['data']})								
 			else :
-				return utils.resCustom(400,{'msg':'need compulsion update'})
+				return utils.resCustom(400,{'data':'need compulsion update'})
 
 			
 
@@ -188,7 +196,7 @@ class Member(MethodView):
 
 			try:
 				userDeviceModel.updatePushToken(push_token,sessionkey)
-				return utils.resSuccess('success')
+				return utils.resSuccess({'msg':'success'})
 			except Exception as e:
 				return utils.resErr(str(e))		
 
@@ -198,7 +206,7 @@ class Member(MethodView):
 			
 			try:				
 				userDeviceModel.setVersion(sessionkey,app_version)
-				return utils.resSuccess('successd')
+				return utils.resSuccess({'msg':'successd'})
 			except Exception as e:
 				return utils.resErr(str(e))				
 
@@ -214,7 +222,7 @@ class Member(MethodView):
 				redis.delete(sessionkey)
 				logging.debug('delte sessionkey => ' + sessionkey)
 										
-				return utils.resSuccess('logout success')
+				return utils.resSuccess({'msg':'logout success'})
 			except Exception as e:
 				return utils.resErr(str(e))
 
