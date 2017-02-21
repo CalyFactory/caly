@@ -9,14 +9,19 @@ import flask
 import logging
 from common.util.statics import *
 
+from datetime import datetime
+
 class Events(MethodView):
 	def post(self,action):
 		if action == 'getList':
 			sessionkey = flask.request.form['sessionkey']
 			pageNum = flask.request.form['pageNum']			
 			user_hashkey = redis.get(sessionkey)
+			current_time = datetime.now()
+
 			logging.debug('userHashkey=>'+str(user_hashkey))
 			logging.debug('pageNum=>'+pageNum)	
+
 			
 			if not redis.get(sessionkey):
 				return utils.resErr(
@@ -29,8 +34,10 @@ class Events(MethodView):
 			#과거2 미래 2
 			try:
 				if int(pageNum) == 0 :
+
 					logging.debug('call first Events')
-					rows = eventModel.getEventsFirst(user_hashkey,'2017-04-10 14:30:00',EVENTS_FORWARD_CNT,EVENTS_BACKWARD_CNT)
+					rows = eventModel.getEventsFirst(user_hashkey,current_time,EVENTS_FORWARD_CNT,EVENTS_BACKWARD_CNT)
+
 				elif int(pageNum) > 0 :
 					logging.debug('call forward')
 					#2개씩 보여준다.
@@ -38,17 +45,18 @@ class Events(MethodView):
 					#기존 보여줬던 이벤트를 제외한 데이터를 요청하기위해 EVENTS_FORWARD_CNT 만큼 offset을 땡겨준다.
 					pager = (int(pageNum)-1) * int(rangee) + EVENTS_FORWARD_CNT
 
-					rows = eventModel.getEventsForward(user_hashkey,'2017-04-10 14:30:00',pager,rangee)
+					rows = eventModel.getEventsForward(user_hashkey,current_time,pager,rangee)
 					
 				elif int(pageNum) < 0 :
 					logging.debug('call backward')
+					
 					rangee = EVENTS_ITEM_CNT
 					
 					pageNum = int(pageNum)*(-1)
 					
 					pager = (int(pageNum)-1) * int(rangee) + EVENTS_BACKWARD_CNT				
 
-					rows = eventModel.getEventsBackward(user_hashkey,'2017-04-10 14:30:00',pager,rangee)
+					rows = eventModel.getEventsBackward(user_hashkey,current_time,pager,rangee)
 				
 			except Exception as e:
 				return utils.resErr(str(e))		

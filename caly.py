@@ -31,21 +31,19 @@ from flask import render_template
 from flask import redirect, url_for,session
 from caldavclient import CaldavClient
 from common import FCM
-
+import logging
 app = flask.Flask(__name__, static_url_path='')
 
 
 initRoute(app)
 logSet.init()
 
+from datetime import datetime
+logging.debug('currentServerTime=>'+str(datetime.now()))
 
 ##############
 #  테스트요청	 #
 ##############
-import logging
-from datetime import datetime
-from common.util import utils
-print(utils.subDateWithCurrent('2017-02-20 17:34:33'))
 
 
 @app.route('/refresh')
