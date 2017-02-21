@@ -74,3 +74,14 @@ def getUserAccountWithAccessToken(access_token):
 						(access_token,) 						
 				)			
 			)	
+
+def updateUserAccessToken(access_token,new_access_token,google_expire_time):
+	return db_manager.query(
+						"UPDATE USERACCOUNT " 
+						"SET access_token = %s, " 
+						"google_expire_time = %s "
+						"WHERE access_token = %s "
+						,
+						(new_access_token,google_expire_time,access_token) 						
+				)				
+

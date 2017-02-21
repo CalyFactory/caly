@@ -8,12 +8,10 @@ from common import caldavWrapper
 
 from flask.views import MethodView
 from common.util import utils
-from manager import db_manager
 import flask
 from common.util import utils
 
 from manager import login_manager
-from manager import network_manager
 from common.util.statics import *
 import json
 import datetime

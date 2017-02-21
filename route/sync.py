@@ -19,7 +19,7 @@ from model import syncEndModel
 from common import caldavWrapper
 from common import gAPI
 from manager import network_manager
-from manager import db_manager
+
 import json
 import urllib
 from datetime import timedelta,datetime
@@ -161,7 +161,7 @@ class Sync(MethodView):
 				calendar_list_URL = 'https://www.googleapis.com/calendar/v3/users/me/calendarList'
 				calendar_list = json.loads(network_manager.reqGET(calendar_list_URL,access_token))
 				
-				logging.debug('calendarList=>' + calendar_list)	
+				logging.debug('calendarList=>' + str(calendar_list)	)
 				
 				calendars = calendar_list['items']
 
@@ -246,7 +246,7 @@ class Sync(MethodView):
 						'syncToken':sync_token
 					}
 					res = json.loads(network_manager.reqGET(URL,account[0]['access_token'],body))				
-					logging.debug('nextPage' + res)					
+					logging.debug('nextPage' + str(res))
 
 					next_sync_token = res['nextSyncToken']								
 					syncModel.setSync(calendar_hashkey,next_sync_token)			
@@ -387,14 +387,14 @@ class Sync(MethodView):
 			#다 정상적으로 끝냇으면
 			if is_finished_sync:
 				
-				logging.inf('sync success')
+				logging.info('sync success')
 				#모든캘린더들이 다 싱크가 완료되었다면 syncEnd에 값을 저장한다.  
 				try:
 					syncEndModel.setSyncEnd(account_hashkey)
 				except Exception as e:
 						return utils.resErr(str(e))
 
-				push_token = userDeviceModel.getPushToken(account_hashkey)[0]['pushToken']
+				push_token = userDeviceModel.getPushToken(account_hashkey)[0]['push_token']
 				
 				logging.debug('pushtoken =>' + push_token)
 				data_message = {
@@ -405,4 +405,4 @@ class Sync(MethodView):
 				FCM.sendOnlyData(push_token,data_message)				
 
 			else:
-				logging.inf('sync fail')
+				logging.info('sync fail')

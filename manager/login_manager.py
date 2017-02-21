@@ -41,12 +41,6 @@ def checkLoginState(flask):
 			return utils.loginState(LOGIN_STATE_AUTO,None)		
 		else:
 			return utils.loginState(LOGIN_ERROR,None)				
-		# for key in session:
-		# 	print('key->'+key)
-		# 	if key == sessionkey:
-		# 		print('haskey')
-				# return utils.loginState(LOGIN_STATE_AUTO,None)						
-
 		
 
 	else:
