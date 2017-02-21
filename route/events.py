@@ -6,33 +6,56 @@ from flask import session
 from common.util import utils
 from manager.redis import redis
 import flask
+import logging
+from common.util.statics import *
 
 class Events(MethodView):
 	def post(self,action):
 		if action == 'getList':
 			sessionkey = flask.request.form['sessionkey']
-			#pageNum = 0 부터 시작된다.
-			pageNum = flask.request.form['pageNum']
-			
-			user_hashkey = redis.get(sessionkey)			
-			rangee = 3
-			# 0 3 6 9.. 
-			pager = int(pageNum) * int(rangee)
-
+			pageNum = flask.request.form['pageNum']			
+			user_hashkey = redis.get(sessionkey)
+			logging.debug('userHashkey=>'+str(user_hashkey))
+			logging.debug('pageNum=>'+pageNum)
+			#page 가 0 이면 
+			#과거2 미래 2
 			try:
-				rows = eventModel.getEvents(user_hashkey,pager,rangee)
+				if int(pageNum) == 0 :
+					logging.debug('call first Events')
+					rows = eventModel.getEventsFirst(user_hashkey,'2017-04-10 14:30:00',EVENTS_FORWARD_CNT,EVENTS_BACKWARD_CNT)
+				elif int(pageNum) > 0 :
+					logging.debug('call forward')
+					#2개씩 보여준다.
+					rangee = EVENTS_ITEM_CNT
+					#기존 보여줬던 이벤트를 제외한 데이터를 요청하기위해 EVENTS_FORWARD_CNT 만큼 offset을 땡겨준다.
+					pager = (int(pageNum)-1) * int(rangee) + EVENTS_FORWARD_CNT
+
+					rows = eventModel.getEventsForward(user_hashkey,'2017-04-10 14:30:00',pager,rangee)
+					
+				elif int(pageNum) < 0 :
+					logging.debug('call backward')
+					rangee = EVENTS_ITEM_CNT
+					
+					pageNum = int(pageNum)*(-1)
+					
+					pager = (int(pageNum)-1) * int(rangee) + EVENTS_BACKWARD_CNT				
+
+					rows = eventModel.getEventsBackward(user_hashkey,'2017-04-10 14:30:00',pager,rangee)
+				
 			except Exception as e:
 				return utils.resErr(str(e))		
 
+
 			print(rows)
+
 			if len(rows) != 0:
 				return utils.resSuccess(rows)
 			else:
-				return utils.resCustom(201,'Data End')
+				return utils.resCustom(201,{'msg':'Data End'})
 
-		elif action == 'userAction':			
-			sessionkey = flask.request.form['sessionkey']
-			user_hashkey = session[sessionkey]
+		# elif action == 'userAction':			
+		# 	sessionkey = flask.request.form['sessionkey']
+		# 	user_hashkey = session[sessionkey]
 
 			
 

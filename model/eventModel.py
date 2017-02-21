@@ -47,21 +47,72 @@ def deleteEvents(event_id):
 									event_id,
 								)
 							)
-
-#오늘날자부터 과거 
-def getEvents(user_hashkey,pager,rangee):
+def getEventsBackward(user_hashkey,standard_date,pager,rangee):
 
 	return utils.fetch_all_json(				
 				db_manager.query(
-					"SELECT EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.recurrance,EVENT.start_dt,EVENT.summary "+
-					"FROM USERACCOUNT " +							
-					"INNER JOIN CALENDAR ON USERACCOUNT.account_hashkey = CALENDAR.account_hashkey "+
-					"INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey " +
-					"WHERE start_dt < CURDATE() AND user_hashkey = %s " +
-					"ORDER BY start_dt " +
+					"SELECT * FROM "
+					"( " 
+					"SELECT EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.recurrance,EVENT.start_dt,EVENT.summary " 
+					"FROM USERACCOUNT "
+					"INNER JOIN CALENDAR ON USERACCOUNT.account_hashkey = CALENDAR.account_hashkey " 
+					"INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey " 
+					"WHERE user_hashkey = %s  AND start_dt < %s " 
+					"ORDER BY start_dt DESC LIMIT %s,%s "
+					") "
+					"AS source "
+					"ORDER BY start_dt "
+					,
+					(			
+						user_hashkey,standard_date,pager,rangee
+					)
+				)
+
+			)	
+# def getEventsBackward(user_hashkey,)
+def getEventsForward(user_hashkey,standard_date,pager,rangee):
+
+	return utils.fetch_all_json(				
+				db_manager.query(
+					"SELECT EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.recurrance,EVENT.start_dt,EVENT.summary "
+					"FROM USERACCOUNT " 							
+					"INNER JOIN CALENDAR ON USERACCOUNT.account_hashkey = CALENDAR.account_hashkey "
+					"INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey " 
+					"WHERE user_hashkey = %s AND start_dt >= %s " 					
+					"ORDER BY start_dt "
 					"limit %s,%s",
 					(			
-						user_hashkey,pager,rangee
+						user_hashkey,standard_date,pager,rangee
+					)
+				)
+
+			)
+#오늘날자부터 과거 3개 미래 4개 가져오는 쿼리
+def getEventsFirst(user_hashkey,standard_date,start_range,end_range):
+
+	return utils.fetch_all_json(				
+				db_manager.query(
+					"( "
+					"SELECT EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.recurrance,EVENT.start_dt,EVENT.summary FROM USERACCOUNT "
+					"INNER JOIN CALENDAR ON USERACCOUNT.account_hashkey = CALENDAR.account_hashkey " 							
+					"INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey "+
+					"WHERE start_dt > (" 
+					"SELECT SYNC_END.ctime FROM USERACCOUNT INNER JOIN SYNC_END ON USERACCOUNT.account_hashkey = SYNC_END.account_hashkey ORDER BY SYNC_END.ctime LIMIT 1 " +
+					") "
+					"AND user_hashkey = %s AND start_dt < %s ORDER BY start_dt DESC LIMIT %s ) "
+					"UNION "
+					"( "
+					"SELECT EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.recurrance,EVENT.start_dt,EVENT.summary FROM USERACCOUNT "
+					"INNER JOIN CALENDAR ON USERACCOUNT.account_hashkey = CALENDAR.account_hashkey "
+					"INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey "
+					"WHERE start_dt > ("
+					"SELECT SYNC_END.ctime FROM USERACCOUNT INNER JOIN SYNC_END ON USERACCOUNT.account_hashkey = SYNC_END.account_hashkey ORDER BY SYNC_END.ctime LIMIT 1"
+					") " 
+					"AND user_hashkey = %s AND start_dt >= %s ORDER BY start_dt limit %s ) "
+					"ORDER BY start_dt "
+					  ,
+					(			
+						user_hashkey,standard_date,start_range,user_hashkey,standard_date,end_range
 					)
 				)
 
