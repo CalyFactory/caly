@@ -16,7 +16,15 @@ class Events(MethodView):
 			pageNum = flask.request.form['pageNum']			
 			user_hashkey = redis.get(sessionkey)
 			logging.debug('userHashkey=>'+str(user_hashkey))
-			logging.debug('pageNum=>'+pageNum)
+			logging.debug('pageNum=>'+pageNum)	
+			
+			if not redis.get(sessionkey):
+				return utils.resErr(
+										{'msg':'invalid sessionkey'}
+									)		
+
+
+
 			#page 가 0 이면 
 			#과거2 미래 2
 			try:

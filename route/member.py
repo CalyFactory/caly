@@ -101,7 +101,11 @@ class Member(MethodView):
 			elif login_platform == 'google':
 				logging.info('google')
 				authCode = flask.request.form['authCode']
-				credentials = gAPI.getOauthCredentials(authCode)
+				try:
+					credentials = gAPI.getOauthCredentials(authCode)
+				except Exception as e:
+					return utils.resErr(str(e))
+
 				access_token = credentials['token_response']['access_token']
 				email = credentials['id_token']['email']
 				subject = credentials['id_token']['sub']

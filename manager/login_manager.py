@@ -144,7 +144,12 @@ def checkLoginState(flask):
 			elif len(device)!=0 :
 				print('logout and return')
 				sessionkey = utils.makeHashKey(uuid)
+				user_hashkey = account[0]['user_hashkey']
 
+				reids.set(sessionkey,account[0]['user_hashkey'])
+
+				logging.debug('set sessionke =>'+ sessionkey)
+				logging.debug('set userhashkey =>'+ account[0]['user_hashkey'])
 				#codeReveiw
 				#updateUserDeviceLogout 명확하지 않은 함수명.
 				try:
