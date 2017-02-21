@@ -59,19 +59,29 @@ class Member(MethodView):
 				elif who_am_i['state'] == LOGIN_STATE_OTHERDEVICE:
 					return utils.resCustom(
 												207,
-												{'msg':who_am_i['data']}
+												who_am_i['data']
 											)	
 
 				elif who_am_i['state'] == LOGIN_STATE_RELOGIN:				
-					return utils.resCustom(205,{'msg':who_am_i['data']})
+					return utils.resCustom(
+												205,
+												who_am_i['data']
+											)
 
 				elif who_am_i['state'] == LOGIN_ERROR_INVALID:
-					return utils.resErr({'msg':LOGIN_ERROR_INVALID})
+					return utils.resErr(
+											{'msg':LOGIN_ERROR_INVALID}
+										)
 				
 				elif who_am_i['state'] == LOGIN_ERROR:
-					return utils.resErr({'msg':who_am_i['data']})								
+					return utils.resErr(
+											{'msg':who_am_i['data']}
+										)								
 			else :
-				return utils.resCustom(400,{'data':'need compulsion update'})
+				return utils.resCustom(
+											400,
+											{'data':'need compulsion update'}
+										)
 
 			
 
@@ -91,13 +101,6 @@ class Member(MethodView):
 			elif login_platform == 'google':
 				logging.info('google')
 				authCode = flask.request.form['authCode']
-				# gAPI.getOauthCredentials(authCode)
-				# flow = client.flow_from_clientsecrets(					
-				# 	'./key/client_secret.json',
-				# 	scope='https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/calendar.readonly',
-				# 	redirect_uri='https://ssoma.xyz:55566/googleAuthCallBack'
-				# )				
-				# # credentials = json.loads(flow.step2_exchange(authCode).to_json())
 				credentials = gAPI.getOauthCredentials(authCode)
 				access_token = credentials['token_response']['access_token']
 				email = credentials['id_token']['email']
@@ -109,6 +112,8 @@ class Member(MethodView):
 
 				current_date_time = datetime.datetime.now()
 				google_expire_time = current_date_time + datetime.timedelta(seconds=expires_in)
+
+				refresh_token = credentials['refresh_token']
 
 				logging.debug('current now => '+str(datetime.datetime.now()))
 				logging.debug('credi'+str(credentials))
@@ -146,7 +151,7 @@ class Member(MethodView):
 				elif login_platform =='google':
 					#구글에서 email이 userId로 들어간다
 					u_id = email
-					userAccountModel.setGoogleUserAccount(account_hashkey,user_hashkey,login_platform,u_id,access_token,google_expire_time,subject)
+					userAccountModel.setGoogleUserAccount(account_hashkey,user_hashkey,login_platform,u_id,access_token,google_expire_time,subject,refresh_token)
 
 				
 				#login_manager

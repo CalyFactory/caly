@@ -36,12 +36,12 @@ def setCaldavUserAccount(account_hashkey,user_hashkey,login_platform,u_id,u_pw,c
 				)			
 
 #member
-def setGoogleUserAccount(account_hashkey,user_hashkey,login_platform,u_id,access_token,google_expire_time,subject):
+def setGoogleUserAccount(account_hashkey,user_hashkey,login_platform,u_id,access_token,google_expire_time,subject,refresh_token):
 	return 	db_manager.query(
 					"INSERT INTO USERACCOUNT " 
-					"(account_hashkey,user_hashkey,login_platform,user_id,access_token,google_expire_time,subject)"
+					"(account_hashkey,user_hashkey,login_platform,user_id,access_token,google_expire_time,subject,refresh_token)"
 					"VALUES"
-					"(%s, %s, %s, %s, %s, %s, %s)",
+					"(%s, %s, %s, %s, %s, %s, %s, %s)",
 					(			
 						account_hashkey,
 						user_hashkey,
@@ -49,7 +49,8 @@ def setGoogleUserAccount(account_hashkey,user_hashkey,login_platform,u_id,access
 						u_id,
 						access_token,
 						google_expire_time,
-						subject
+						subject,
+						refresh_token
 					)
 				)			
 
