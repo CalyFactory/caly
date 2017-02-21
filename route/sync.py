@@ -14,6 +14,7 @@ from model import userModel
 from model import calendarModel
 from model import eventModel
 from model import syncModel
+from model import syncEndModel
 
 from common import caldavWrapper
 from common import gAPI
@@ -73,7 +74,7 @@ class Sync(MethodView):
 				    
 				    logging.debug('calnedarsss=> ' + calendar.calendarName)
 
-				    eventList = calendar.getEventByRange( "20170128T000000Z", "20170208T000000Z")				    
+				    eventList = calendar.getEventByRange( "20170128T000000Z", "20180223T000000Z")				    
 				    eventDataList = calendar.getCalendarData(eventList)
 				    calendar_hashkey = arr_calendar_hashkey[idx]
 					# print('eventDataList = >'+ str(eventDataList))
@@ -94,11 +95,15 @@ class Sync(MethodView):
 					    start_dt = None
 					    end_dt = None
 
-					    
-					    if 'DTSTART' in event:
-					    	start_dt = event['DTSTART']
-					    elif 'DTEND' in event:
-					    	end_dt = event['DTEND']
+					    ###
+					    #FIxME 성민이가 DTSTART가져오는것 처리해주면 이코드는 버릴거야.
+					    #레거시할 코드.
+					    for key in event:
+
+						    if 'DTSTART' in key:					    	
+						    	start_dt = event[key]
+						    elif 'DTEND' in key:
+						    	end_dt = event[key]
 				  
 					    #coderReview
 					    #타임존 라이브러리정하기
@@ -134,7 +139,19 @@ class Sync(MethodView):
 					        eventModel.setCaldavEvents(event_hashkey,calendar_hashkey,event_id,summary,start_dt,end_dt,created_dt,updated_dt,location,caldav_event_url,caldav_etag)
 					    except Exception as e:
 						    return utils.resErr(str(e))
-			
+
+					#캘린더마다 싱크된 타임을 기록해준다. 
+				    try:
+					    syncModel.setSync(calendar_hashkey,'null')
+				    except Exception as e:
+					    return utils.resErr(str(e))
+
+				try:
+					syncEndModel.setSyncEnd(account_hashkey)
+				except Exception as e:
+					return utils.resErr(str(e))				
+
+
 				return utils.resSuccess({'msg':'Caldav Sync Success'})
 
 			elif login_platform == 'google':
@@ -213,7 +230,7 @@ class Sync(MethodView):
 					calendar_hashkey = str(rows[0]['calendar_hashkey'])
 					calendar_id = str(rows[0]['calendar_id'])
 					
-					#가장 최근의 sync토큰을 가져온다.
+					#해당 캘린더의 최근의 sync토큰을 가져온다.
 					row = calendarModel.getLatestSyncToken(calendar_hashkey)
 					
 					sync_token = row[0]['sync_token'];
@@ -348,6 +365,7 @@ class Sync(MethodView):
 						'pageToken' : str(res['nextPageToken'])
 					}
 			self.reqEventsList(channelId,account_hashkey,access_token,calendar_hashkey,calendar_id,body)
+
 		else :
 			
 			logging.debug('sync==>'+res['nextSyncToken'])
@@ -370,6 +388,12 @@ class Sync(MethodView):
 			if is_finished_sync:
 				
 				logging.inf('sync success')
+				#모든캘린더들이 다 싱크가 완료되었다면 syncEnd에 값을 저장한다.  
+				try:
+					syncEndModel.setSyncEnd(account_hashkey)
+				except Exception as e:
+						return utils.resErr(str(e))
+
 				push_token = userDeviceModel.getPushToken(account_hashkey)[0]['pushToken']
 				
 				logging.debug('pushtoken =>' + push_token)

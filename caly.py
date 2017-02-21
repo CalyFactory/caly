@@ -38,6 +38,7 @@ app = flask.Flask(__name__, static_url_path='')
 initRoute(app)
 logSet.init()
 
+
 ##############
 #  테스트요청	 #
 ##############
@@ -73,30 +74,6 @@ def refresh():
 	# 	# return gAPI.getOauthCredentials(refreshToken)
 
 	return str(calendar_list)
-
-# @app.route('/testOauth')
-# def testOauth():
-# 	from common import gAPI
-# 	authCode = flask.request.args.get('authCode')
-# 	return str(gAPI.getOauthCredentials(authCode))
-
-    # from oauth2client.client import OAuth2WebServerFlow
-    # from oauth2client.tools import run_flow
-    # from oauth2client.file import Storage
-    # authCode = flask.request.args.get('authCode')
-    # CLIENT_ID = '<client_id>'
-    # CLIENT_SECRET = '<client_secret>'
-    # flow = OAuth2WebServerFlow(client_id=CLIENT_ID,
-	   #                      client_secret=CLIENT_SECRET,
-				# 		    scope='https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/calendar.readonly',
-				# 		    redirect_uri='https://ssoma.xyz:55566/googleAuthCallBack',
-    #         	            prompt='consent')
-    # storage = Storage('creds.data')
-    # credentials = run_flow(flow, storage)
-    # logging.info(str(credentials))
-    # print "access_token: %s" % credentials.access_token
-
-
 
 @app.route('/caldavTest')
 def caldavTest():
