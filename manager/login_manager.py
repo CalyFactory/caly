@@ -114,14 +114,11 @@ def checkLoginState(flask):
 					# return LOGIN_STATE_FIRST
 				
 				#uuid가 db에 없고	id/pw가 있다면 새로운 기기에서의 등록이다.
-				#codeReview
-				#isFirst 분기를 앞에서 함으로 여기서 체크할필요가없다.
+				
 			elif len(device)== 0 :					
 				print('other device~!')
 				device_hashkey = utils.makeHashKey(account_hashkey)
 				session_key = utils.makeHashKey(device_hashkey)
-
-				# updateSDK(flask)			
 
 				try:
 					userDeviceModel.setUserDevice(device_hashkey,account_hashkey,session_key)

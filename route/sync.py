@@ -82,7 +82,7 @@ class Sync(MethodView):
 				    eventList = calendar.getEventByRange( "20170128T000000Z", "20180223T000000Z")				    
 				    eventDataList = calendar.getCalendarData(eventList)
 				    calendar_hashkey = arr_calendar_hashkey[idx]
-					# print('eventDataList = >'+ str(eventDataList))
+
 				    for event_set in eventDataList:				    	
 					    event = event_set.eventData['VCALENDAR'][0]['VEVENT'][0]
 					    logging.debug('eventset => '+str(event_set))

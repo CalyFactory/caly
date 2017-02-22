@@ -20,7 +20,6 @@ from caldavclient import CaldavClient
 from oauth2client import client
 from common import gAPI
 
-
 from model import userDeviceModel
 from model import userAccountModel
 from model import userModel
@@ -79,7 +78,7 @@ class Member(MethodView):
 										)								
 			else :
 				return utils.resCustom(
-											403,
+											401,
 											{'data':MSG_LOGIN_COMPLUSION_UPDATE}
 										)
 
@@ -270,6 +269,23 @@ class Member(MethodView):
 										{'msg':str(e)}
 									)								
 
+		elif action == 'addAccount':
+			sessionkey = flask.request.form['sessionkey']			
+			login_platform = flask.request.form['login_platform']	
+			
+			
+			u_id =flask.request.form['uId']
+			u_pw =flask.request.form['uPw']
+
+
+
+			if not redis.get(sessionkey):
+				return utils.resErr(
+										{'msg':MSG_INVALID_TOKENKEY}
+									)
+
+			account_hashkey = utils.makeHashKey(user_hashkey)
+
 
 			#로그아웃에선 레디스에서 해당 세션키를 날리고, is_active 를 false로
 			#서버에서도 날려준다음
@@ -285,7 +301,7 @@ class Member(MethodView):
 			
 				userDeviceModel.logout(sessionkey)
 				redis.delete(sessionkey)
-				logging.debug('delte sessionkey => ' + sessionkey)									
+				logging.debug('delete sessionkey => ' + sessionkey)									
 				return utils.resSuccess(
 											{'msg':MSG_INVALID_TOKENKEY}
 										)

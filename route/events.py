@@ -72,7 +72,7 @@ class Events(MethodView):
 			else:
 				return utils.resCustom(
 											201,
-											{'data':MSG_EVENTS_END}
+											{'msg':MSG_EVENTS_END}
 										)
 
 		# elif action == 'userAction':			
