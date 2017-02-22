@@ -84,4 +84,13 @@ def updateUserAccessToken(access_token,new_access_token,google_expire_time):
 						,
 						(new_access_token,google_expire_time,access_token) 						
 				)				
-
+def getHasAccountList(user_hashkey):
+	return utils.fetch_all_json(
+				db_manager.query(
+						"SELECT USERACCOUNT.login_platform, USERACCOUNT.user_id, USERACCOUNT.create_datetime FROM USER "
+						"INNER JOIN USERACCOUNT ON USER.user_hashkey = USERACCOUNT.user_hashkey "
+						"WHERE USER.user_hashkey = %s "
+						,
+						(user_hashkey,) 						
+				)			
+			)	

@@ -41,8 +41,10 @@ class Member(MethodView):
 			
 			#app_version이 null이거나. 버전이 현재최신이랑 같을경우 는 로그인 로직을탄다.
 			if app_version == app_conf['version'] or app_version == 'null':
+
 				who_am_i = login_manager.checkLoginState(flask)									
 				logging.debug('whoam_i'+ str(who_am_i))
+
 				if who_am_i['state'] == LOGIN_STATE_AUTO:
 					return utils.resSuccess(
 												{'msg':'auto login success'}
@@ -99,10 +101,13 @@ class Member(MethodView):
 			elif login_platform == 'google':
 				logging.info('google')
 				authCode = flask.request.form['authCode']
+
 				try:
 					credentials = gAPI.getOauthCredentials(authCode)
 				except Exception as e:
-					return utils.resErr(str(e))
+					return utils.resErr(	
+											{'msg':str(e)}
+										)
 
 				access_token = credentials['token_response']['access_token']
 				email = credentials['id_token']['email']
@@ -165,9 +170,13 @@ class Member(MethodView):
 				logging.debug('sessionkey' + sessionkey)				
 				logging.debug('user_hashkey' + user_hashkey)											
 
-				return utils.resSuccess({'sessionkey':sessionkey})
+				return utils.resSuccess(
+											{'sessionkey':sessionkey}
+										)
 			except Exception as e:
-				return utils.resErr(str(e))		
+				return utils.resErr(
+										{'msg':str(e)}
+									)		
 
 		elif action == 'registerDevice':
 			
@@ -178,9 +187,6 @@ class Member(MethodView):
 			device_info = flask.request.form['deviceInfo']			
 			uuid = flask.request.form['uuid']
 			sdkLevel = flask.request.form['sdkLevel']
-
-			
-
 			try:
 
 				devices = userDeviceModel.getUserHashkey(sessionkey)
@@ -200,38 +206,85 @@ class Member(MethodView):
 		elif action =='updatePushToken':
 			push_token = flask.request.form['pushToken']
 			sessionkey = flask.request.form['sessionkey']
-
+			
+			if not redis.get(sessionkey):
+				return utils.resErr(
+										{'msg':'invalid sessionkey'}
+									)
 			try:
+				
 				userDeviceModel.updatePushToken(push_token,sessionkey)
-				return utils.resSuccess({'msg':'success'})
+				return utils.resSuccess(
+											{'msg':'success'}
+										)
+
 			except Exception as e:
-				return utils.resErr(str(e))		
+
+				return utils.resErr(
+										{'msg':str(e)}
+									)		
 
 		elif action == 'checkVersion':
 			app_version = flask.request.form['appVersion']
 			sessionkey = flask.request.form['sessionkey']
 			
 			try:				
-				userDeviceModel.setVersion(sessionkey,app_version)
-				return utils.resSuccess({'msg':'successd'})
+
+				userDeviceModel.setVersion(sessionkey,app_version)				
+				return utils.resSuccess(
+											{'msg':'successd'}
+										)
+
 			except Exception as e:
-				return utils.resErr(str(e))				
+				return utils.resErr(
+										{'msg':str(e)}
+									)				
+		
+		elif action == 'checkAccount':
+			sessionkey = flask.request.form['sessionkey']
+
+			if not redis.get(sessionkey):
+				return utils.resErr(
+										{'msg':'invalid sessionkey'}
+									)
+			try:
+				user_hashkey = redis.get(sessionkey)
+				logging.debug('hashkey=> '+user_hashkey)
+				accounts = userAccountModel.getHasAccountList(user_hashkey)
+				return utils.resSuccess(
+											{'data':accounts}
+										)
+
+			except Exception as e:
+				return utils.resErr(
+										{'msg':str(e)}
+									)								
 
 
 			#로그아웃에선 레디스에서 해당 세션키를 날리고, is_active 를 false로
 			#서버에서도 날려준다음
 			#로그서버에 해당 사항을 저장해준다.			
 		elif action == 'logout':
+
 			sessionkey = flask.request.form['sessionkey']
+			if not redis.get(sessionkey):
+				return utils.resErr(
+										{'msg':'invalid sessionkey'}
+									)			
 			try:
 			
 				userDeviceModel.logout(sessionkey)
 				redis.delete(sessionkey)
-				logging.debug('delte sessionkey => ' + sessionkey)
-										
-				return utils.resSuccess({'msg':'logout success'})
+				logging.debug('delte sessionkey => ' + sessionkey)									
+				return utils.resSuccess(
+											{'msg':'logout success'}
+										)
+			
 			except Exception as e:
-				return utils.resErr(str(e))
+
+				return utils.resErr(
+										{'msg':str(e)}
+									)
 
 
 
