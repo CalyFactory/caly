@@ -25,6 +25,7 @@ from model import userAccountModel
 from model import userModel
 from manager.redis import redis
 
+from common import syncLogic
 # yenos
 # 유저의관한 api 리스트이다.
 class Member(MethodView):
@@ -68,7 +69,8 @@ class Member(MethodView):
 											)
 
 				elif who_am_i['state'] == LOGIN_ERROR_INVALID:
-					return utils.resErr(
+					return utils.resCustom(
+											401,
 											{'msg':LOGIN_ERROR_INVALID}
 										)
 				
@@ -78,13 +80,9 @@ class Member(MethodView):
 										)								
 			else :
 				return utils.resCustom(
-											401,
+											403,
 											{'data':MSG_LOGIN_COMPLUSION_UPDATE}
-										)
-
-			
-
-
+										)		
 			
 		elif action == 'signUp':
 			
@@ -147,12 +145,21 @@ class Member(MethodView):
 				
 				if login_platform == 'naver' or login_platform == 'ical':
 					calDavclient = caldavWrapper.getCalDavClient(login_platform,u_id,u_pw)
-					
+					#여기선 loginmanager를 통과했기때문에 id/pw가 유효한지 체크할 필요가없다.
 					principal = calDavclient.getPrincipal()
 					homeset = principal.getHomeSet()
 					caldav_homeset = homeset.homesetUrl			
 
-					userAccountModel.setCaldavUserAccount(account_hashkey,user_hashkey,login_platform,u_id,u_pw,caldav_homeset)
+					user = userAccountModel.getCaldavUserAccount(u_id,u_pw,login_platform)
+					#검색을 했는데 길이가 0이면, 유저가 없는경우임으로 추가를 해준다.
+					if len(user) == 0:
+						userAccountModel.setCaldavUserAccount(account_hashkey,user_hashkey,login_platform,u_id,u_pw,caldav_homeset)
+					#유저가 존재하면 이미 등록된 아이디라고 알려준다.
+					else:		
+						return utils.resCustom(
+												403,
+												{'msg':MSG_FAILE_ADD_ACCOUNT_REGISTERD}
+											)					
 
 				elif login_platform =='google':
 					#구글에서 email이 userId로 들어간다
@@ -204,9 +211,13 @@ class Member(MethodView):
 					logging.debug('user_hashkey' + userHashkey)
 
 				userDeviceModel.updateUserDevice(push_token,device_type,app_version,device_info,uuid,sdkLevel,sessionkey)
-				return utils.resSuccess({'sessionkey':sessionkey})
+				return utils.resSuccess(
+											{'sessionkey':sessionkey}
+										)
 			except Exception as e:
-				return utils.resErr(str(e))		
+				return utils.resErr(
+										{'msg':str(e)}
+									)		
 
 		elif action =='updatePushToken':
 			push_token = flask.request.form['pushToken']
@@ -249,7 +260,7 @@ class Member(MethodView):
 										{'msg':str(e)}
 									)				
 		
-		elif action == 'checkAccount':
+		elif action == 'accountList':
 			sessionkey = flask.request.form['sessionkey']
 
 			if not redis.get(sessionkey):
@@ -272,19 +283,120 @@ class Member(MethodView):
 		elif action == 'addAccount':
 			sessionkey = flask.request.form['sessionkey']			
 			login_platform = flask.request.form['login_platform']	
-			
-			
-			u_id =flask.request.form['uId']
-			u_pw =flask.request.form['uPw']
 
-
-
-			if not redis.get(sessionkey):
+			user_hashkey = redis.get(sessionkey)
+			logging.debug('user_hashkey = '+ user_hashkey)
+			if not user_hashkey:
 				return utils.resErr(
 										{'msg':MSG_INVALID_TOKENKEY}
 									)
 
 			account_hashkey = utils.makeHashKey(user_hashkey)
+
+
+			if login_platform == 'naver' or login_platform == 'ical':	
+				#caldav일경우.
+				u_id = flask.request.form['uId']
+				u_pw = flask.request.form['uPw']
+				try:
+					calDavclient = caldavWrapper.getCalDavClient(login_platform,u_id,u_pw)									
+
+					try:
+						principal = calDavclient.getPrincipal()				
+					except Exception as e:
+						return utils.resCustom(
+													401,
+													{'msg':'invalid id/pw'}
+											)
+
+					homeset = principal.getHomeSet()
+					caldav_homeset = homeset.homesetUrl	
+
+					logging.debug('caldav_hoemse =>' + caldav_homeset)
+					
+
+					user = userAccountModel.getCaldavUserAccount(u_id,u_pw,login_platform)
+					#검색을 했는데 길이가 0이면, 유저가 없는경우임으로 추가를 해준다.
+					#그리고 동기화로직을 탄다.
+					logging.debug('user = >'+str(user))
+					if len(user) == 0:
+						
+						userAccountModel.setCaldavUserAccount(account_hashkey,user_hashkey,login_platform,u_id,u_pw,caldav_homeset)
+
+					#유저가 존재하면 이미 등록된 아이디라고 알려준다.
+					else:		
+						return utils.resCustom(
+												403,
+												{'msg':MSG_FAILE_ADD_ACCOUNT_REGISTERD}
+											)
+
+					#다시 유저가생겼음으로 유저를 가져와서 접속한다.
+					user = userAccountModel.getCaldavUserAccount(u_id,u_pw,login_platform)
+
+					#가입이 완료되었다면 동기화 로직을 돈다.
+					#기존 위의 파라미터로도 접속은 가능하지만. 
+					# sync 기본 요청에서는 user로 값을 넣어줘야함으로 맞춰줘야함.
+					syncInfo = syncLogic.caldav(user,user_hashkey,login_platform)
+
+					if syncInfo['state'] == SYNC_CALDAV_SUCCESS:
+						#동기화가 완료되어야만 비로소 가입이가능하다.
+						return utils.resSuccess(
+													{'msg':MSG_SUCCESS_ADD_ACCOUNT}
+												)
+
+					else:
+						#실패한경우는 회원가입은 성공했지만 모종의 이유로 동기화는 실패한 상태다.
+						#유저가 다시동기화 할 수 있도록 해주어야한다.
+						return utils.resCustom(		
+													201,
+													{'msg':syncInfo['data']}
+												)												
+				except Exception as e:
+					return utils.resErr(
+											{'msg':str(e)}
+										)	
+
+
+			elif login_platform =='google':
+				#구글에서 email이 userId로 들어간다
+				u_id = email
+
+				authCode = flask.request.form['authCode']
+
+				try:
+					credentials = gAPI.getOauthCredentials(authCode)
+			
+					access_token = credentials['token_response']['access_token']
+					email = credentials['id_token']['email']
+					subject = credentials['id_token']['sub']
+
+					#3분정도 여유 시간을 준다. 
+					#시간에 타이트하게하면 불안정하다.
+					expires_in = int(credentials['token_response']['expires_in']) - EXPIRE_SAFE_RANGE 
+
+					current_date_time = datetime.datetime.now()
+					google_expire_time = current_date_time + datetime.timedelta(seconds=expires_in)
+
+					refresh_token = credentials['refresh_token']
+
+					logging.debug('current now => '+str(datetime.datetime.now()))
+					logging.debug('credi'+str(credentials))
+					logging.debug('accessToken'+access_token)
+					logging.debug('extime'+str(google_expire_time))	
+					logging.debug('refreshTOken'+str(refresh_token))
+					
+					userAccountModel.setGoogleUserAccount(account_hashkey,user_hashkey,login_platform,u_id,access_token,google_expire_time,subject,refresh_token)
+
+					return utils.resSuccess(
+												{'msg':MSG_SUCCESS_ADD_ACCOUNT}
+											)
+
+				except Exception as e:
+					return utils.resErr(	
+											{'msg':str(e)}
+										)	
+
+
 
 
 			#로그아웃에선 레디스에서 해당 세션키를 날리고, is_active 를 false로
@@ -303,7 +415,7 @@ class Member(MethodView):
 				redis.delete(sessionkey)
 				logging.debug('delete sessionkey => ' + sessionkey)									
 				return utils.resSuccess(
-											{'msg':MSG_INVALID_TOKENKEY}
+											{'msg':MSG_LOGOUT_SUCCESS}
 										)
 			
 			except Exception as e:

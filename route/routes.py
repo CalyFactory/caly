@@ -31,8 +31,14 @@ def initRoute(app):
 
 	member = Member.as_view('member')
 	app.add_url_rule(
-						'/v1.0/member/checkAccount',
-						defaults = {'action':'checkAccount'},
+						'/v1.0/member/addAccount',
+						defaults = {'action':'addAccount'},
+						view_func = member, 
+						methods = ['POST', ]
+					)
+	app.add_url_rule(
+						'/v1.0/member/accountList',
+						defaults = {'action':'accountList'},
 						view_func = member, 
 						methods = ['POST', ]
 					)

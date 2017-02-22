@@ -17,7 +17,10 @@ resErr = lambda err : json.dumps({
 								})
 
 resCustom = lambda code,payload : json.dumps({'code':code,'payload':payload})
+
 loginState = lambda state,data : {'state':state,'data':data}
+
+syncState = lambda state,data : {'state':state,'data':data}
 
 def subDateWithCurrent(date):
 	cur_date = strftime("%Y-%m-%d %H:%M:%S", gmtime())	

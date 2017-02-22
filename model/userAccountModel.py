@@ -1,12 +1,13 @@
 from common.util import utils
 from manager import db_manager
 #login_manager
-def getCaldavUserAccount(u_id,u_pw):
+def getCaldavUserAccount(u_id,u_pw,login_platform):
 	return utils.fetch_all_json(
 				db_manager.query(
-						"SELECT * FROM USERACCOUNT WHERE user_id = %s AND access_token = %s "
+						"SELECT * FROM USERACCOUNT "
+						"WHERE user_id = %s AND access_token = %s AND login_platform = %s"
 						,
-						(u_id,u_pw) 						
+						(u_id,u_pw,login_platform) 						
 				)
 			)
 #login_manager	
@@ -94,3 +95,12 @@ def getHasAccountList(user_hashkey):
 						(user_hashkey,) 						
 				)			
 			)	
+
+# def checkUserValidation(u_id,u_pw):
+# 	return utils.fetch_all_json(
+# 				db_manager.query(
+# 						"SELECT * FROM USERACCOUNT WHERE user_id = %s AND access_token = %s "
+# 						,
+# 						(u_id,u_pw) 						
+# 				)
+# 			)	

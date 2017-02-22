@@ -54,7 +54,7 @@ def checkLoginState(flask):
 			u_id = flask.request.form['uId']
 			u_pw = flask.request.form['uPw']
 				
-			calDavclient = caldavWrapper.getCalDavClient(login_platform,u_id,u_pw)
+			calDavclient = caldavWrapper.getCalDavClient(login_platform,u_id,u_pw,login_platform)
 			#FIXME!!! 
 			#현재 로그인 실해일 경우 에러가 나서 유효하지않은 id/pw일것이다.
 			#이를 에러가 아니라 특정 정보를 주어야한다. 400 msg 와 같이말이다.
