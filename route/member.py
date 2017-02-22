@@ -47,13 +47,13 @@ class Member(MethodView):
 
 				if who_am_i['state'] == LOGIN_STATE_AUTO:
 					return utils.resSuccess(
-												{'msg':'auto login success'}
+												{'msg':MSG_LOGIN_AUTO}
 											)
 
 				elif who_am_i['state'] == LOGIN_STATE_FIRST:
 					return utils.resCustom(
 												201,
-												{'msg':'first sign up'}
+												{'msg':MSG_LOGIN_SIGNUP}
 											)
 
 				elif who_am_i['state'] == LOGIN_STATE_OTHERDEVICE:
@@ -79,8 +79,8 @@ class Member(MethodView):
 										)								
 			else :
 				return utils.resCustom(
-											400,
-											{'data':'need compulsion update'}
+											403,
+											{'data':MSG_LOGIN_COMPLUSION_UPDATE}
 										)
 
 			
@@ -187,6 +187,12 @@ class Member(MethodView):
 			device_info = flask.request.form['deviceInfo']			
 			uuid = flask.request.form['uuid']
 			sdkLevel = flask.request.form['sdkLevel']
+
+			if not redis.get(sessionkey):
+				return utils.resErr(
+										{'msg':MSG_INVALID_TOKENKEY}
+									)
+
 			try:
 
 				devices = userDeviceModel.getUserHashkey(sessionkey)
@@ -209,7 +215,7 @@ class Member(MethodView):
 			
 			if not redis.get(sessionkey):
 				return utils.resErr(
-										{'msg':'invalid sessionkey'}
+										{'msg':MSG_INVALID_TOKENKEY}
 									)
 			try:
 				
@@ -227,6 +233,10 @@ class Member(MethodView):
 		elif action == 'checkVersion':
 			app_version = flask.request.form['appVersion']
 			sessionkey = flask.request.form['sessionkey']
+			if not redis.get(sessionkey):
+				return utils.resErr(
+										{'msg':MSG_INVALID_TOKENKEY}
+									)
 			
 			try:				
 
@@ -245,7 +255,7 @@ class Member(MethodView):
 
 			if not redis.get(sessionkey):
 				return utils.resErr(
-										{'msg':'invalid sessionkey'}
+										{'msg':MSG_INVALID_TOKENKEY}
 									)
 			try:
 				user_hashkey = redis.get(sessionkey)
@@ -269,7 +279,7 @@ class Member(MethodView):
 			sessionkey = flask.request.form['sessionkey']
 			if not redis.get(sessionkey):
 				return utils.resErr(
-										{'msg':'invalid sessionkey'}
+										{'msg':MSG_INVALID_TOKENKEY}
 									)			
 			try:
 			
@@ -277,7 +287,7 @@ class Member(MethodView):
 				redis.delete(sessionkey)
 				logging.debug('delte sessionkey => ' + sessionkey)									
 				return utils.resSuccess(
-											{'msg':'logout success'}
+											{'msg':MSG_INVALID_TOKENKEY}
 										)
 			
 			except Exception as e:

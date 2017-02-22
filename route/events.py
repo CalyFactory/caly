@@ -25,8 +25,8 @@ class Events(MethodView):
 			
 			if not redis.get(sessionkey):
 				return utils.resErr(
-										{'msg':'invalid sessionkey'}
-									)		
+										{'msg':MSG_INVALID_TOKENKEY}
+									)
 
 
 
@@ -72,7 +72,7 @@ class Events(MethodView):
 			else:
 				return utils.resCustom(
 											201,
-											{'data':'Data End'}
+											{'data':MSG_EVENTS_END}
 										)
 
 		# elif action == 'userAction':			

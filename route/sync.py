@@ -36,6 +36,11 @@ class Sync(MethodView):
 		if action == 'sync':
 
 			sessionkey = flask.request.form['sessionkey']
+			
+			if not redis.get(sessionkey):
+				return utils.resErr(
+										{'msg':MSG_INVALID_TOKENKEY}
+									)			
 			#세션키에대한 해시키를 가져온다.
 			user_hashkey = redis.get(sessionkey)
 

@@ -23,3 +23,11 @@ EXPIRE_SAFE_RANGE = 180
 EVENTS_FORWARD_CNT = 6
 EVENTS_BACKWARD_CNT = 6
 EVENTS_ITEM_CNT = 6
+
+
+MSG_LOGIN_AUTO = 'auto login success'
+MSG_LOGIN_SIGNUP = 'first sign up'
+MSG_LOGIN_COMPLUSION_UPDATE = 'need compulsion update'
+
+MSG_INVALID_TOKENKEY = 'invalid token key'
+MSG_EVENTS_END = 'data end'
