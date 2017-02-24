@@ -19,17 +19,13 @@ class Events(MethodView):
 			user_hashkey = redis.get(sessionkey)
 			current_time = datetime.now()
 
-			logging.debug('userHashkey=>'+str(user_hashkey))
-			logging.debug('pageNum=>'+pageNum)	
-
+			logging.debug('userHashkey=>' + str(user_hashkey))
+			logging.debug('pageNum=>' + pageNum)	
 			
 			if not redis.get(sessionkey):
 				return utils.resErr(
 										{'msg':MSG_INVALID_TOKENKEY}
 									)
-
-
-
 			#page 가 0 이면 
 			#과거2 미래 2
 			try:

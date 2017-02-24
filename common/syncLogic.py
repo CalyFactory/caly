@@ -26,7 +26,7 @@ from common.util.statics import *
 def caldav(user,user_hashkey,login_platform):
 
 	logging.info('sync! caldav!')
-	
+
 	u_id = user[0]['user_id']
 	u_pw = user[0]['access_token']
 	account_hashkey = user[0]['account_hashkey']			
@@ -45,7 +45,7 @@ def caldav(user,user_hashkey,login_platform):
 	try:
 		calendarModel.setCaldavCalendar(calendars,account_hashkey,arr_calendar_hashkey)
 	except Exception as e:
-	    return utils.resErr(str(e))	
+	    return utils.syncState(SYNC_CALDAV_ERR_SET_CALENDAR,str(e))
 	
 	logging.debug('hashkey = >' + str(arr_calendar_hashkey))
 
@@ -131,3 +131,42 @@ def caldav(user,user_hashkey,login_platform):
 		return utils.syncState(SYNC_CALDAV_ERR_SET_SYNC_END,str(e))
 
 	return utils.syncState(SYNC_CALDAV_SUCCESS,None)
+
+def google(user):	
+	access_token = user[0]['access_token']
+	account_hashkey = user[0]['account_hashkey']
+
+	calendar_list_URL = 'https://www.googleapis.com/calendar/v3/users/me/calendarList'
+	calendar_list = json.loads(network_manager.reqGET(calendar_list_URL,access_token))
+	
+	logging.debug('calendarList=>' + str(calendar_list)	)
+	
+	calendars = calendar_list['items']
+
+	arr_channel_id = []
+	for calendar in calendars:
+		calendar_channelId = utils.makeHashKey(calendar['id'])
+		arr_channel_id.append(calendar_channelId)
+			
+	logging.debug('channl=> ' + str(arr_channel_id))
+		
+	try:
+		calendarModel.setGoogleCalendar(calendars,account_hashkey,arr_channel_id)
+	except Exception as e:
+		return utils.syncState(SYNC_GOOGLE_ERR_SET_CALENDAR,str(e))		
+
+	#notification 저장.
+	for idx, calendar in enumerate(calendars):
+		
+		logging.debug('calender id =>'+calendar['id'])
+		watch_URL = 'https://www.googleapis.com/calendar/v3/calendars/'+calendar['id']+'/events/watch'
+		body = {
+			"id" : arr_channel_id[idx],
+			"type" : "web_hook",
+			"address" : "https://ssoma.xyz:55566/v1.0/sync/watchReciver"
+		}						
+		res = network_manager.reqPOST(watch_URL,access_token,body)
+		#codeReview
+		#status code 를 202등으로 바꾼다.
+	return utils.syncState(SYNC_GOOGLE_SUCCES,None)
+	

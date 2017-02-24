@@ -340,6 +340,7 @@ class Member(MethodView):
 
 					if syncInfo['state'] == SYNC_CALDAV_SUCCESS:
 						#동기화가 완료되어야만 비로소 가입이가능하다.
+						userAccountModel.setCaldavUserAccount(account_hashkey,user_hashkey,login_platform,u_id,u_pw,caldav_homeset)
 						return utils.resSuccess(
 													{'msg':MSG_SUCCESS_ADD_ACCOUNT}
 												)
@@ -350,7 +351,9 @@ class Member(MethodView):
 						return utils.resCustom(		
 													201,
 													{'msg':syncInfo['data']}
-												)												
+												)													
+	
+
 				except Exception as e:
 					return utils.resErr(
 											{'msg':str(e)}
@@ -358,17 +361,25 @@ class Member(MethodView):
 
 
 			elif login_platform =='google':
-				#구글에서 email이 userId로 들어간다
-				u_id = email
 
 				authCode = flask.request.form['authCode']
 
 				try:
 					credentials = gAPI.getOauthCredentials(authCode)
 			
+
+					subject = credentials['id_token']['sub']					
+					user = userAccountModel.getGoogleUserAccount(subject)
+
+					#subject가 일치하는 항목이 있다면 이미 등록한것.
+					if len(user) != 0:
+						return utils.resCustom(
+												403,
+												{'msg':MSG_FAILE_ADD_ACCOUNT_REGISTERD}
+											)
+						
 					access_token = credentials['token_response']['access_token']
 					email = credentials['id_token']['email']
-					subject = credentials['id_token']['sub']
 
 					#3분정도 여유 시간을 준다. 
 					#시간에 타이트하게하면 불안정하다.
@@ -384,12 +395,34 @@ class Member(MethodView):
 					logging.debug('accessToken'+access_token)
 					logging.debug('extime'+str(google_expire_time))	
 					logging.debug('refreshTOken'+str(refresh_token))
-					
-					userAccountModel.setGoogleUserAccount(account_hashkey,user_hashkey,login_platform,u_id,access_token,google_expire_time,subject,refresh_token)
 
-					return utils.resSuccess(
-												{'msg':MSG_SUCCESS_ADD_ACCOUNT}
-											)
+					#구글에서 email이 userId로 들어간다
+					u_id = email
+					#회원가입					
+					userAccountModel.setGoogleUserAccount(account_hashkey,user_hashkey,login_platform,u_id,access_token,google_expire_time,subject,refresh_token)
+					
+					user = userAccountModel.getGoogleUserAccount(subject)
+					
+					logging.debug('user==>'+str(user))
+
+					syncInfo = syncLogic.google(user)
+					
+					logging.debug('syncInfo==>'+str(syncInfo))
+
+					if syncInfo['state'] == SYNC_GOOGLE_SUCCES:
+						#동기화가 완료되어야만 비로소 가입이가능하다.
+						# userAccountModel.setCaldavUserAccount(account_hashkey,user_hashkey,login_platform,u_id,u_pw,caldav_homeset)
+						return utils.resSuccess(
+													{'msg':MSG_SUCCESS_ADD_ACCOUNT}
+												)
+
+					else:
+						#실패한경우는 회원가입은 성공했지만 모종의 이유로 동기화는 실패한 상태다.
+						#유저가 다시동기화 할 수 있도록 해주어야한다.
+						return utils.resCustom(		
+													201,
+													{'msg':syncInfo['data']}
+												)							
 
 				except Exception as e:
 					return utils.resErr(	

@@ -44,7 +44,15 @@ logging.debug('currentServerTime=>'+str(datetime.now()))
 ##############
 #  테스트요청	 #
 ##############
-
+# @app.route('/testt')
+# def testt():
+# 	return utils.resCustom(
+# 							210,
+# 							{'msg':'MSG_INVALID_TOKENKEY'}
+# 						)
+# 	# return 'hi',402,{'Content-Type':'application/json'}
+# 	# res = utils.multiReturn(200,'dataa','application/json')
+# 	return utils.multiReturn(200,'dataa','application/json')
 
 @app.route('/refresh')
 def refresh():

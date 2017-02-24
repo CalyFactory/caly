@@ -70,39 +70,59 @@ class Sync(MethodView):
 				
 
 			elif login_platform == 'google':
-				access_token = user[0]['access_token']
-				account_hashkey = user[0]['account_hashkey']
-
-				calendar_list_URL = 'https://www.googleapis.com/calendar/v3/users/me/calendarList'
-				calendar_list = json.loads(network_manager.reqGET(calendar_list_URL,access_token))
+				logging.debug('user==>' + str(user))
+				syncInfo = syncLogic.google(user)				
 				
-				logging.debug('calendarList=>' + str(calendar_list)	)
-				
-				calendars = calendar_list['items']
+				logging.debug('syncInfo==>' + str(syncInfo))
 
-				arr_channel_id = []
-				for calendar in calendars:
-					calendar_channelId = utils.makeHashKey(calendar['id'])
-					arr_channel_id.append(calendar_channelId)
+				if syncInfo['state'] == SYNC_GOOGLE_SUCCES:
+					#동기화가 완료되어야만 비로소 가입이가능하다.
+					# userAccountModel.setCaldavUserAccount(account_hashkey,user_hashkey,login_platform,u_id,u_pw,caldav_homeset)
+					return utils.resSuccess(
+												{'msg':MSG_SUCCESS_ADD_ACCOUNT}
+											)
+
+				else:
+					#실패한경우는 회원가입은 성공했지만 모종의 이유로 동기화는 실패한 상태다.
+					#유저가 다시동기화 할 수 있도록 해주어야한다.
+					return utils.resCustom(		
+												201,
+												{'msg':syncInfo['data']}
+											)											
+
+				# access_token = user[0]['access_token']
+				# account_hashkey = user[0]['account_hashkey']
+
+				# calendar_list_URL = 'https://www.googleapis.com/calendar/v3/users/me/calendarList'
+				# calendar_list = json.loads(network_manager.reqGET(calendar_list_URL,access_token))
+				
+				# logging.debug('calendarList=>' + str(calendar_list)	)
+				
+				# calendars = calendar_list['items']
+
+				# arr_channel_id = []
+				# for calendar in calendars:
+				# 	calendar_channelId = utils.makeHashKey(calendar['id'])
+				# 	arr_channel_id.append(calendar_channelId)
 						
-				logging.debug('channl=> ' + str(arr_channel_id))	
+				# logging.debug('channl=> ' + str(arr_channel_id))	
 
-				calendarModel.setGoogleCalendar(calendars,account_hashkey,arr_channel_id)
+				# calendarModel.setGoogleCalendar(calendars,account_hashkey,arr_channel_id)
 
-				#notification 저장.
-				for idx, calendar in enumerate(calendars):
+				# #notification 저장.
+				# for idx, calendar in enumerate(calendars):
 					
-					logging.debug('calender id =>'+calendar['id'])
-					watch_URL = 'https://www.googleapis.com/calendar/v3/calendars/'+calendar['id']+'/events/watch'
-					body = {
-						"id" : arr_channel_id[idx],
-						"type" : "web_hook",
-						"address" : "https://ssoma.xyz:55566/v1.0/sync/watchReciver"
-					}						
-					res = network_manager.reqPOST(watch_URL,access_token,body)
-					#codeReview
-					#status code 를 202등으로 바꾼다.
-				return utils.resSuccess({'msg':'Google Sync Loading'})
+				# 	logging.debug('calender id =>'+calendar['id'])
+				# 	watch_URL = 'https://www.googleapis.com/calendar/v3/calendars/'+calendar['id']+'/events/watch'
+				# 	body = {
+				# 		"id" : arr_channel_id[idx],
+				# 		"type" : "web_hook",
+				# 		"address" : "https://ssoma.xyz:55566/v1.0/sync/watchReciver"
+				# 	}						
+				# 	res = network_manager.reqPOST(watch_URL,access_token,body)
+				# 	#codeReview
+				# 	#status code 를 202등으로 바꾼다.
+				# return utils.resSuccess({'msg':'Google Sync Loading'})
 
 	#watchReciver를 테스트해봐야됨.
 		elif action == 'watchReciver':
@@ -308,8 +328,15 @@ class Sync(MethodView):
 					syncEndModel.setSyncEnd(account_hashkey)
 				except Exception as e:
 						return utils.resErr(str(e))
+				user_device = userDeviceModel.getPushToken(account_hashkey)
+				logging.info('account_hashkey ' + str(account_hashkey))
+				#0이 아닐경우는 유저 디바이스가 최초가입으로 제대로 존재할 경우
+				if len(user_device) !=0:
+					push_token = user_device[0]['push_token']
 
-				push_token = userDeviceModel.getPushToken(account_hashkey)[0]['push_token']
+				#0일경우는 새로운 계정 추가할 경우.
+				# else:
+					# push_token = 
 				
 				logging.debug('pushtoken =>' + push_token)
 				data_message = {

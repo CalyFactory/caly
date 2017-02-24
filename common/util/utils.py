@@ -6,21 +6,33 @@ from time import gmtime, strftime
 from datetime import datetime
 
 
-resSuccess = lambda payload : json.dumps({
-											'code':200,
-											'payload':payload
-										})
-
-resErr = lambda err : json.dumps({
-									'code':400,
-									'payload':err
-								})
-
-resCustom = lambda code,payload : json.dumps({'code':code,'payload':payload})
-
 loginState = lambda state,data : {'state':state,'data':data}
 
 syncState = lambda state,data : {'state':state,'data':data}
+
+def resSuccess(payload):
+	return json.dumps(
+						{'payload':payload}
+					),200,{'Conent_Type':'application/json'}
+
+def resErr(err):
+	return json.dumps(
+						{'payload':err}
+					),400,{'Conent_Type':'application/json'}
+
+def resCustom(code,payload):
+	return json.dumps(
+						{'payload':payload}
+					),code,{'Conent_Type':'application/json'}			
+
+
+
+def multiReturn(code,data,header):
+	if header == 'json':
+		header = 'application/json'	
+
+	return data,code,{'Content-Type':'application/json'}
+
 
 def subDateWithCurrent(date):
 	cur_date = strftime("%Y-%m-%d %H:%M:%S", gmtime())	
