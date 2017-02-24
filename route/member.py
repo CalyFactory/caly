@@ -319,9 +319,13 @@ class Member(MethodView):
 					#검색을 했는데 길이가 0이면, 유저가 없는경우임으로 추가를 해준다.
 					#그리고 동기화로직을 탄다.
 					logging.debug('user = >'+str(user))
+
 					if len(user) == 0:
 						
 						userAccountModel.setCaldavUserAccount(account_hashkey,user_hashkey,login_platform,u_id,u_pw,caldav_homeset)
+						
+						#다시 유저가생겼음으로 유저를 가져와서 접속한다.
+						user = userAccountModel.getCaldavUserAccount(u_id,u_pw,login_platform)
 
 					#유저가 존재하면 이미 등록된 아이디라고 알려준다.
 					else:		
@@ -330,17 +334,13 @@ class Member(MethodView):
 												{'msg':MSG_FAILE_ADD_ACCOUNT_REGISTERD}
 											)
 
-					#다시 유저가생겼음으로 유저를 가져와서 접속한다.
-					user = userAccountModel.getCaldavUserAccount(u_id,u_pw,login_platform)
-
+					
 					#가입이 완료되었다면 동기화 로직을 돈다.
 					#기존 위의 파라미터로도 접속은 가능하지만. 
 					# sync 기본 요청에서는 user로 값을 넣어줘야함으로 맞춰줘야함.
 					syncInfo = syncLogic.caldav(user,user_hashkey,login_platform)
 
-					if syncInfo['state'] == SYNC_CALDAV_SUCCESS:
-						#동기화가 완료되어야만 비로소 가입이가능하다.
-						userAccountModel.setCaldavUserAccount(account_hashkey,user_hashkey,login_platform,u_id,u_pw,caldav_homeset)
+					if syncInfo['state'] == SYNC_CALDAV_SUCCESS:						
 						return utils.resSuccess(
 													{'msg':MSG_SUCCESS_ADD_ACCOUNT}
 												)
@@ -348,9 +348,12 @@ class Member(MethodView):
 					else:
 						#실패한경우는 회원가입은 성공했지만 모종의 이유로 동기화는 실패한 상태다.
 						#유저가 다시동기화 할 수 있도록 해주어야한다.
+
+						#codeReview
+						#최소 에러라인을 알려주면 서로편할것이다.
 						return utils.resCustom(		
 													201,
-													{'msg':syncInfo['data']}
+													{'msg':str(syncInfo['data'])}
 												)													
 	
 
@@ -388,6 +391,8 @@ class Member(MethodView):
 					current_date_time = datetime.datetime.now()
 					google_expire_time = current_date_time + datetime.timedelta(seconds=expires_in)
 
+					#codeReview
+					#리프레시토큰 재발급
 					refresh_token = credentials['refresh_token']
 
 					logging.debug('current now => '+str(datetime.datetime.now()))
@@ -405,13 +410,12 @@ class Member(MethodView):
 					
 					logging.debug('user==>'+str(user))
 
-					syncInfo = syncLogic.google(user)
+					syncInfo = syncLogic.google(user,sessionkey)
 					
 					logging.debug('syncInfo==>'+str(syncInfo))
 
 					if syncInfo['state'] == SYNC_GOOGLE_SUCCES:
-						#동기화가 완료되어야만 비로소 가입이가능하다.
-						# userAccountModel.setCaldavUserAccount(account_hashkey,user_hashkey,login_platform,u_id,u_pw,caldav_homeset)
+						#동기화가 완료되어야만 비로소 가입이가능하다.						
 						return utils.resSuccess(
 													{'msg':MSG_SUCCESS_ADD_ACCOUNT}
 												)
@@ -421,7 +425,7 @@ class Member(MethodView):
 						#유저가 다시동기화 할 수 있도록 해주어야한다.
 						return utils.resCustom(		
 													201,
-													{'msg':syncInfo['data']}
+													{'msg':str(syncInfo['data'])}
 												)							
 
 				except Exception as e:

@@ -140,14 +140,14 @@ def setSdkLevel(sessionkey,sdkLevel):
 					)
 				)
 
-def getPushToken(account_hashkey):
+def getPushToken(sessionkey):
 	return utils.fetch_all_json(
 				db_manager.query(
 						"SELECT push_token "
 						+ "FROM USERDEVICE "
-						+ "WHERE account_hashkey = %s "
+						+ "WHERE session_key = %s "
 						,
-						(account_hashkey,) 						
+						(sessionkey,) 						
 				)
 			)	
 

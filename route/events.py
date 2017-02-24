@@ -26,8 +26,6 @@ class Events(MethodView):
 				return utils.resErr(
 										{'msg':MSG_INVALID_TOKENKEY}
 									)
-			#page 가 0 이면 
-			#과거2 미래 2
 			try:
 				if int(pageNum) == 0 :
 

@@ -17,16 +17,16 @@ def setCaldavCalendar(calendars,account_hashkey,arr_calendar_hashkey):
 						lastQuery							
 					)		
 
-def setGoogleCalendar(calendars,account_hashkey,arr_channel_id):
+def setGoogleCalendar(calendars,account_hashkey,arr_channel_id,push_state_before):
 	arrQueryString = []
-	arrQueryString.append('INSERT INTO CALENDAR (calendar_hashkey,account_hashkey,calendar_id,calendar_name,google_channel_id) values ')
+	arrQueryString.append('INSERT INTO CALENDAR (calendar_hashkey,account_hashkey,calendar_id,calendar_name,google_channel_id,google_push_complete) values ')
 	
 	for idx, calendar in enumerate(calendars):
 
 		calendar_hashkey = utils.makeHashKey(calendar['id'])
 		calendar_channelId = utils.makeHashKey(calendar_hashkey)
 
-		arrQueryString.append('("'+ calendar_hashkey +'","'+ account_hashkey + '","' + calendar['id'] + '","'+ calendar['summary']+'","'+arr_channel_id[idx]+ '")')
+		arrQueryString.append('("'+ calendar_hashkey +'","'+ account_hashkey + '","' + calendar['id'] + '","'+ calendar['summary']+'","'+arr_channel_id[idx]+'","'+push_state_before +'")')
 		arrQueryString.append(',')
 
 	arrQueryString.pop()
@@ -42,14 +42,14 @@ def getCalendar(channel_id):
 					"SELECT * FROM CALENDAR WHERE google_channel_id = %s",(channel_id,)
 				)		
 			)		
-def updatePushComplete(channel_id):
+def updatePushComplete(channel_id,value):
 	return db_manager.query(
-				"UPDATE CALENDAR SET google_push_complete = 1 WHERE google_channel_id = %s"
-				,(channel_id,)
+				"UPDATE CALENDAR SET google_push_complete = %s WHERE google_channel_id = %s"
+				,(value,channel_id,)
 			)
 def updateEventEnd(channel_id):
 	return db_manager.query(
-				"UPDATE CALENDAR SET google_push_complete = 2 WHERE google_channel_id = %s"
+				"UPDATE CALENDAR SET google_push_complete = 3 WHERE google_channel_id = %s"
 				,(channel_id,)
 			)
 def getHashkey(channel_id):			
@@ -72,7 +72,7 @@ def getGooglePushComplete(account_hashkey):
 				db_manager.query(
 						"SELECT * from CALENDAR "+
 						"where account_hashkey = %s "+
-						"AND google_push_complete > 0"
+						"AND google_push_complete > 1"
 						,
 						(account_hashkey,) 						
 				)

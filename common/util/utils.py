@@ -10,6 +10,7 @@ loginState = lambda state,data : {'state':state,'data':data}
 
 syncState = lambda state,data : {'state':state,'data':data}
 
+
 def resSuccess(payload):
 	return json.dumps(
 						{'payload':payload}
@@ -23,7 +24,8 @@ def resErr(err):
 def resCustom(code,payload):
 	return json.dumps(
 						{'payload':payload}
-					),code,{'Conent_Type':'application/json'}			
+					),code,{'Conent_Type':'application/json'}
+			
 
 
 

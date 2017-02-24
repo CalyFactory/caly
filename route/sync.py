@@ -59,7 +59,7 @@ class Sync(MethodView):
 
 				if syncInfo['state'] == SYNC_CALDAV_SUCCESS:
 					return utils.resSuccess(
-												{'msg':'Caldav Sync Success'}
+												{'msg':MSG_SUCCESS_CALDAV_SYNC}
 											)
 
 				else:
@@ -79,7 +79,7 @@ class Sync(MethodView):
 					#동기화가 완료되어야만 비로소 가입이가능하다.
 					# userAccountModel.setCaldavUserAccount(account_hashkey,user_hashkey,login_platform,u_id,u_pw,caldav_homeset)
 					return utils.resSuccess(
-												{'msg':MSG_SUCCESS_ADD_ACCOUNT}
+												{'msg':MSG_SUCCESS_GOOLE_SYNC_LOADING}
 											)
 
 				else:
@@ -90,39 +90,6 @@ class Sync(MethodView):
 												{'msg':syncInfo['data']}
 											)											
 
-				# access_token = user[0]['access_token']
-				# account_hashkey = user[0]['account_hashkey']
-
-				# calendar_list_URL = 'https://www.googleapis.com/calendar/v3/users/me/calendarList'
-				# calendar_list = json.loads(network_manager.reqGET(calendar_list_URL,access_token))
-				
-				# logging.debug('calendarList=>' + str(calendar_list)	)
-				
-				# calendars = calendar_list['items']
-
-				# arr_channel_id = []
-				# for calendar in calendars:
-				# 	calendar_channelId = utils.makeHashKey(calendar['id'])
-				# 	arr_channel_id.append(calendar_channelId)
-						
-				# logging.debug('channl=> ' + str(arr_channel_id))	
-
-				# calendarModel.setGoogleCalendar(calendars,account_hashkey,arr_channel_id)
-
-				# #notification 저장.
-				# for idx, calendar in enumerate(calendars):
-					
-				# 	logging.debug('calender id =>'+calendar['id'])
-				# 	watch_URL = 'https://www.googleapis.com/calendar/v3/calendars/'+calendar['id']+'/events/watch'
-				# 	body = {
-				# 		"id" : arr_channel_id[idx],
-				# 		"type" : "web_hook",
-				# 		"address" : "https://ssoma.xyz:55566/v1.0/sync/watchReciver"
-				# 	}						
-				# 	res = network_manager.reqPOST(watch_URL,access_token,body)
-				# 	#codeReview
-				# 	#status code 를 202등으로 바꾼다.
-				# return utils.resSuccess({'msg':'Google Sync Loading'})
 
 	#watchReciver를 테스트해봐야됨.
 		elif action == 'watchReciver':
@@ -132,6 +99,8 @@ class Sync(MethodView):
 
 			channelId = flask.request.headers['X-Goog-Channel-Id']
 			state = flask.request.headers['X-Goog-Resource-State']
+			
+			sessionkey = flask.request.headers['X-Goog-Channel-Token']
 
 			account = calendarModel.getHashkey(channelId)
 			#해당채널아이다로 가지고있는 것을 찾고
@@ -144,8 +113,8 @@ class Sync(MethodView):
 			if len(rows) != 0:
 			#해당 푸시컴프리트 값을 1로 바꿔준다.(푸시가 잘왔으니까.)
 			
-				if len(rows) != 0 and rows[0]['google_push_complete'] == 0 and state == 'sync':
-					calendarModel.updatePushComplete(channelId)
+				if len(rows) != 0 and rows[0]['google_push_complete'] == CALENDAR_PUSH_STATE_BEFORE and state == 'sync':
+					calendarModel.updatePushComplete(CALENDAR_PUSH_STATE_AFTER,channelId)
 					# event를세팅해준다.
 
 					for row in rows:	
@@ -157,7 +126,7 @@ class Sync(MethodView):
 						calendar_id = str(row['calendar_id']);
 						print(calendar_id)
 						#event로직이 성공적으로 끝낫을경우. 						
-						self.reqEventsList(channelId,account[0]['account_hashkey'],account[0]['access_token'],calendar_hashkey,calendar_id,body)
+						self.reqEventsList(sessionkey,channelId,account[0]['account_hashkey'],account[0]['access_token'],calendar_hashkey,calendar_id,body)
 							 
 						
 				else:
@@ -250,7 +219,7 @@ class Sync(MethodView):
 						
 			return 'hi'
 
-	def reqEventsList(self,channelId,account_hashkey,access_token,calendar_hashkey,calendar_id,body={}):
+	def reqEventsList(self,sessionkey,channelId,account_hashkey,access_token,calendar_hashkey,calendar_id,body={}):
 
 		URL = 'https://www.googleapis.com/calendar/v3/calendars/'+urllib.request.pathname2url(calendar_id)+'/events?'
 		
@@ -299,7 +268,7 @@ class Sync(MethodView):
 						'maxResults': 10,
 						'pageToken' : str(res['nextPageToken'])
 					}
-			self.reqEventsList(channelId,account_hashkey,access_token,calendar_hashkey,calendar_id,body)
+			self.reqEventsList(sessionkey,channelId,account_hashkey,access_token,calendar_hashkey,calendar_id,body)
 
 		else :
 			
@@ -311,12 +280,13 @@ class Sync(MethodView):
 			calendarModel.updateEventEnd(channelId)
 			completeCalendars = calendarModel.getGooglePushComplete(account_hashkey)
 			
-			logging.debug('calendarSync =>'+str(CALENDAR_SYNC))
+			logging.info('completeCalenar ' + str(completeCalendars))
 			logging.debug('calendarSync =>'+str(completeCalendars))
 			
 			is_finished_sync = True
 			for completeCalendar in completeCalendars:
-				if completeCalendar['google_push_complete'] != CALENDAR_SYNC:
+			
+				if completeCalendar['google_push_complete'] != CALENDAR_PUSH_SYNC_END:
 					is_finished_sync = False
 
 			#다 정상적으로 끝냇으면
@@ -328,8 +298,9 @@ class Sync(MethodView):
 					syncEndModel.setSyncEnd(account_hashkey)
 				except Exception as e:
 						return utils.resErr(str(e))
-				user_device = userDeviceModel.getPushToken(account_hashkey)
-				logging.info('account_hashkey ' + str(account_hashkey))
+
+				user_device = userDeviceModel.getPushToken(sessionkey)
+				logging.info('account_hashkey ' + str(user_device))
 				#0이 아닐경우는 유저 디바이스가 최초가입으로 제대로 존재할 경우
 				if len(user_device) !=0:
 					push_token = user_device[0]['push_token']
@@ -344,7 +315,7 @@ class Sync(MethodView):
 				    "action" : "actions"
 				}
 				
-				FCM.sendOnlyData(push_token,data_message)				
+				logging.info(str(FCM.sendOnlyData(push_token,data_message)))
 
 			else:
 				logging.info('sync fail')

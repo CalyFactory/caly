@@ -78,13 +78,12 @@ def caldav(user,user_hashkey,login_platform):
 		    #FIxME 성민이가 DTSTART가져오는것 처리해주면 이코드는 버릴거야.
 		    #레거시할 코드.
 		    for key in event:
-
 			    if 'DTSTART' in key:					    	
 			    	start_dt = event[key]
 			    elif 'DTEND' in key:
 			    	end_dt = event[key]
 	  
-		    #coderReview
+		    
 		    #타임존 라이브러리정하기
 		    created_dt = event['CREATED'][:-1]
 		    #문자열을 날짜시간으로 변경해줌. 
@@ -132,7 +131,7 @@ def caldav(user,user_hashkey,login_platform):
 
 	return utils.syncState(SYNC_CALDAV_SUCCESS,None)
 
-def google(user):	
+def google(user,sessionkey):	
 	access_token = user[0]['access_token']
 	account_hashkey = user[0]['account_hashkey']
 
@@ -145,13 +144,13 @@ def google(user):
 
 	arr_channel_id = []
 	for calendar in calendars:
-		calendar_channelId = utils.makeHashKey(calendar['id'])
+		calendar_channelId = utils.makeHashKey(calendar['id'])		
 		arr_channel_id.append(calendar_channelId)
 			
 	logging.debug('channl=> ' + str(arr_channel_id))
 		
 	try:
-		calendarModel.setGoogleCalendar(calendars,account_hashkey,arr_channel_id)
+		calendarModel.setGoogleCalendar(calendars,account_hashkey,arr_channel_id,CALENDAR_PUSH_STATE_BEFORE)
 	except Exception as e:
 		return utils.syncState(SYNC_GOOGLE_ERR_SET_CALENDAR,str(e))		
 
@@ -159,11 +158,13 @@ def google(user):
 	for idx, calendar in enumerate(calendars):
 		
 		logging.debug('calender id =>'+calendar['id'])
+
 		watch_URL = 'https://www.googleapis.com/calendar/v3/calendars/'+calendar['id']+'/events/watch'
 		body = {
 			"id" : arr_channel_id[idx],
 			"type" : "web_hook",
-			"address" : "https://ssoma.xyz:55566/v1.0/sync/watchReciver"
+			"address" : "https://ssoma.xyz:55566/v1.0/sync/watchReciver",
+			"token" : sessionkey
 		}						
 		res = network_manager.reqPOST(watch_URL,access_token,body)
 		#codeReview
