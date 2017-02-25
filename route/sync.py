@@ -28,7 +28,7 @@ from manager.redis import redis
 from common.util.statics import *
 
 
-
+from model import mFcmModel
 from common import syncLogic
 
 class Sync(MethodView):
@@ -139,7 +139,19 @@ class Sync(MethodView):
 					    "action" : "actions"
 					}
 					
-					logging.info(str(FCM.sendOnlyData(push_token,data_message)))
+					result = FCM.sendOnlyData(push_token,data_message)
+
+					#푸시보낸후 결과를 몽고디비에 저장.
+					#푸시결과,
+					#푸시토큰,
+					#세션키,
+					#데이터메세지
+					result['push_token'] = push_token
+					result['sessionkey'] = sessionkey
+					result['push_data'] = data_message
+					mFcmModel.insertFcm(result)								
+					logging.info(str(result))
+					
 
 				else:
 					logging.info('fail all sync')
@@ -229,220 +241,4 @@ class Sync(MethodView):
 							logging.debug('cancelled')							
 							eventModel.deleteEvents(event_id)				
 			return 'hi'
-			# account = calendarModel.getHashkey(channelId)
-			# #해당채널아이다로 가지고있는 것을 찾고
-			# rows = calendarModel.getCalendar(channelId)
-			# logging.debug('calender id =>' + str(rows))
-			# #pushtoken으로부터 acocunt_hashkey를 가지는 모든 googe_pushComplete를 확인핸다.
-			# #모두 다 1이되어있으면 완료되었음을 푸시로보낸다.
-
-
-			# if len(rows) != 0:
-			# #해당 푸시컴프리트 값을 1로 바꿔준다.(푸시가 잘왔으니까.)
 			
-			# 	if len(rows) != 0 and state == 'sync':
-			# 		# calendarModel.updatePushComplete(CALENDAR_PUSH_STATE_AFTER,channelId)
-			# 		# event를세팅해준다.
-
-			# 		# for row in rows:	
-			# 		# 	#최초 요청은 nextPageToken이 존재하지 않는다.
-			# 		# 	body = {
-			# 		# 				'maxResults': 10
-			# 		# 			}
-			# 		# 	calendar_hashkey = str(row['calendar_hashkey']);
-			# 		# 	calendar_id = str(row['calendar_id']);
-			# 		# 	print(calendar_id)
-			# 		# 	#event로직이 성공적으로 끝낫을경우. 						
-			# 		# 	self.reqEventsList(sessionkey,channelId,account[0]['account_hashkey'],account[0]['access_token'],calendar_hashkey,calendar_id,body)
-			# 		pass			 
-						
-			# 	else:
-			# 		sessionkey = flask.request.headers['X-Goog-Channel-Token']
-			# 		calendar_hashkey = str(rows[0]['calendar_hashkey'])
-			# 		calendar_id = str(rows[0]['calendar_id'])
-					
-			# 		#해당 캘린더의 최근의 sync토큰을 가져온다.
-			# 		row = calendarModel.getLatestSyncToken(calendar_hashkey)
-					
-			# 		sync_token = row[0]['sync_token'];
-			# 		calendar_hashkey = row[0]['calendar_hashkey'];
-			# 		calendar_id = row[0]['calendar_id'];
-
-			# 		# logging.debug('synctoken =>' + sync_token)
-			# 		# logging.debug('calendar_id = >'+calendar_id)
-					
-					
-			# 		URL = 'https://www.googleapis.com/calendar/v3/calendars/'+urllib.request.pathname2url(calendar_id)+'/events'
-			# 		body = {
-			# 			'syncToken':sync_token
-			# 		}
-			# 		res = json.loads(network_manager.reqGET(URL,account[0]['access_token'],body))				
-			# 		# logging.debug('nextPage' + str(res))
-
-			# 		next_sync_token = res['nextSyncToken']								
-			# 		syncModel.setSync(calendar_hashkey,next_sync_token)			
-
-			# 		#기본적으로 아이템에 값이 있어야한다.
-			# 		if len(res['items']) != 0:					
-
-			# 			for item in res['items']:
-							
-			# 				# add/update/delete 모든 공통적인부분 id를 가진다.
-			# 				event_id = item['id']
-			# 				status = item['status']
-			# 				location = 'noLocation'
-			# 				if('location' in item):
-			# 					location = item['location']													
-
-			# 				#삭제는 아래와같은 키값들을 제공해주지 않는다.
-			# 				if status != 'cancelled':
-			# 				#confirmed, canceled							
-			# 					created = item['created']
-			# 					updated = item['updated']
-
-								
-			# 					created = created[:len(created)-5]
-			# 					updated = updated[:len(updated)-5]	
-			# 					summary = 'noTitle'
-			# 					if('summary' in item):												
-			# 						summary = item['summary']
-			# 					# logging.debug('created => '+ created)
-			# 					# logging.debug('updated => '+ updated)
-			# 					# logging.debug('status => ' + status)									
-								
-							
-			# 				# 만들어진 경우 or 수정일 경우이다.
-			# 				# created 와 updated가 같은경우 추가한경우다
-			# 				# 아예 instrt해주면된다.
-			# 					if('date' in item['start'] ):					
-			# 						start_date = item['start']['date']
-			# 						end_date = item['end']['date']
-
-			# 					elif('dateTime' in item['start']):		
-			# 						start_date = utils.date_utc_to_current(str(item['start']['dateTime']))
-			# 						end_date = utils.date_utc_to_current(str(item['end']['dateTime']))					
-
-			# 				if status == 'confirmed' and created == updated:
-			# 					logging.debug('addEvent')
-			# 					event_hashkey = utils.makeHashKey(event_id)
-
-			# 					eventModel.setGoogleEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location)
-					
-			# 				#업데이트 한 경우이다. 
-			# 				#id값을 찾아서 변환된값을 바꿔준다.
-			# 				elif status =='confirmed' and created != updated:
-			# 					logging.debug('updated')
-			# 					# update events set calendar_id = 'testid', summary = 'sum' where id = '67'
-			# 					eventModel.updateEvents(summary,start_date,end_date,created,updated,location,event_id)
-							
-
-			# 				elif status == 'cancelled':
-			# 					logging.debug('cancelled')							
-			# 					eventModel.deleteEvents(event_id)
-			# elif len(rows)==0:
-			# 	#이벤트가없을경우 원래 이벤틀르 가져올수없는경우다. 동기화한샘친다.
-			# 	logging.debug('no Event')
-			# 	calendarModel.updateEventEnd(channelId)					
-						
-			# return 'hi'
-
-	# def reqEventsList(self,sessionkey,channelId,account_hashkey,access_token,calendar_hashkey,calendar_id,body={}):
-
-	# 	URL = 'https://www.googleapis.com/calendar/v3/calendars/'+urllib.request.pathname2url(calendar_id)+'/events?'
-		
-	# 	res = json.loads(network_manager.reqGET(URL,access_token,body))
-	# 	# print('calender_id=>'+row['calendar_id'])
-		
-	# 	# logging.debug('ress=>'+str(res))
-	
-
-	# 	for item in res['items']:
-			
-	# 		# logging.debug('event_id=>'+str(item['id']))
-
-	# 		event_id = item['id']		
-	# 		summary = 'noTitle'
-	# 		start_date = None
-	# 		end_date = None
-	# 		created = None
-	# 		updated = None
-	# 		location = 'noLocation'
-
-	# 		if('summary' in item):			
-	# 			summary = item['summary']
-	# 		if('location' in item):
-	# 			location = item['location']
-
-	# 		if('date' in item['start'] ):					
-	# 			start_date = item['start']['date']
-	# 			end_date = item['end']['date']
-
-	# 		elif('dateTime' in item['start']):		
-	# 			start_date = utils.date_utc_to_current(str(item['start']['dateTime']))
-	# 			end_date = utils.date_utc_to_current(str(item['end']['dateTime']))
-												
-	# 		created = str(item['created'])[:-1]
-	# 		updated = str(item['updated'])[:-1]
-	# 		event_hashkey = utils.makeHashKey(event_id)
-	# 		eventModel.setGoogleEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location)
-
-
-
-	# 	#넥스트 토큰이있을경우 없을때까지 요청을 보낸다.
-	# 	if 'nextPageToken' in res:
-			
-	# 		body = {
-	# 					'maxResults': 10,
-	# 					'pageToken' : str(res['nextPageToken'])
-	# 				}
-	# 		self.reqEventsList(sessionkey,channelId,account_hashkey,access_token,calendar_hashkey,calendar_id,body)
-
-	# 	else :
-			
-	# 		# logging.debug('sync==>'+res['nextSyncToken'])
-
-	# 		syncToken = res['nextSyncToken']
-	# 		syncModel.setSync(calendar_hashkey,syncToken)
-
-	# 		calendarModel.updateEventEnd(channelId)
-	# 		completeCalendars = calendarModel.getGooglePushComplete(account_hashkey)
-			
-	# 		logging.info('completeCalenar ' + str(completeCalendars))
-	# 		# logging.debug('calendarSync =>'+str(completeCalendars))
-			
-	# 		is_finished_sync = True
-	# 		for completeCalendar in completeCalendars:
-			
-	# 			if completeCalendar['google_push_complete'] != CALENDAR_PUSH_SYNC_END:
-	# 				is_finished_sync = False
-
-	# 		#다 정상적으로 끝냇으면
-	# 		if is_finished_sync:
-				
-	# 			logging.info('sync success')
-	# 			#모든캘린더들이 다 싱크가 완료되었다면 syncEnd에 값을 저장한다.  
-	# 			try:
-	# 				syncEndModel.setSyncEnd(account_hashkey)
-	# 			except Exception as e:
-	# 					return utils.resErr(str(e))
-
-	# 			user_device = userDeviceModel.getPushToken(sessionkey)
-	# 			logging.info('account_hashkey ' + str(user_device))
-	# 			#0이 아닐경우는 유저 디바이스가 최초가입으로 제대로 존재할 경우
-	# 			if len(user_device) !=0:
-	# 				push_token = user_device[0]['push_token']
-
-	# 			#0일경우는 새로운 계정 추가할 경우.
-	# 			# else:
-	# 				# push_token = 
-				
-	# 			logging.debug('pushtoken =>' + push_token)
-	# 			data_message = {
-	# 			    "type" : "sync",
-	# 			    "action" : "actions"
-	# 			}
-				
-	# 			logging.info(str(FCM.sendOnlyData(push_token,data_message)))
-
-	# 		else:
-	# 			logging.info('sync fail')

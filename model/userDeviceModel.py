@@ -36,8 +36,9 @@ def setUserDevice(device_hashkey,account_hashkey,sessionkey):
 #login_manager			
 def updateUserSession(sessionkey,uuid):
 	return db_manager.query(
-						"UPDATE USERDEVICE " +
-						"SET session_key = %s " +
+						"UPDATE USERDEVICE " 
+						"SET session_key = %s, " 
+						"is_active = 1 "
 						"WHERE uuid = %s"
 						,
 						(sessionkey,uuid) 						

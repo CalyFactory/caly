@@ -155,12 +155,3 @@ def checkLoginState(flask):
 #하위호환성 유지
 #api경로따로짠다
 #강제 업데이트를 한다.
-# def updateSDK(flask):
-# 	if 'sdkLevel' in flask.request.form:
-# 		print('has sdk')
-# 		sdkLevel = flask.request.form['sdkLevel']
-		
-# 		try:
-# 			userDeviceModel.setSdkLevel(sessionkey,sdkLevel)
-# 		except Exception as e:
-# 			return utils.loginState(LOGIN_ERROR,str(e))					

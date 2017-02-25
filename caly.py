@@ -39,9 +39,10 @@ initRoute(app)
 logSet.init()
 
 from datetime import datetime
+from model import mFcmModel
 logging.debug('currentServerTime=>'+str(datetime.now()))
 
-from model import calendarModel
+
 
 ##############
 #  테스트요청	 #

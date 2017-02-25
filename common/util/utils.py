@@ -81,4 +81,3 @@ def date_utc_to_current(date):
 	elif(date.index('-') != -1):
 		return date[:date.index('-')]	
 
-	
