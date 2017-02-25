@@ -43,13 +43,6 @@ def getCalendar(channel_id):
 				)		
 			)		
 
-# def getAccountHashkey(channel_id):			
-# 	return utils.fetch_all_json(
-# 				db_manager.query(
-# 					"SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %s"
-# 					,(channel_id,)
-# 				)		
-# 			)		
 def getAccountHashkey(channel_id):			
 	return utils.fetch_all_json(
 				db_manager.query(

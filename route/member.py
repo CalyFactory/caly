@@ -219,26 +219,6 @@ class Member(MethodView):
 										{'msg':str(e)}
 									)		
 
-		elif action =='updatePushToken':
-			push_token = flask.request.form['pushToken']
-			sessionkey = flask.request.form['sessionkey']
-			
-			if not redis.get(sessionkey):
-				return utils.resErr(
-										{'msg':MSG_INVALID_TOKENKEY}
-									)
-			try:
-				
-				userDeviceModel.updatePushToken(push_token,sessionkey)
-				return utils.resSuccess(
-											{'msg':'success'}
-										)
-
-			except Exception as e:
-
-				return utils.resErr(
-										{'msg':str(e)}
-									)		
 
 		elif action == 'checkVersion':
 			app_version = flask.request.form['appVersion']

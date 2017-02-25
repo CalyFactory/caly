@@ -151,3 +151,14 @@ def getPushToken(sessionkey):
 				)
 			)	
 
+
+def setRecviePush(sessionkey,value):
+	return 	db_manager.query(
+					"UPDATE USERDEVICE " 
+					"SET receive_push = %s "
+					"WHERE session_key = %s",
+					(									
+						value,sessionkey,					
+					)
+				)
+
