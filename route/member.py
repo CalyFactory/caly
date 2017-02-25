@@ -52,19 +52,19 @@ class Member(MethodView):
 
 				elif who_am_i['state'] == LOGIN_STATE_FIRST:
 					return utils.resCustom(
-												201,
+												202,
 												{'msg':MSG_LOGIN_SIGNUP}
 											)
 
 				elif who_am_i['state'] == LOGIN_STATE_OTHERDEVICE:
 					return utils.resCustom(
-												207,
+												201,
 												who_am_i['data']
 											)	
 
 				elif who_am_i['state'] == LOGIN_STATE_RELOGIN:				
 					return utils.resCustom(
-												205,
+												200,
 												who_am_i['data']
 											)
 
