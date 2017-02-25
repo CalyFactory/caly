@@ -137,7 +137,7 @@ class Member(MethodView):
 			user_hashkey = utils.makeHashKey(uuid)
 			account_hashkey = utils.makeHashKey(user_hashkey)
 			device_hashkey = utils.makeHashKey(account_hashkey)
-			sessionkey = utils.makeHashKey(device_hashkey)
+			apikey= utils.makeHashKey(device_hashkey)
 
 			try:
 
@@ -168,16 +168,16 @@ class Member(MethodView):
 
 				
 				#login_manager
-				userDeviceModel.setGoogleUserDevice(device_hashkey,account_hashkey,sessionkey,push_token,device_type,app_version,device_info,uuid,sdkLevel)
+				userDeviceModel.setGoogleUserDevice(device_hashkey,account_hashkey,apikey,push_token,device_type,app_version,device_info,uuid,sdkLevel)
 				#세션관리를 위해 세션키를 키로 해시키로 매핑시킨다.
 				#로그아웃시 해당 세션키를 보내서 날린다.
 				
-				redis.set(sessionkey,user_hashkey)
-				logging.debug('sessionkey' + sessionkey)				
+				redis.set(apikey,user_hashkey)
+				logging.debug('apikey' + apikey)				
 				logging.debug('user_hashkey' + user_hashkey)											
 
 				return utils.resSuccess(
-											{'sessionkey':sessionkey}
+											{'apikey':apikey}
 										)
 			except Exception as e:
 				return utils.resErr(
@@ -186,7 +186,7 @@ class Member(MethodView):
 
 		elif action == 'registerDevice':
 			
-			sessionkey = flask.request.form['sessionkey']
+			apikey = flask.request.form['apikey']
 			push_token = flask.request.form['pushToken']
 			device_type = flask.request.form['deviceType']
 			app_version = flask.request.form['appVersion']
@@ -194,25 +194,25 @@ class Member(MethodView):
 			uuid = flask.request.form['uuid']
 			sdkLevel = flask.request.form['sdkLevel']
 
-			if not redis.get(sessionkey):
+			if not redis.get(apikey):
 				return utils.resErr(
 										{'msg':MSG_INVALID_TOKENKEY}
 									)
 
 			try:
 
-				devices = userDeviceModel.getUserHashkey(sessionkey)
+				devices = userDeviceModel.getUserHashkey(apikey)
 
 				if len(devices) != 0:
 					userHashkey = devices[0]['user_hashkey']
-					redis.set(sessionkey,devices[0]['user_hashkey'])
+					redis.set(apikey,devices[0]['user_hashkey'])
 
-					logging.debug('sessionkey' + sessionkey)
+					logging.debug('apikey' + apikey)
 					logging.debug('user_hashkey' + userHashkey)
 
-				userDeviceModel.updateUserDevice(push_token,device_type,app_version,device_info,uuid,sdkLevel,sessionkey)
+				userDeviceModel.updateUserDevice(push_token,device_type,app_version,device_info,uuid,sdkLevel,apikey)
 				return utils.resSuccess(
-											{'sessionkey':sessionkey}
+											{'apikey':apikey}
 										)
 			except Exception as e:
 				return utils.resErr(
@@ -222,15 +222,15 @@ class Member(MethodView):
 
 		elif action == 'checkVersion':
 			app_version = flask.request.form['appVersion']
-			sessionkey = flask.request.form['sessionkey']
-			if not redis.get(sessionkey):
+			apikey = flask.request.form['apikey']
+			if not redis.get(apikey):
 				return utils.resErr(
 										{'msg':MSG_INVALID_TOKENKEY}
 									)
 			
 			try:				
 
-				userDeviceModel.setVersion(sessionkey,app_version)				
+				userDeviceModel.setVersion(apikey,app_version)				
 				return utils.resSuccess(
 											{'msg':'successd'}
 										)
@@ -241,14 +241,14 @@ class Member(MethodView):
 									)				
 		
 		elif action == 'accountList':
-			sessionkey = flask.request.form['sessionkey']
+			apikey = flask.request.form['apikey']
 
-			if not redis.get(sessionkey):
+			if not redis.get(apikey):
 				return utils.resErr(
 										{'msg':MSG_INVALID_TOKENKEY}
 									)
 			try:
-				user_hashkey = redis.get(sessionkey)
+				user_hashkey = redis.get(apikey)
 				logging.debug('hashkey=> '+user_hashkey)
 				accounts = userAccountModel.getHasAccountList(user_hashkey)
 				return utils.resSuccess(
@@ -261,10 +261,10 @@ class Member(MethodView):
 									)								
 
 		elif action == 'addAccount':
-			sessionkey = flask.request.form['sessionkey']			
+			apikey = flask.request.form['apikey']			
 			login_platform = flask.request.form['login_platform']	
 
-			user_hashkey = redis.get(sessionkey)
+			user_hashkey = redis.get(apikey)
 			logging.debug('user_hashkey = '+ user_hashkey)
 			if not user_hashkey:
 				return utils.resErr(
@@ -390,7 +390,7 @@ class Member(MethodView):
 					
 					logging.debug('user==>'+str(user))
 
-					syncInfo = syncLogic.google(user,sessionkey)
+					syncInfo = syncLogic.google(user,apikey)
 					
 					logging.debug('syncInfo==>'+str(syncInfo))
 
@@ -412,25 +412,21 @@ class Member(MethodView):
 					return utils.resErr(	
 											{'msg':str(e)}
 										)	
-
-
-
-
 			#로그아웃에선 레디스에서 해당 세션키를 날리고, is_active 를 false로
 			#서버에서도 날려준다음
 			#로그서버에 해당 사항을 저장해준다.			
 		elif action == 'logout':
 
-			sessionkey = flask.request.form['sessionkey']
-			if not redis.get(sessionkey):
+			apikey = flask.request.form['apikey']
+			if not redis.get(apikey):
 				return utils.resErr(
 										{'msg':MSG_INVALID_TOKENKEY}
 									)			
 			try:
 			
-				userDeviceModel.logout(sessionkey)
-				redis.delete(sessionkey)
-				logging.debug('delete sessionkey => ' + sessionkey)									
+				userDeviceModel.logout(apikey)
+				redis.delete(apikey)
+				logging.debug('delete apikey => ' + apikey)									
 				return utils.resSuccess(
 											{'msg':MSG_LOGOUT_SUCCESS}
 										)
@@ -440,8 +436,3 @@ class Member(MethodView):
 				return utils.resErr(
 										{'msg':str(e)}
 									)
-
-
-
-
-			

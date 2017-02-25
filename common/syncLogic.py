@@ -1,7 +1,7 @@
 import logging
 from flask.views import MethodView
 import flask
-from flask import session
+
 from common.util import utils
 
 from model import userDeviceModel
@@ -153,7 +153,7 @@ def caldav(user,user_hashkey,login_platform):
 
 	return utils.syncState(SYNC_CALDAV_SUCCESS,None)
 
-def google(user,sessionkey):	
+def google(user,apikey):	
 	access_token = user[0]['access_token']
 	account_hashkey = user[0]['account_hashkey']
 
@@ -185,7 +185,7 @@ def google(user,sessionkey):
 		body = {
 					'maxResults': 10
 				}	
-		reqEventsList(sessionkey,calendar,user,body)
+		reqEventsList(apikey,calendar,user,body)
 
 		#캘린더 id가 일반계정이면==>무조건 push를 받음으로 pushStart로 설정해준다.
 		calendar_id = calendar['calendar_id']
@@ -211,7 +211,7 @@ def google(user,sessionkey):
 				"id" : arr_channel_id[idx],
 				"type" : "web_hook",
 				"address" : "https://ssoma.xyz:55566/v1.0/sync/watchReciver",
-				"token" : sessionkey
+				"token" : apikey
 			}						
 			res = network_manager.reqPOST(watch_URL,access_token,body)
 			#start push noti
@@ -224,7 +224,7 @@ def google(user,sessionkey):
 		#status code 를 202등으로 바꾼다.
 	return utils.syncState(SYNC_GOOGLE_SUCCES,None)
 
-def reqEventsList(sessionkey,calendar,user,body={}):
+def reqEventsList(apikey,calendar,user,body={}):
 
 	channel_id = calendar['google_channel_id']
 	account_hashkey = calendar['account_hashkey']
@@ -276,7 +276,7 @@ def reqEventsList(sessionkey,calendar,user,body={}):
 					'maxResults': 10,
 					'pageToken' : str(res['nextPageToken'])
 				}
-		reqEventsList(sessionkey,calendar,user,body)
+		reqEventsList(apikey,calendar,user,body)
 
 	else :
 		

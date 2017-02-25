@@ -1,14 +1,5 @@
 from common.util import utils
 from manager import db_manager
-#login_manager
-def getUserDeviceWithSessionkey(sessionkey):
-	return utils.fetch_all_json(
-				db_manager.query(
-						"SELECT * FROM USERDEVICE WHERE session_key = %s "
-						,
-						(sessionkey,) 						
-				)
-			)	
 
 #login_manager
 def getUserDeviceWithUuid(uuid):
@@ -21,40 +12,40 @@ def getUserDeviceWithUuid(uuid):
 			)	
 	
 #login_manager
-def setUserDevice(device_hashkey,account_hashkey,sessionkey):
+def setUserDevice(device_hashkey,account_hashkey,apikey):
 	return db_manager.query(
 				"INSERT INTO USERDEVICE " 
-				"(device_hashkey,account_hashkey,session_key)"
+				"(device_hashkey,account_hashkey,apikey)"
 				"VALUES"
 				"(%s, %s, %s)",
 				(			
 					device_hashkey,
 					account_hashkey,
-					sessionkey
+					apikey
 				)
 			)		
 #login_manager			
-def updateUserSession(sessionkey,uuid):
+def updateUserApikey(apikey,uuid):
 	return db_manager.query(
 						"UPDATE USERDEVICE " 
-						"SET session_key = %s, " 
+						"SET apikey = %s, " 
 						"is_active = 1 "
 						"WHERE uuid = %s"
 						,
-						(sessionkey,uuid) 						
+						(apikey,uuid) 						
 				)		
 
 #member
-def setGoogleUserDevice(device_hashkey,account_hashkey,sessionkey,push_token,device_type,app_version,device_info,uuid,sdkLevel):
+def setGoogleUserDevice(device_hashkey,account_hashkey,apikey,push_token,device_type,app_version,device_info,uuid,sdkLevel):
 	return 	db_manager.query(
 					"INSERT INTO USERDEVICE " 
-					"(device_hashkey,account_hashkey,session_key,push_token,device_type,app_version,device_info,uuid,sdkLevel)"
+					"(device_hashkey,account_hashkey,apikey,push_token,device_type,app_version,device_info,uuid,sdkLevel)"
 					"VALUES"
 					"(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
 					(			
 						device_hashkey,
 						account_hashkey,
-						sessionkey,
+						apikey,
 						push_token,
 						device_type,
 						app_version,
@@ -64,20 +55,20 @@ def setGoogleUserDevice(device_hashkey,account_hashkey,sessionkey,push_token,dev
 					)
 				)
 #registerDevice
-def getUserHashkey(sessionkey):
+def getUserHashkey(apikey):
 	return utils.fetch_all_json(
 				db_manager.query(
 					"SELECT user_hashkey from USERDEVICE " +				
 					"INNER JOIN USERACCOUNT on USERDEVICE.account_hashkey = USERACCOUNT.account_hashkey " +					
-					"WHERE USERDEVICE.session_key = %s "
+					"WHERE USERDEVICE.apikey = %s "
 					,
 					(									
-						sessionkey,
+						apikey,
 					)
 				)		
 			)	
 #registerDevice
-def updateUserDevice(push_token,device_type,app_version,device_info,uuid,sdkLevel,sessionkey,):
+def updateUserDevice(push_token,device_type,app_version,device_info,uuid,sdkLevel,apikey,):
 	return db_manager.query(
 					"UPDATE USERDEVICE " +				
 					"SET push_token = %s, " +
@@ -86,7 +77,7 @@ def updateUserDevice(push_token,device_type,app_version,device_info,uuid,sdkLeve
 					"device_info = %s, " +
 					"uuid = %s, " +
 					"sdkLevel = %s " +
-					"WHERE session_key = %s "
+					"WHERE apikey = %s "
 
 					,
 					(									
@@ -96,70 +87,70 @@ def updateUserDevice(push_token,device_type,app_version,device_info,uuid,sdkLeve
 						device_info,
 						uuid,
 						sdkLevel,
-						sessionkey
+						apikey
 
 					)
 				)		
 			
 #updatePushtoken
-def updatePushToken(push_token,sessionkey):
+def updatePushToken(push_token,apikey):
 	return db_manager.query(
 					"UPDATE USERDEVICE SET push_token = %s " 
-					"WHERE session_key = %s "
+					"WHERE apikey = %s "
 					,
 					(			
 						push_token,
-						sessionkey,						
+						apikey,						
 					)
 				)	
 #logout				
-def logout(sessionkey):
+def logout(apikey):
 	return 	db_manager.query(
 					"UPDATE USERDEVICE " 
-					"SET session_key = null, is_active = 0 "
-					"WHERE session_key = %s",
+					"SET apikey = null, is_active = 0 "
+					"WHERE apikey = %s",
 					(									
-						sessionkey,						
+						apikey,						
 					)
 				)	
-def setVersion(sessionkey,app_version):
+def setVersion(apikey,app_version):
 	return 	db_manager.query(
 					"UPDATE USERDEVICE " 
 					"SET app_version = %s "
-					"WHERE session_key = %s",
+					"WHERE apikey = %s",
 					(									
-						app_version,sessionkey					
+						app_version,apikey					
 					)
 				)	
-def setSdkLevel(sessionkey,sdkLevel):
+def setSdkLevel(apikey,sdkLevel):
 	return 	db_manager.query(
 					"UPDATE USERDEVICE " 
 					"SET sdkLevel = %s "
-					"WHERE session_key = %s",
+					"WHERE apikey = %s",
 					(									
-						sdkLevel,sessionkey					
+						sdkLevel,apikey					
 					)
 				)
 
-def getPushToken(sessionkey):
+def getPushToken(apikey):
 	return utils.fetch_all_json(
 				db_manager.query(
 						"SELECT push_token "
 						+ "FROM USERDEVICE "
-						+ "WHERE session_key = %s "
+						+ "WHERE apikey = %s "
 						,
-						(sessionkey,) 						
+						(apikey,) 						
 				)
 			)	
 
 
-def setRecviePush(sessionkey,value):
+def setRecviePush(apikey,value):
 	return 	db_manager.query(
 					"UPDATE USERDEVICE " 
 					"SET receive_push = %s "
-					"WHERE session_key = %s",
+					"WHERE apikey = %s",
 					(									
-						value,sessionkey,					
+						value,apikey,					
 					)
 				)
 

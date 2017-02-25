@@ -5,7 +5,7 @@
 import logging
 from flask.views import MethodView
 import flask
-from flask import session
+
 from common.util import utils
 
 from model import userDeviceModel
@@ -37,15 +37,15 @@ class Sync(MethodView):
 	def post(self,action):
 		if action == 'sync':
 
-			sessionkey = flask.request.form['sessionkey']
-			user_hashkey = redis.get(sessionkey)
+			apikey = flask.request.form['apikey']
+			user_hashkey = redis.get(apikey)
 			
 			if not user_hashkey:			
 				return utils.resErr(
 										{'msg':MSG_INVALID_TOKENKEY}
 									)			
 			#세션키에대한 해시키를 가져온다.
-			logging.debug('sessionkey = >'+str(sessionkey))
+			logging.debug('apikey = >'+str(apikey))
 			logging.debug('hashkey = >'+str(user_hashkey))
 			
 
@@ -71,7 +71,7 @@ class Sync(MethodView):
 
 			elif login_platform == 'google':
 				logging.debug('user==>' + str(user))
-				syncInfo = syncLogic.google(user,sessionkey)				
+				syncInfo = syncLogic.google(user,apikey)				
 				
 				logging.debug('syncInfo==>' + str(syncInfo))
 
@@ -107,7 +107,7 @@ class Sync(MethodView):
 				
 				calendarModel.updateGoogleSyncState(channel_id,GOOGLE_SYNC_STATE_PUSH_END)						
 				calendars = calendarModel.getGoogleSyncState(account_hashkey)
-				sessionkey = flask.request.headers['X-Goog-Channel-Token']
+				apikey = flask.request.headers['X-Goog-Channel-Token']
 
 				is_finished_sync = True
 				for calendar in calendars:
@@ -123,7 +123,7 @@ class Sync(MethodView):
 					except Exception as e:
 							return utils.resErr(str(e))
 
-					user_device = userDeviceModel.getPushToken(sessionkey)
+					user_device = userDeviceModel.getPushToken(apikey)
 					logging.info('device=> ' + str(user_device))
 					#0이 아닐경우는 유저 디바이스가 최초가입으로 제대로 존재할 경우
 					if len(user_device) !=0:
@@ -147,7 +147,7 @@ class Sync(MethodView):
 					#세션키,
 					#데이터메세지
 					result['push_token'] = push_token
-					result['sessionkey'] = sessionkey
+					result['apikey'] = apikey
 					result['push_data'] = data_message
 					mFcmModel.insertFcm(result)								
 					logging.info(str(result))
@@ -156,7 +156,6 @@ class Sync(MethodView):
 				else:
 					logging.info('fail all sync')
 			else:
-				# sessionkey = flask.request.headers['X-Goog-Channel-Token']
 				rows = calendarModel.getCalendar(channel_id)				
 				calendar_hashkey = str(rows[0]['calendar_hashkey'])
 				calendar_id = str(rows[0]['calendar_id'])

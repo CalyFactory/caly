@@ -1,6 +1,6 @@
 import requests
 import json
-from flask import Flask,session
+
 from manager.redis import redis
 from model import userAccountModel
 from common.util import utils

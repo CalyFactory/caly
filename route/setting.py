@@ -14,15 +14,15 @@ class Setting(MethodView):
 	def post(self,action):
 		if action == 'setReceivePush':
 
-			sessionkey = flask.request.form['sessionkey']
+			apikey = flask.request.form['apikey']
 			receive = flask.request.form['receive']
-			if not redis.get(sessionkey):
+			if not redis.get(apikey):
 				return utils.resErr(
 										{'msg':MSG_INVALID_TOKENKEY}
 									)
 			try:
 				
-				userDeviceModel.setRecviePush(sessionkey,receive)
+				userDeviceModel.setRecviePush(apikey,receive)
 
 				return utils.resSuccess(
 											{'msg':'success'}
@@ -37,15 +37,15 @@ class Setting(MethodView):
 
 		elif action =='updatePushToken':
 			push_token = flask.request.form['pushToken']
-			sessionkey = flask.request.form['sessionkey']
+			apikey = flask.request.form['apikey']
 			
-			if not redis.get(sessionkey):
+			if not redis.get(apikey):
 				return utils.resErr(
 										{'msg':MSG_INVALID_TOKENKEY}
 									)
 			try:
 				
-				userDeviceModel.updatePushToken(push_token,sessionkey)
+				userDeviceModel.updatePushToken(push_token,apikey)
 				return utils.resSuccess(
 											{'msg':'success'}
 										)

@@ -2,7 +2,7 @@ from manager import db_manager
 from flask.views import MethodView
 from model import eventModel
 from model import userAccountModel
-from flask import session
+
 from common.util import utils
 from manager.redis import redis
 import flask
@@ -14,15 +14,15 @@ from datetime import datetime
 class Events(MethodView):
 	def post(self,action):
 		if action == 'getList':
-			sessionkey = flask.request.form['sessionkey']
+			apikey = flask.request.form['apikey']
 			pageNum = flask.request.form['pageNum']			
-			user_hashkey = redis.get(sessionkey)
+			user_hashkey = redis.get(apikey)
 			current_time = datetime.now()
 
 			logging.debug('userHashkey=>' + str(user_hashkey))
 			logging.debug('pageNum=>' + pageNum)	
 			
-			if not redis.get(sessionkey):
+			if not redis.get(apikey):
 				return utils.resErr(
 										{'msg':MSG_INVALID_TOKENKEY}
 									)
@@ -69,9 +69,6 @@ class Events(MethodView):
 											{'msg':MSG_EVENTS_END}
 										)
 
-		# elif action == 'userAction':			
-		# 	sessionkey = flask.request.form['sessionkey']
-		# 	user_hashkey = session[sessionkey]
 
 			
 
