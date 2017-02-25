@@ -190,13 +190,8 @@ def google(user,apikey):
 		#캘린더 id가 일반계정이면==>무조건 push를 받음으로 pushStart로 설정해준다.
 		calendar_id = calendar['calendar_id']
 		calendar_channel_id = calendar['google_channel_id']
-		if '@gmail.com' in calendar_id or '@naver.com' in calendar_id or '@ical.com' in calendar_id:
+		if '@gmail.com' in calendar_id or '@naver.com' in calendar_id or '@ical.com' in calendar_id or '@group.calendar.google.com' in calendar_id:
 			calendarModel.updateGoogleSyncState(calendar_channel_id,GOOGLE_SYNC_STATE_PUSH_START)			
-
-	# account = calendarModel.getHashkey(calendar['id'])
-
-		
-
 
 	#notification 저장하기.
 	#기존 state가 ==0 이고 이 요청을 보낸상태면 1로 바꿘준다.
@@ -205,7 +200,7 @@ def google(user,apikey):
 		
 		logging.debug('calender id =>'+calendar['id'])		
 		calendar_id = calendar['id']
-		if '@gmail.com' in calendar_id or '@naver.com' in calendar_id or '@ical.com' in calendar_id:
+		if '@gmail.com' in calendar_id or '@naver.com' in calendar_id or '@ical.com' in calendar_id or '@group.calendar.google.com' in calendar_id:
 			watch_URL = 'https://www.googleapis.com/calendar/v3/calendars/'+calendar['id']+'/events/watch'
 			body = {
 				"id" : arr_channel_id[idx],
@@ -236,7 +231,7 @@ def reqEventsList(apikey,calendar,user,body={}):
 	
 	res = json.loads(network_manager.reqGET(URL,access_token,body))
 
-
+	logging.info('calendarResponse'+str(res))
 	for item in res['items']:
 		
 		# logging.debug('event_id=>'+str(item['id']))
@@ -262,8 +257,15 @@ def reqEventsList(apikey,calendar,user,body={}):
 			start_date = utils.date_utc_to_current(str(item['start']['dateTime']))
 			end_date = utils.date_utc_to_current(str(item['end']['dateTime']))
 											
-		created = str(item['created'])[:-1]
-		updated = str(item['updated'])[:-1]
+		created = str(item['created'])[:-5]
+		# logging.debug('creatd=>'+created)
+		# '2017-02-25T14:33:22.000Z'
+		created = datetime.strptime(created, "%Y-%m-%dT%H:%M:%S") + timedelta(hours=9)	    
+
+		updated = str(item['updated'])[:-5]
+		# logging.debug('updated=>'+updated)
+		updated = datetime.strptime(updated, "%Y-%m-%dT%H:%M:%S") + timedelta(hours=9)	    
+
 		event_hashkey = utils.makeHashKey(event_id)
 		eventModel.setGoogleEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location)
 

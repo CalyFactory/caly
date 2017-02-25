@@ -168,8 +168,8 @@ class Sync(MethodView):
 				calendar_hashkey = row[0]['calendar_hashkey'];
 				calendar_id = row[0]['calendar_id'];
 				access_token = account[0]['access_token']
-				# logging.debug('synctoken =>' + sync_token)
-				# logging.debug('calendar_id = >'+calendar_id)
+				logging.debug('synctoken =>' + sync_token)
+				logging.debug('calendar_id = >'+calendar_id)
 				
 				
 				URL = 'https://www.googleapis.com/calendar/v3/calendars/'+urllib.request.pathname2url(calendar_id)+'/events'
@@ -177,7 +177,7 @@ class Sync(MethodView):
 					'syncToken':sync_token
 				}
 				res = json.loads(network_manager.reqGET(URL,access_token,body))				
-				# logging.debug('nextPage' + str(res))
+				logging.debug('new Res' + str(res))
 
 				next_sync_token = res['nextSyncToken']								
 				syncModel.setSync(calendar_hashkey,next_sync_token)			
