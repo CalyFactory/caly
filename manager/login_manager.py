@@ -16,6 +16,7 @@ from model import userDeviceModel
 from model import userAccountModel
 from model import userModel
 from manager.redis import redis
+import logging
 def checkLoginState(flask):
 
 	#세션키면 웹서버가 제공해주는 세션키라고 생각할수있다.
@@ -137,7 +138,7 @@ def checkLoginState(flask):
 				sessionkey = utils.makeHashKey(uuid)
 				user_hashkey = account[0]['user_hashkey']
 
-				reids.set(sessionkey,account[0]['user_hashkey'])
+				redis.set(sessionkey,account[0]['user_hashkey'])
 
 				logging.debug('set sessionke =>'+ sessionkey)
 				logging.debug('set userhashkey =>'+ account[0]['user_hashkey'])

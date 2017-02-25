@@ -142,32 +142,130 @@ def google(user,sessionkey):
 	
 	calendars = calendar_list['items']
 
+
+	# #디비에 array로 다이렉트로 넣기위한 코드.
 	arr_channel_id = []
 	for calendar in calendars:
 		calendar_channelId = utils.makeHashKey(calendar['id'])		
-		arr_channel_id.append(calendar_channelId)
-			
-	logging.debug('channl=> ' + str(arr_channel_id))
+		arr_channel_id.append(calendar_channelId)		
+	# logging.debug('channl=> ' + str(arr_channel_id))
 		
 	try:
-		calendarModel.setGoogleCalendar(calendars,account_hashkey,arr_channel_id,CALENDAR_PUSH_STATE_BEFORE)
+		#최초 googlepushcomplete 가 0
+		calendarModel.setGoogleCalendar(calendars,account_hashkey,arr_channel_id)
 	except Exception as e:
 		return utils.syncState(SYNC_GOOGLE_ERR_SET_CALENDAR,str(e))		
 
-	#notification 저장.
+	calendarsInDB = calendarModel.getAllCalendarWithAccountHashkey(account_hashkey)
+
+	#1. 첫째로 캘린더에있는 캘린더들을 돌려서 디비에 이벤트를 저장한다.
+	for calendar in calendarsInDB:
+		body = {
+					'maxResults': 10
+				}	
+		reqEventsList(sessionkey,calendar,user,body)
+
+		#캘린더 id가 일반계정이면==>무조건 push를 받음으로 pushStart로 설정해준다.
+		calendar_id = calendar['calendar_id']
+		calendar_channel_id = calendar['google_channel_id']
+		if '@gmail.com' in calendar_id or '@naver.com' in calendar_id or '@ical.com' in calendar_id:
+			calendarModel.updateGoogleSyncState(calendar_channel_id,GOOGLE_SYNC_STATE_PUSH_START)			
+
+	# account = calendarModel.getHashkey(calendar['id'])
+
+		
+
+
+	#notification 저장하기.
+	#기존 state가 ==0 이고 이 요청을 보낸상태면 1로 바꿘준다.
+	#watch에서 받았으면 2로 값을바꾸고 push Notification을 보낸다.
 	for idx, calendar in enumerate(calendars):
 		
-		logging.debug('calender id =>'+calendar['id'])
+		logging.debug('calender id =>'+calendar['id'])		
+		calendar_id = calendar['id']
+		if '@gmail.com' in calendar_id or '@naver.com' in calendar_id or '@ical.com' in calendar_id:
+			watch_URL = 'https://www.googleapis.com/calendar/v3/calendars/'+calendar['id']+'/events/watch'
+			body = {
+				"id" : arr_channel_id[idx],
+				"type" : "web_hook",
+				"address" : "https://ssoma.xyz:55566/v1.0/sync/watchReciver",
+				"token" : sessionkey
+			}						
+			res = network_manager.reqPOST(watch_URL,access_token,body)
+			#start push noti
+			
+		# if 'id' in res:
+		# 	calendarModel.updatePushComplete(arr_channel_id[idx],CALENDAR_PUSH_STATE_BEFORE)
 
-		watch_URL = 'https://www.googleapis.com/calendar/v3/calendars/'+calendar['id']+'/events/watch'
-		body = {
-			"id" : arr_channel_id[idx],
-			"type" : "web_hook",
-			"address" : "https://ssoma.xyz:55566/v1.0/sync/watchReciver",
-			"token" : sessionkey
-		}						
-		res = network_manager.reqPOST(watch_URL,access_token,body)
+			logging.info('ress=s==> '+str(res))
 		#codeReview
 		#status code 를 202등으로 바꾼다.
 	return utils.syncState(SYNC_GOOGLE_SUCCES,None)
+
+def reqEventsList(sessionkey,calendar,user,body={}):
+
+	channel_id = calendar['google_channel_id']
+	account_hashkey = calendar['account_hashkey']
+	access_token = user[0]['access_token']
+	calendar_hashkey = calendar['calendar_hashkey']
+	calendar_id = calendar['calendar_id']
+
+	URL = 'https://www.googleapis.com/calendar/v3/calendars/'+urllib.request.pathname2url(calendar_id)+'/events?'
 	
+	res = json.loads(network_manager.reqGET(URL,access_token,body))
+
+
+	for item in res['items']:
+		
+		# logging.debug('event_id=>'+str(item['id']))
+
+		event_id = item['id']		
+		summary = 'noTitle'
+		start_date = None
+		end_date = None
+		created = None
+		updated = None
+		location = 'noLocation'
+
+		if('summary' in item):			
+			summary = item['summary']
+		if('location' in item):
+			location = item['location']
+
+		if('date' in item['start'] ):					
+			start_date = item['start']['date']
+			end_date = item['end']['date']
+
+		elif('dateTime' in item['start']):		
+			start_date = utils.date_utc_to_current(str(item['start']['dateTime']))
+			end_date = utils.date_utc_to_current(str(item['end']['dateTime']))
+											
+		created = str(item['created'])[:-1]
+		updated = str(item['updated'])[:-1]
+		event_hashkey = utils.makeHashKey(event_id)
+		eventModel.setGoogleEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location)
+
+
+
+	#넥스트 토큰이있을경우 없을때까지 요청을 보낸다.
+	if 'nextPageToken' in res:
+		
+		body = {
+					'maxResults': 10,
+					'pageToken' : str(res['nextPageToken'])
+				}
+		reqEventsList(sessionkey,calendar,user,body)
+
+	else :
+		
+		
+
+		syncToken = res['nextSyncToken']
+		logging.debug('syncToken==>'+syncToken)
+
+		#해당캘린더의 싱크가 끝낫다+> syncToken을 저장해둔다.
+		syncModel.setSync(calendar_hashkey,syncToken)
+		#캘린 더 해시키에 해당하는 googlePushComplete 1로만든다.
+		calendarModel.updateGoogleSyncState(channel_id,GOOGLE_SYNC_STATE_EVENTS_END)
+ 
+

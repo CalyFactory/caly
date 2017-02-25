@@ -17,16 +17,16 @@ def setCaldavCalendar(calendars,account_hashkey,arr_calendar_hashkey):
 						lastQuery							
 					)		
 
-def setGoogleCalendar(calendars,account_hashkey,arr_channel_id,push_state_before):
+def setGoogleCalendar(calendars,account_hashkey,arr_channel_id):
 	arrQueryString = []
-	arrQueryString.append('INSERT INTO CALENDAR (calendar_hashkey,account_hashkey,calendar_id,calendar_name,google_channel_id,google_push_complete) values ')
+	arrQueryString.append('INSERT INTO CALENDAR (calendar_hashkey,account_hashkey,calendar_id,calendar_name,google_channel_id) values ')
 	
 	for idx, calendar in enumerate(calendars):
 
 		calendar_hashkey = utils.makeHashKey(calendar['id'])
 		calendar_channelId = utils.makeHashKey(calendar_hashkey)
 
-		arrQueryString.append('("'+ calendar_hashkey +'","'+ account_hashkey + '","' + calendar['id'] + '","'+ calendar['summary']+'","'+arr_channel_id[idx]+'","'+push_state_before +'")')
+		arrQueryString.append('("'+ calendar_hashkey +'","'+ account_hashkey + '","' + calendar['id'] + '","'+ calendar['summary']+'","'+arr_channel_id[idx]+'")')
 		arrQueryString.append(',')
 
 	arrQueryString.pop()
@@ -42,23 +42,21 @@ def getCalendar(channel_id):
 					"SELECT * FROM CALENDAR WHERE google_channel_id = %s",(channel_id,)
 				)		
 			)		
-def updatePushComplete(channel_id,value):
-	return db_manager.query(
-				"UPDATE CALENDAR SET google_push_complete = %s WHERE google_channel_id = %s"
-				,(value,channel_id,)
-			)
-def updateEventEnd(channel_id):
-	return db_manager.query(
-				"UPDATE CALENDAR SET google_push_complete = 3 WHERE google_channel_id = %s"
-				,(channel_id,)
-			)
-def getHashkey(channel_id):			
+
+# def getAccountHashkey(channel_id):			
+# 	return utils.fetch_all_json(
+# 				db_manager.query(
+# 					"SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %s"
+# 					,(channel_id,)
+# 				)		
+# 			)		
+def getAccountHashkey(channel_id):			
 	return utils.fetch_all_json(
 				db_manager.query(
-					"SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %s"
+					"SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %s "					
 					,(channel_id,)
-				)		
-			)		
+				)	
+			)	 	
 #sync
 def getLatestSyncToken(calendar_hashkey):
 	return utils.fetch_all_json(
@@ -67,13 +65,37 @@ def getLatestSyncToken(calendar_hashkey):
 					,(calendar_hashkey,)
 				)	
 			)	 
-def getGooglePushComplete(account_hashkey):
+
+
+def getAllCalendarWithAccountHashkey(account_hashkey):
+	return utils.fetch_all_json(
+				db_manager.query(
+						"SELECT * from CALENDAR "
+						"where account_hashkey = %s "
+						,
+						(account_hashkey,) 						
+				)
+			)			
+
+#푸시등록요청한것들 찾기
+def getGoogleSyncState(account_hashkey):
 	return utils.fetch_all_json(
 				db_manager.query(
 						"SELECT * from CALENDAR "+
 						"where account_hashkey = %s "+
-						"AND google_push_complete > 1"
+						"AND google_sync_state > 1"
 						,
 						(account_hashkey,) 						
 				)
-			)		
+			)
+def updateGoogleSyncState(channel_id,state):
+	return db_manager.query(
+				"UPDATE CALENDAR SET google_sync_state = %s WHERE google_channel_id = %s"
+				,(state,channel_id)
+			)
+
+# def updateGooglePushComplete(channel_id):
+# 	return db_manager.query(
+# 				"UPDATE CALENDAR SET google_push_complete = 3 WHERE google_channel_id = %s"
+# 				,(channel_id,)
+# 			)	

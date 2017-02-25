@@ -41,11 +41,15 @@ logSet.init()
 from datetime import datetime
 logging.debug('currentServerTime=>'+str(datetime.now()))
 
+from model import calendarModel
+
 ##############
 #  테스트요청	 #
 ##############
 # @app.route('/testt')
 # def testt():
+# 	calendarModel.updateGoogleSyncState('1abfe3a73f9cfa147a6f962ef93ec414954c63bacc7ecd25632e6fa0',1)
+# 	return 'hi'
 # 	return utils.resCustom(
 # 							210,
 # 							{'msg':'MSG_INVALID_TOKENKEY'}
