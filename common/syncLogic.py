@@ -19,6 +19,9 @@ from manager import network_manager
 import json
 import urllib
 from datetime import timedelta,datetime
+from pytz import timezone
+
+
 from common import FCM
 from manager.redis import redis
 from common.util.statics import *
@@ -36,7 +39,7 @@ def caldav(user,user_hashkey,login_platform):
 	principal = calDavclient.getPrincipal()
 	homeset = principal.getHomeSet()
 	calendars = homeset.getCalendars()
-	
+	# logging.debug('calendars=>' + str(calendars))
 	#캘린더 해시키를 먼저 만든다.
 	arr_calendar_hashkey = []
 	for calendar in calendars:
@@ -51,15 +54,16 @@ def caldav(user,user_hashkey,login_platform):
 
 	for idx,calendar in enumerate(calendars):
 	    
+	    
 	    logging.debug('calnedarsss=> ' + calendar.calendarName)
-
 	    eventList = calendar.getEventByRange( "20170128T000000Z", "20180223T000000Z")				    
 	    eventDataList = calendar.getCalendarData(eventList)
 	    calendar_hashkey = arr_calendar_hashkey[idx]
 
-	    for event_set in eventDataList:				    	
-		    event = event_set.eventData['VCALENDAR'][0]['VEVENT'][0]
-		    logging.debug('eventset => '+str(event_set))
+	    for event_set in eventDataList:		
+		    logging.debug('eventset => ' + str(event_set.eventData))
+		    event = event_set.eventData['VEVENT']
+		    
 		    
 		   
 		    # #uid를 eventId로 쓰면되나
@@ -77,22 +81,40 @@ def caldav(user,user_hashkey,login_platform):
 		    ###
 		    #FIxME 성민이가 DTSTART가져오는것 처리해주면 이코드는 버릴거야.
 		    #레거시할 코드.
-		    for key in event:
-			    if 'DTSTART' in key:					    	
-			    	start_dt = event[key]
-			    elif 'DTEND' in key:
-			    	end_dt = event[key]
-	  
+		    # koreanZone = 
+		    if 'DTSTART' in event:			
+
+		    	start_dt = event['DTSTART']
+		    	# datetime일경우만
+		    	if(isinstance(start_dt,datetime)):
+		    		#한국시간으로바꿔준다
+		    		start_dt = start_dt.astimezone(timezone('Asia/Seoul'))
+
+		    elif 'DTEND' in key:
+		    	end_dt = event['DTEND']
+		    	if(isinstance(end_dt,datetime)):
+		    		#한국시간으로바꿔준다
+		    		end_dt = end_dt.astimezone(timezone('Asia/Seoul'))					  
 		    
 		    #타임존 라이브러리정하기
-		    created_dt = event['CREATED'][:-1]
+		    # created_dt = event['CREATED'][:-1]
+		    created_dt = event['CREATED']
+		    if(isinstance(created_dt,datetime)):
+			    created_dt =created_dt.astimezone(timezone('Asia/Seoul'))					  		    
+		    # logging.debug('start_dt=>' + str(start_dt.timezone))
+		    # logging.debug('timezone=>' + str(created_dt.tzname))	
 		    #문자열을 날짜시간으로 변경해줌. 
-		    created_dt = datetime.strptime(created_dt, "%Y%m%dT%H%M%S") + timedelta(hours=9)	    
+		    # created_dt = datetime.strptime(created_dt, "%Y%m%dT%H%M%S") + timedelta(hours=9)	    
 
 
 		    if 'LAST-MODIFIED' in event:
-		        updated_dt = event['LAST-MODIFIED'][:-1]
-		        updated_dt = datetime.strptime(updated_dt, "%Y%m%dT%H%M%S") + timedelta(hours=9)
+		    	updated_dt = event['LAST-MODIFIED']
+	
+		    if(isinstance(updated_dt,datetime)):
+		    		#한국시간으로바꿔준다
+			    updated_dt =updated_dt.astimezone(timezone('Asia/Seoul'))					  		    		    	
+		        # updated_dt = event['LAST-MODIFIED'][:-1]
+		        # updated_dt = datetime.strptime(updated_dt, "%Y%m%dT%H%M%S") + timedelta(hours=9)
 		    else:		
 			    updated_dt = created_dt
 		    if event['LOCATION'] == '':
