@@ -21,3 +21,15 @@ def getRecoList(event_hashkey,category):
 						(event_hashkey,category) 						
 				)
 			)
+
+
+def trackingReco(apikey,reco_hashkey,event_hashkey,account_hashkey,typee):
+	return db_manager.query(
+					"INSERT INTO RECO_TRACKER "
+					"(apikey,reco_hashkey,event_hashkey,account_hashkey,type) "
+					"values "
+					"(%s,%s,%s,%s,%s)"
+					,
+					(apikey,reco_hashkey,event_hashkey,account_hashkey,typee)
+			)
+	

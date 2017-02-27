@@ -153,4 +153,13 @@ def setRecviePush(apikey,value):
 						value,apikey,					
 					)
 				)
-
+def getUserAccountHashkey(apikey):
+	return 	utils.fetch_all_json(
+				db_manager.query(
+					"SELECT account_hashkey FROM USERDEVICE " 					
+					"WHERE apikey= %s ",
+					(									
+						apikey,					
+					)
+				)
+			)

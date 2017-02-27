@@ -14,6 +14,12 @@ def initRoute(app):
 						view_func = reco, 
 						methods = ['POST', ]
 					)
+	app.add_url_rule(
+						'/v1.0/reco/tracking',
+						defaults = {'action':'tracking'},
+						view_func = reco, 
+						methods = ['POST', ]
+					)
 
 	setting = Setting.as_view('setting')
 	app.add_url_rule(
