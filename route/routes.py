@@ -3,8 +3,24 @@ from route.schedule import Schedule
 from route.member import Member
 from route.sync import Sync
 from route.events import Events
+from route.setting import Setting
 
 def initRoute(app):
+
+	setting = Setting.as_view('setting')
+	app.add_url_rule(
+						'/v1.0/setting/updatePushToken',
+						defaults = {'action':'updatePushToken'},
+						view_func = setting, 
+						methods = ['POST', ]
+					)
+	app.add_url_rule(
+						'/v1.0/setting/setReceivePush',
+						defaults = {'action':'setReceivePush'},
+						view_func = setting, 
+						methods = ['POST', ]
+					)
+
 	events = Events.as_view('events')	
 	app.add_url_rule(
 						'/v1.0/events/getList',
@@ -31,6 +47,18 @@ def initRoute(app):
 
 	member = Member.as_view('member')
 	app.add_url_rule(
+						'/v1.0/member/addAccount',
+						defaults = {'action':'addAccount'},
+						view_func = member, 
+						methods = ['POST', ]
+					)
+	app.add_url_rule(
+						'/v1.0/member/accountList',
+						defaults = {'action':'accountList'},
+						view_func = member, 
+						methods = ['POST', ]
+					)
+	app.add_url_rule(
 						'/v1.0/member/loginCheck',
 						defaults = {'action':'loginCheck'},
 						view_func = member, 
@@ -48,12 +76,7 @@ def initRoute(app):
 						view_func = member, 
 						methods = ['POST', ]
 					)
-	app.add_url_rule(
-						'/v1.0/member/updatePushToken',
-						defaults = {'action':'updatePushToken'},
-						view_func = member, 
-						methods = ['POST', ]
-					)
+	
 	app.add_url_rule(
 						'/v1.0/member/logout',
 						defaults = {'action':'logout'},

@@ -35,14 +35,16 @@ class GoogleAuth(MethodView):
 				scope='https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.profile  https://www.googleapis.com/auth/calendar.readonly',
 				redirect_uri='https://ssoma.xyz:55566/googleAuthCallBack'
 			)
-			if 'key' in session:
-				print('session alive!')
-			#위코드는아래와같다
+			# flow.params['include_granted_scopes'] = 'ture'
+			# flow.params['access_type'] = 'offline'			
+			flow.params['prompt'] = 'consent'			
+						#위코드는아래와같다
 			#Google은 사용자 인증 및 동의를 처리한 후 인증 코드를 반환합니다. 
 			#애플리케이션은 액세스 토큰을 받기 위해 client_id 및 client_secret과 함께 인증 코드를 사용하며, 이 인증 코드는 사용자를 대신하여 API 요청을 인증하는 데 사용될 수 있습니다. 이 단계에서 애플리케이션은 이전에 받은 토큰이 만료될 경우 애플리케이션이 새 액세스 토큰을 받을 수 있게 해주는 갱신 토큰을 요청할 수도 있습니다.
 			if 'code' not in flask.request.args:
 				#구글로부터 url을 요청한다.
 				auth_uri = flow.step1_get_authorize_url()
+				print(auth_uri)
 				return flask.redirect(auth_uri)		
 			else:
 
@@ -58,7 +60,7 @@ class GoogleAuth(MethodView):
 				redis.set('user_access_token',credentials['access_token'])
 
 				URL = 'https://www.googleapis.com/oauth2/v1/userinfo'		
-				res = network_manager.reqGET(URL)
+				res = network_manager.reqGET(URL,'asdf')
 				print('res==>'+res)
 
 				#유저가 무조건 전송하도록 되어있다.

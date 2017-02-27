@@ -1,24 +1,42 @@
 import requests
 import json
-from flask import Flask,session
+
 from manager.redis import redis
-def reqPOST(URL,accessToken,body = {}):
-	print('aT=>'+str(redis.get('user_access_token')))
-	#여기서 Authorization Bearer 뒤에 값은 유저 액세스 토큰이다.
+from model import userAccountModel
+from common.util import utils
+from common import gAPI
+import logging
+def reqPOST(URL,access_token,body = {}):
+	
+	#있으면 바꿔줘야되고
+	#없으면 기존것을 사용해야함.
+	new_access_token = gAPI.checkValidAccessToken(access_token)	
+	logging.debug('newacces=>'+ str(new_access_token))
+	
+	if new_access_token:
+		logging.debug('new!')
+		access_token = new_access_token
+
+
 	headers = {
 		'content-Type': 'application/json',
-		'Authorization' : 'Bearer ' + accessToken
+		'Authorization' : 'Bearer ' + access_token
 	}
 	response = requests.post(URL,data = json.dumps(body),headers = headers)
 	return response.text
 
-def reqGET(URL,accessToken,params = {}):
+def reqGET(URL,access_token,params = {}):
 	
-	print('aT=>'+str(redis.get('user_access_token')))
+	new_access_token = gAPI.checkValidAccessToken(access_token)	
+	logging.debug('newacces=>'+ str(new_access_token))
+	if new_access_token:		
+		access_token = new_access_token
+		
 	headers = {
 		'content-Type': 'application/json',
-		'Authorization' : 'Bearer ' + accessToken
+		'Authorization' : 'Bearer ' + access_token
 		
 	}	
 	response = requests.get(URL,params = params,headers = headers)
 	return response.text
+

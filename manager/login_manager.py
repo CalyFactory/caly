@@ -16,37 +16,25 @@ from model import userDeviceModel
 from model import userAccountModel
 from model import userModel
 from manager.redis import redis
+import logging
 def checkLoginState(flask):
 
 	#세션키면 웹서버가 제공해주는 세션키라고 생각할수있다.
 	#토큰이라든가로 처리해주는것이좋다.
-	sessionkey = flask.request.form['sessionkey']
+	apikey = flask.request.form['apikey']
 
 
 	#세션키가 존재한다면 일반로그인이다.
 	#google / caldav 모두같음.	
-	if sessionkey != 'null':
-		print('sessionkey->'+sessionkey)
+	if apikey != 'null':
+		print('apikey->'+apikey)
 		
-		# session['b85bb0921c6314aecccbed5701a2833f645a6b8ae3324a1723fca764'] = 'b6d41ddc29629e67ccc3fbed1e5a212811686c486c21bb3daf181cbf'
-		# api에서 쓰는웹서버에서 쓰는 것을 사용하면안된다.
-		# redis/memchached  
-		# 서버 백앤드. 
-		# 웹서버에서는 상태를 유지하기위한 스테이트풀 관리르 해준다. 
-		# print('hash'+redis.get(sessionkey))		
-		# codereview
-		#세션키가 있다면.
-		if redis.get(sessionkey):
-			print('good')
+		
+		if redis.get(apikey):
+			print('has apikey')
 			return utils.loginState(LOGIN_STATE_AUTO,None)		
 		else:
 			return utils.loginState(LOGIN_ERROR,None)				
-		# for key in session:
-		# 	print('key->'+key)
-		# 	if key == sessionkey:
-		# 		print('haskey')
-				# return utils.loginState(LOGIN_STATE_AUTO,None)						
-
 		
 
 	else:
@@ -75,7 +63,7 @@ def checkLoginState(flask):
 				#codeReview
 				#id/pw가 
 				#naver,ical이 같을경우 더많은 데이터가나올수있다.
-				account = userAccountModel.getCaldavUserAccount(u_id,u_pw)
+				account = userAccountModel.getCaldavUserAccount(u_id,u_pw,login_platform)
 			except Exception as e:
 				return utils.loginState(LOGIN_ERROR,str(e))
 			#구글일경우
@@ -103,7 +91,7 @@ def checkLoginState(flask):
 		print('isFirst => '+str(isFirst))
 
 		#세션키가 없는경우이면 최초 로그인 혹은  로그아웃 이다
-		if sessionkey == 'null' :
+		if apikey == 'null' :
 
 			try:
 				#codereview
@@ -120,21 +108,18 @@ def checkLoginState(flask):
 					# return LOGIN_STATE_FIRST
 				
 				#uuid가 db에 없고	id/pw가 있다면 새로운 기기에서의 등록이다.
-				#codeReview
-				#isFirst 분기를 앞에서 함으로 여기서 체크할필요가없다.
+				
 			elif len(device)== 0 :					
 				print('other device~!')
 				device_hashkey = utils.makeHashKey(account_hashkey)
-				session_key = utils.makeHashKey(device_hashkey)
-
-				# updateSDK(flask)			
+				apikey = utils.makeHashKey(device_hashkey)
 
 				try:
-					userDeviceModel.setUserDevice(device_hashkey,account_hashkey,session_key)
+					userDeviceModel.setUserDevice(device_hashkey,account_hashkey,apikey)
 				except Exception as e:
 					return utils.loginState(LOGIN_ERROR,str(e))
 
-				return utils.loginState(LOGIN_STATE_OTHERDEVICE,{'sessionkey':session_key})
+				return utils.loginState(LOGIN_STATE_OTHERDEVICE,{'apikey':apikey})
 				# return LOGIN_STATE_OTHERDEVICE
 
 			#로그아웃인 경우.
@@ -143,27 +128,19 @@ def checkLoginState(flask):
 
 			elif len(device)!=0 :
 				print('logout and return')
-				sessionkey = utils.makeHashKey(uuid)
+				apikey = utils.makeHashKey(uuid)
+				user_hashkey = account[0]['user_hashkey']
 
+				redis.set(apikey,account[0]['user_hashkey'])
+
+				logging.debug('set apikey =>'+ apikey)
+				logging.debug('set userhashkey =>'+ account[0]['user_hashkey'])
 				#codeReveiw
 				#updateUserDeviceLogout 명확하지 않은 함수명.
 				try:
-					userDeviceModel.updateUserSession(sessionkey,uuid)
+					userDeviceModel.updateUserApikey(apikey,uuid)
 				except Exception as e:
 					return utils.loginState(LOGIN_ERROR,str(e))
 
-				return utils.loginState(LOGIN_STATE_RELOGIN,{'sessionkey':sessionkey})
-				# return LOGIN_STATE_RELOGIN
-#
-#하위호환성 유지
-#api경로따로짠다
-#강제 업데이트를 한다.
-# def updateSDK(flask):
-# 	if 'sdkLevel' in flask.request.form:
-# 		print('has sdk')
-# 		sdkLevel = flask.request.form['sdkLevel']
-		
-# 		try:
-# 			userDeviceModel.setSdkLevel(sessionkey,sdkLevel)
-# 		except Exception as e:
-# 			return utils.loginState(LOGIN_ERROR,str(e))					
+				return utils.loginState(LOGIN_STATE_RELOGIN,{'apikey':apikey})
+
