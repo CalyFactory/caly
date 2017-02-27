@@ -67,8 +67,6 @@ class Sync(MethodView):
 											{'msg':syncInfo['data']}
 										)		
 
-				
-
 			elif login_platform == 'google':
 				logging.debug('user==>' + str(user))
 				syncInfo = syncLogic.google(user,apikey)				
@@ -76,8 +74,7 @@ class Sync(MethodView):
 				logging.debug('syncInfo==>' + str(syncInfo))
 
 				if syncInfo['state'] == SYNC_GOOGLE_SUCCES:
-					#동기화가 완료되어야만 비로소 가입이가능하다.
-					# userAccountModel.setCaldavUserAccount(account_hashkey,user_hashkey,login_platform,u_id,u_pw,caldav_homeset)
+					
 					return utils.resSuccess(
 												{'msg':MSG_SUCCESS_GOOLE_SYNC_LOADING}
 											)

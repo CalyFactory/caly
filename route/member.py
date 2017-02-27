@@ -318,7 +318,12 @@ class Member(MethodView):
 					#가입이 완료되었다면 동기화 로직을 돈다.
 					#기존 위의 파라미터로도 접속은 가능하지만. 
 					# sync 기본 요청에서는 user로 값을 넣어줘야함으로 맞춰줘야함.
-					syncInfo = syncLogic.caldav(user,user_hashkey,login_platform)
+					try:
+						syncInfo = syncLogic.caldav(user,user_hashkey,login_platform)
+					except Exception as e:
+						return utils.resErr(
+												{'msg':str(e)}
+											)							
 
 					if syncInfo['state'] == SYNC_CALDAV_SUCCESS:						
 						return utils.resSuccess(
@@ -334,9 +339,7 @@ class Member(MethodView):
 						return utils.resCustom(		
 													201,
 													{'msg':str(syncInfo['data'])}
-												)													
-	
-
+												)																
 				except Exception as e:
 					return utils.resErr(
 											{'msg':str(e)}

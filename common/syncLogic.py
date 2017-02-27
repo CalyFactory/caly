@@ -39,7 +39,7 @@ def caldav(user,user_hashkey,login_platform):
 	principal = calDavclient.getPrincipal()
 	homeset = principal.getHomeSet()
 	calendars = homeset.getCalendars()
-	# logging.debug('calendars=>' + str(calendars))
+
 	#캘린더 해시키를 먼저 만든다.
 	arr_calendar_hashkey = []
 	for calendar in calendars:
@@ -54,7 +54,6 @@ def caldav(user,user_hashkey,login_platform):
 
 	for idx,calendar in enumerate(calendars):
 	    
-	    
 	    logging.debug('calnedarsss=> ' + calendar.calendarName)
 	    eventList = calendar.getEventByRange( "20170128T000000Z", "20180223T000000Z")				    
 	    eventDataList = calendar.getCalendarData(eventList)
@@ -62,9 +61,7 @@ def caldav(user,user_hashkey,login_platform):
 
 	    for event_set in eventDataList:		
 		    logging.debug('eventset => ' + str(event_set.eventData))
-		    event = event_set.eventData['VEVENT']
-		    
-		    
+		    event = event_set.eventData['VEVENT']		    
 		   
 		    # #uid를 eventId로 쓰면되나
 		    event_id = event_set.eventId
@@ -81,7 +78,6 @@ def caldav(user,user_hashkey,login_platform):
 		    ###
 		    #FIxME 성민이가 DTSTART가져오는것 처리해주면 이코드는 버릴거야.
 		    #레거시할 코드.
-		    # koreanZone = 
 		    if 'DTSTART' in event:			
 
 		    	start_dt = event['DTSTART']
@@ -97,12 +93,9 @@ def caldav(user,user_hashkey,login_platform):
 		    		end_dt = end_dt.astimezone(timezone('Asia/Seoul'))					  
 		    
 		    #타임존 라이브러리정하기
-		    # created_dt = event['CREATED'][:-1]
 		    created_dt = event['CREATED']
 		    if(isinstance(created_dt,datetime)):
 			    created_dt =created_dt.astimezone(timezone('Asia/Seoul'))					  		    
-		    # logging.debug('start_dt=>' + str(start_dt.timezone))
-		    # logging.debug('timezone=>' + str(created_dt.tzname))	
 		    #문자열을 날짜시간으로 변경해줌. 
 		    # created_dt = datetime.strptime(created_dt, "%Y%m%dT%H%M%S") + timedelta(hours=9)	    
 
@@ -122,7 +115,6 @@ def caldav(user,user_hashkey,login_platform):
 		    else:
 		    	location = event['LOCATION']
 
-		    
 		    logging.debug('hashkey=>' + calendar_hashkey)	
 		    logging.debug('event_hashkey=>' + event_hashkey)	
 		    logging.debug('event_id=>' + event_id)	
@@ -154,6 +146,7 @@ def caldav(user,user_hashkey,login_platform):
 	return utils.syncState(SYNC_CALDAV_SUCCESS,None)
 
 def google(user,apikey):	
+	
 	access_token = user[0]['access_token']
 	account_hashkey = user[0]['account_hashkey']
 
@@ -210,10 +203,7 @@ def google(user,apikey):
 			}						
 			res = network_manager.reqPOST(watch_URL,access_token,body)
 			#start push noti
-			
-		# if 'id' in res:
-		# 	calendarModel.updatePushComplete(arr_channel_id[idx],CALENDAR_PUSH_STATE_BEFORE)
-
+	
 			logging.info('ress=s==> '+str(res))
 		#codeReview
 		#status code 를 202등으로 바꾼다.

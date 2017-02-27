@@ -46,7 +46,10 @@ MSG_LOGIN_SIGNUP = 'first sign up'
 MSG_LOGIN_COMPLUSION_UPDATE = 'need compulsion update'
 
 MSG_INVALID_TOKENKEY = 'invalid token key'
-MSG_EVENTS_END = 'data end'
+#EVENT 없을경우
+MSG_EVENTS_END = 'event data end'
+#추천 없을경우
+MSG_RECO_END = 'reco data end'
 
 MSG_SUCCESS_ADD_ACCOUNT = 'success add account'
 MSG_FAILE_ADD_ACCOUNT_REGISTERD = 'already registerd'

@@ -4,8 +4,16 @@ from route.member import Member
 from route.sync import Sync
 from route.events import Events
 from route.setting import Setting
+from route.reco import Reco
 
 def initRoute(app):
+	reco = Reco.as_view('reco')
+	app.add_url_rule(
+						'/v1.0/reco/getList',
+						defaults = {'action':'getList'},
+						view_func = reco, 
+						methods = ['POST', ]
+					)
 
 	setting = Setting.as_view('setting')
 	app.add_url_rule(

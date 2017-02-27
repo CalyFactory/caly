@@ -55,9 +55,6 @@ class Events(MethodView):
 			except Exception as e:
 				return utils.resErr(str(e))		
 
-
-			print(rows)
-
 			if len(rows) != 0:
 				return utils.resSuccess(
 											{'data':rows}
@@ -68,6 +65,7 @@ class Events(MethodView):
 											201,
 											{'msg':MSG_EVENTS_END}
 										)
+		
 
 
 			
