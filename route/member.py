@@ -398,7 +398,6 @@ class Member(MethodView):
 					logging.debug('syncInfo==>'+str(syncInfo))
 
 					if syncInfo['state'] == SYNC_GOOGLE_SUCCES:
-						#동기화가 완료되어야만 비로소 가입이가능하다.						
 						return utils.resSuccess(
 													{'msg':MSG_SUCCESS_ADD_ACCOUNT}
 												)

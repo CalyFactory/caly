@@ -99,12 +99,39 @@ class Sync(MethodView):
 			state = flask.request.headers['X-Goog-Resource-State']
 			account = calendarModel.getAccountHashkey(channel_id)
 			account_hashkey = account[0]['account_hashkey']
+			
+
+
+
+
 			#동기화 할 경우.
 			if state == 'sync':
 				
 				calendarModel.updateGoogleSyncState(channel_id,GOOGLE_SYNC_STATE_PUSH_END)						
 				calendars = calendarModel.getGoogleSyncState(account_hashkey)
 				apikey = flask.request.headers['X-Goog-Channel-Token']
+
+				
+				###############
+				#####DEBUG#####
+				#pushNoti등록을 해제하는 부분입니다. 
+				#등록 테스트에서 매번등록되면 나중에 변경됬이력이 생겼을때 등록된 수만큼 푸시가 와서 등록하자마 해제하는 로직.
+				###############		
+				access_token = account[0]['access_token']		
+				resource_id = flask.request.headers['X-Goog-Resource-Id']
+				URL = 'https://www.googleapis.com/calendar/v3/channels/stop'
+				body = {
+					"id" : channel_id,
+			  		"resourceId": resource_id
+				}	
+				# print(network_manager.reqPOST(URL,body))
+				result = network_manager.reqPOST(URL,access_token,body) 							
+				logging.info('stop noti => ' + result)
+				###############
+				#####DEBUG#####
+				###############		
+
+
 
 				is_finished_sync = True
 				for calendar in calendars:
@@ -133,7 +160,7 @@ class Sync(MethodView):
 					logging.debug('pushtoken =>' + push_token)
 					data_message = {
 					    "type" : "sync",
-					    "action" : "actions"
+					    "action" : "default"
 					}
 					
 					result = FCM.sendOnlyData(push_token,data_message)

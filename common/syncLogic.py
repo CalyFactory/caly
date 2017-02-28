@@ -21,8 +21,6 @@ import urllib
 from datetime import timedelta,datetime
 from pytz import timezone
 
-
-from common import FCM
 from manager.redis import redis
 from common.util.statics import *
 
@@ -70,14 +68,14 @@ def caldav(user,user_hashkey,login_platform):
 		    caldav_event_url = event_set.eventUrl
 		    #etag는 어디서 얻을수 있죠?
 		    caldav_etag = event_set.eTag
-		    summary = event['SUMMARY']
-		    print('sum'+summary)
+		    summary = None
+		    if 'SUMMARY' in event:
+		    	summary = event['SUMMARY']
+
+		    
 		    start_dt = None
 		    end_dt = None
 
-		    ###
-		    #FIxME 성민이가 DTSTART가져오는것 처리해주면 이코드는 버릴거야.
-		    #레거시할 코드.
 		    if 'DTSTART' in event:			
 
 		    	start_dt = event['DTSTART']
@@ -234,27 +232,27 @@ def reqEventsList(apikey,calendar,user,body={}):
 		updated = None
 		location = 'noLocation'
 
-		if('summary' in item):			
+		if 'summary' in item:			
 			summary = item['summary']
-		if('location' in item):
+		if 'location' in item:
 			location = item['location']
 
-		if('date' in item['start'] ):					
+		if 'created' in item:												
+			created = str(item['created'])[:-5]
+			created = datetime.strptime(created, "%Y-%m-%dT%H:%M:%S") + timedelta(hours=9)	    
+		if 'updated' in item:
+			updated = str(item['updated'])[:-5]		
+			updated = datetime.strptime(updated, "%Y-%m-%dT%H:%M:%S") + timedelta(hours=9)	    
+
+
+		if 'date' in item['start']:					
 			start_date = item['start']['date']
 			end_date = item['end']['date']
 
-		elif('dateTime' in item['start']):		
+		elif 'dateTime' in item['start']:		
 			start_date = utils.date_utc_to_current(str(item['start']['dateTime']))
 			end_date = utils.date_utc_to_current(str(item['end']['dateTime']))
-											
-		created = str(item['created'])[:-5]
-		# logging.debug('creatd=>'+created)
-		# '2017-02-25T14:33:22.000Z'
-		created = datetime.strptime(created, "%Y-%m-%dT%H:%M:%S") + timedelta(hours=9)	    
 
-		updated = str(item['updated'])[:-5]
-		# logging.debug('updated=>'+updated)
-		updated = datetime.strptime(updated, "%Y-%m-%dT%H:%M:%S") + timedelta(hours=9)	    
 
 		event_hashkey = utils.makeHashKey(event_id)
 		eventModel.setGoogleEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location)

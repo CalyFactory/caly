@@ -43,6 +43,12 @@ from model import mFcmModel
 logging.debug('currentServerTime=>'+str(datetime.now()))
 
 
+# import optparse
+# parser = optparse.OptionParser()
+# parser.add_option('-l', '--debugg', help='--debugmode')
+# (options, args) = parser.parse_args()
+# print(options)
+# print(args)
 
 ##############
 #  테스트요청	 #
