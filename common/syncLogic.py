@@ -98,7 +98,7 @@ def caldav(user,user_hashkey,login_platform):
 		    		#한국시간으로바꿔준다
 		    		start_dt = start_dt.astimezone(timezone('Asia/Seoul'))
 
-		    elif 'DTEND' in key:
+		    if 'DTEND' in event:
 		    	end_dt = event['DTEND']
 		    	if(isinstance(end_dt,datetime)):
 		    		#한국시간으로바꿔준다
