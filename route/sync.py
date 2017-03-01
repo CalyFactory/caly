@@ -90,8 +90,7 @@ class Sync(MethodView):
 											{'msg':str(e)}
 										)				
 				
-				if syncInfo['state'] == SYNC_GOOGLE_SUCCES:
-					
+				if syncInfo['state'] == SYNC_GOOGLE_SUCCES:					
 					return utils.resSuccess(
 												{'msg':MSG_SUCCESS_GOOLE_SYNC_LOADING}
 											)
