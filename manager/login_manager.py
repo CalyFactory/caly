@@ -81,8 +81,7 @@ def checkLoginState(flask):
 		
 		## 존재하지 않을경우 => 최초로그인
 		if len(account) == 0:
-			isFirst = True
-		
+			isFirst = True		
 		### id pw 값 or subject에맞는 값이존재 => 로그아웃 이거나 다른 디바이스에서 로그인
 		else :
 			account_hashkey = account[0]['account_hashkey']

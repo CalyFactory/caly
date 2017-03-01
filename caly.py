@@ -38,11 +38,21 @@ app = flask.Flask(__name__, static_url_path='')
 initRoute(app)
 logSet.init()
 
-from datetime import datetime
+from datetime import datetime,timedelta
 from model import mFcmModel
 logging.debug('currentServerTime=>'+str(datetime.now()))
 
 
+
+
+
+# 2013-09-23T00:00:00-09:00
+# import time
+# range_start = time.strftime("%Y-%m-%dT00:00:00-09:00")
+# range_end = datetime.now()+ timedelta(hours=3600)
+# range_end = datetime.strftime(range_end, "%Y-%m-%dT00:00:00-09:00") 	
+# logging.info('range_start ==> '+range_start)
+# logging.info('range_edn ==> '+range_end)
 # import optparse
 # parser = optparse.OptionParser()
 # parser.add_option('-l', '--debugg', help='--debugmode')

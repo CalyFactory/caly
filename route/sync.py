@@ -153,9 +153,7 @@ class Sync(MethodView):
 					if len(user_device) !=0:
 						push_token = user_device[0]['push_token']
 
-					#0일경우는 새로운 계정 추가할 경우.
-					# else:
-						# push_token = 
+					#0일경우는 새로운 계정 추가할 경우.					
 					
 					logging.debug('pushtoken =>' + push_token)
 					data_message = {
