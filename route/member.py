@@ -23,6 +23,7 @@ from common import gAPI
 from model import userDeviceModel
 from model import userAccountModel
 from model import userModel
+from model import calendarModel
 from manager.redis import redis
 
 from common import syncLogic
@@ -319,9 +320,12 @@ class Member(MethodView):
 					#기존 위의 파라미터로도 접속은 가능하지만. 
 					# sync 기본 요청에서는 user로 값을 넣어줘야함으로 맞춰줘야함.
 					try:
+					#일단 캘린더리스트를 삭제하고..					
 						syncInfo = syncLogic.caldav(user,user_hashkey,login_platform)
 					except Exception as e:
-						return utils.resErr(
+						calendarModel.deleteCalendarList(user[0]['account_hashkey'])
+						return utils.resCustom(
+												201,							
 												{'msg':str(e)}
 											)							
 
@@ -331,9 +335,7 @@ class Member(MethodView):
 												)
 
 					else:
-						#실패한경우는 회원가입은 성공했지만 모종의 이유로 동기화는 실패한 상태다.
-						#유저가 다시동기화 할 수 있도록 해주어야한다.
-
+						calendarModel.deleteCalendarList(user[0]['account_hashkey'])
 						#codeReview
 						#최소 에러라인을 알려주면 서로편할것이다.
 						return utils.resCustom(		
@@ -393,7 +395,14 @@ class Member(MethodView):
 					
 					logging.debug('user==>'+str(user))
 
-					syncInfo = syncLogic.google(user,apikey)
+					try:
+						syncInfo = syncLogic.google(user,apikey)
+					except Exception as e:
+						calendarModel.deleteCalendarList(user[0]['account_hashkey'])
+						return utils.resCustom(
+												201,							
+												{'msg':str(e)}
+											)						
 					
 					logging.debug('syncInfo==>'+str(syncInfo))
 
@@ -403,6 +412,7 @@ class Member(MethodView):
 												)
 
 					else:
+						calendarModel.deleteCalendarList(user[0]['account_hashkey'])
 						#실패한경우는 회원가입은 성공했지만 모종의 이유로 동기화는 실패한 상태다.
 						#유저가 다시동기화 할 수 있도록 해주어야한다.
 						return utils.resCustom(		

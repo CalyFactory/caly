@@ -54,25 +54,42 @@ class Sync(MethodView):
 			login_platform = user[0]['login_platform']
 
 			if login_platform == 'naver' or login_platform == 'ical':
-			
-				syncInfo = syncLogic.caldav(user,user_hashkey,login_platform)
+				
+				try:
+				#일단 캘린더리스트를 삭제하고..					
+					syncInfo = syncLogic.caldav(user,user_hashkey,login_platform)
+				except Exception as e:
+					calendarModel.deleteCalendarList(user[0]['account_hashkey'])
+					return utils.resCustom(
+											201,							
+											{'msg':str(e)}
+										)					
 
 				if syncInfo['state'] == SYNC_CALDAV_SUCCESS:
+
 					return utils.resSuccess(
 												{'msg':MSG_SUCCESS_CALDAV_SYNC}
 											)
 
 				else:
-					return utils.resErr(
+					calendarModel.deleteCalendarList(user[0]['account_hashkey'])					
+					return utils.resCustom(
+											201,
 											{'msg':syncInfo['data']}
 										)		
 
 			elif login_platform == 'google':
-				logging.debug('user==>' + str(user))
-				syncInfo = syncLogic.google(user,apikey)				
-				
-				logging.debug('syncInfo==>' + str(syncInfo))
 
+				logging.debug('user==>' + str(user))
+				try:
+					syncInfo = syncLogic.google(user,apikey)
+				except Exception as e:
+					calendarModel.deleteCalendarList(user[0]['account_hashkey'])
+					return utils.resCustom(
+											201,							
+											{'msg':str(e)}
+										)				
+				
 				if syncInfo['state'] == SYNC_GOOGLE_SUCCES:
 					
 					return utils.resSuccess(
@@ -80,6 +97,8 @@ class Sync(MethodView):
 											)
 
 				else:
+					calendarModel.deleteCalendarList(user[0]['account_hashkey'])
+
 					#실패한경우는 회원가입은 성공했지만 모종의 이유로 동기화는 실패한 상태다.
 					#유저가 다시동기화 할 수 있도록 해주어야한다.
 					return utils.resCustom(		
