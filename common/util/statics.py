@@ -50,6 +50,8 @@ MSG_INVALID_TOKENKEY = 'invalid token key'
 MSG_EVENTS_END = 'event data end'
 #추천 없을경우
 MSG_RECO_END = 'reco data end'
+#그냥 없어
+MSG_DATA_NONE = 'data none'
 
 MSG_SUCCESS_ADD_ACCOUNT = 'success add account'
 MSG_FAILE_ADD_ACCOUNT_REGISTERD = 'already registerd'

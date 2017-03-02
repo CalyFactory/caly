@@ -5,8 +5,17 @@ from route.sync import Sync
 from route.events import Events
 from route.setting import Setting
 from route.reco import Reco
+from route.support import Support
 
 def initRoute(app):
+	support = Support.as_view('support')
+	app.add_url_rule(
+						'/v1.0/support/notices',
+						defaults = {'action':'notices'},
+						view_func = support, 
+						methods = ['POST', ]
+					)
+
 	reco = Reco.as_view('reco')
 	app.add_url_rule(
 						'/v1.0/reco/getList',
