@@ -29,6 +29,8 @@ from common.util.statics import *
 
 
 from model import mFcmModel
+# from model import userLifeModel
+from common import statee
 from common import syncLogic
 
 class Sync(MethodView):
@@ -53,8 +55,11 @@ class Sync(MethodView):
 			
 			login_platform = user[0]['login_platform']
 
-			if login_platform == 'naver' or login_platform == 'ical':
-				
+			#user_state
+			statee.userLife(apikey,LIFE_STATE_SYNCING)			
+		
+
+			if login_platform == 'naver' or login_platform == 'ical':				
 				try:
 				#일단 캘린더리스트를 삭제하고..					
 					syncInfo = syncLogic.caldav(user,user_hashkey,login_platform)
@@ -66,7 +71,8 @@ class Sync(MethodView):
 										)					
 
 				if syncInfo['state'] == SYNC_CALDAV_SUCCESS:
-
+					statee.userLife(apikey,LIFE_STATE_SYNC_END)
+					
 					return utils.resSuccess(
 												{'msg':MSG_SUCCESS_CALDAV_SYNC}
 											)
@@ -118,10 +124,6 @@ class Sync(MethodView):
 			account = calendarModel.getAccountHashkey(channel_id)
 			account_hashkey = account[0]['account_hashkey']
 			
-
-
-
-
 			#동기화 할 경우.
 			if state == 'sync':
 				
@@ -191,6 +193,8 @@ class Sync(MethodView):
 					result['push_data'] = data_message
 					mFcmModel.insertFcm(result)								
 					logging.info(str(result))
+					
+					statee.userLife(apikey,LIFE_STATE_SYNC_END)									
 					
 
 				else:

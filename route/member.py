@@ -27,6 +27,8 @@ from model import calendarModel
 from manager.redis import redis
 
 from common import syncLogic
+from common import statee
+
 # yenos
 # 유저의관한 api 리스트이다.
 class Member(MethodView):
@@ -47,6 +49,7 @@ class Member(MethodView):
 				logging.debug('whoam_i'+ str(who_am_i))
 
 				if who_am_i['state'] == LOGIN_STATE_AUTO:
+					
 					return utils.resSuccess(
 												{'msg':MSG_LOGIN_AUTO}
 											)
@@ -175,7 +178,11 @@ class Member(MethodView):
 				
 				redis.set(apikey,user_hashkey)
 				logging.debug('apikey' + apikey)				
-				logging.debug('user_hashkey' + user_hashkey)											
+				logging.debug('user_hashkey' + user_hashkey)	
+				
+				#로그인이 끝났다면!
+				#로그인끝난상황을 기록한다.
+				statee.userLife(apikey,LIFE_STATE_SIGNUP)
 
 				return utils.resSuccess(
 											{'apikey':apikey}
@@ -273,8 +280,9 @@ class Member(MethodView):
 									)
 
 			account_hashkey = utils.makeHashKey(user_hashkey)
-
-
+			
+			statee.userLife(apikey,LIFE_STATE_ADDACCOUNT)
+			
 			if login_platform == 'naver' or login_platform == 'ical':	
 				#caldav일경우.
 				u_id = flask.request.form['uId']
@@ -329,7 +337,9 @@ class Member(MethodView):
 												{'msg':str(e)}
 											)							
 
-					if syncInfo['state'] == SYNC_CALDAV_SUCCESS:						
+					if syncInfo['state'] == SYNC_CALDAV_SUCCESS:	
+						statee.userLife(apikey,LIFE_STATE_ADDACCOUNT_END)
+						
 						return utils.resSuccess(
 													{'msg':MSG_SUCCESS_ADD_ACCOUNT}
 												)
@@ -407,6 +417,8 @@ class Member(MethodView):
 					logging.debug('syncInfo==>'+str(syncInfo))
 
 					if syncInfo['state'] == SYNC_GOOGLE_SUCCES:
+						statee.userLife(apikey,LIFE_STATE_ADDACCOUNT_END)					
+
 						return utils.resSuccess(
 													{'msg':MSG_SUCCESS_ADD_ACCOUNT}
 												)
@@ -439,6 +451,9 @@ class Member(MethodView):
 				userDeviceModel.logout(apikey)
 				redis.delete(apikey)
 				logging.debug('delete apikey => ' + apikey)									
+				
+				statee.userLife(apikey,LIFE_STATE_LOGOUT)
+				
 				return utils.resSuccess(
 											{'msg':MSG_LOGOUT_SUCCESS}
 										)
