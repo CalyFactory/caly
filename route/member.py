@@ -219,6 +219,9 @@ class Member(MethodView):
 					logging.debug('user_hashkey' + userHashkey)
 
 				userDeviceModel.updateUserDevice(push_token,device_type,app_version,device_info,uuid,sdkLevel,apikey)
+
+				statee.userLife(apikey,LIFE_STATE_REGISTER_DEVICE)
+				
 				return utils.resSuccess(
 											{'apikey':apikey}
 										)

@@ -8,7 +8,9 @@ LOGIN_STATE_AUTO = 'LOGIN_STATE_AUTO'
 LOGIN_STATE_OTHERDEVICE = 'LOGIN_STATE_OTHERDEVICE'
 LOGIN_STATE_RELOGIN = 'LOGIN_STATE_RELOGIN'
 
-#유저 lifeSTAT status
+
+
+#########유저 lifeSTAT status
 #해당 스테이트가 시작할때 설정해준다. 
 #모든 상황은 성공했을때 로그로 저장된다.
 # 라이프사이클상 순서대로 이루어지지않을 경우 뭔가 문제가 있는 경우이다.
@@ -30,7 +32,8 @@ LIFE_STATE_ADDACCOUNT_END = 'LIFE_STATE_ADDACCOUNT_END'
 # LIFE_STATE_RECOING = 'LIFE_STATE_RECOING'
 #유저에게 추천 끝났다고 요청보냈을때 설정한다.
 LIFE_STATE_RECOEND = 'LIFE_STATE_RECOEND'
-
+#등록했을경우
+LIFE_STATE_REGISTER_DEVICE = 'LIFE_STATE_REGISTER_DEVICE'
 #유저가 로그아웃 했을경우
 LIFE_STATE_LOGOUT = 'LIFE_STATE_LOGOUT'
 #에러가 나왔을경우
