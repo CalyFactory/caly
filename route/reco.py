@@ -60,7 +60,32 @@ class Reco(MethodView):
 			except Exception as e:
 				return utils.resErr(str(e))					
 
+		elif action == 'checkRecoState':
+			apikey = flask.request.form['apikey']			
+			
+			if not redis.get(apikey):
+				return utils.resErr(
+										{'msg':MSG_INVALID_TOKENKEY}
+									)		
+			try:
 
+				state = recoModel.checkAllRecoEndState(apikey)
+				print(state)
+
+			except Exception as e:
+				return utils.resErr(str(e))		
+			
+			if len(state) == 1 and state[0]['reco_state'] == 2:
+				return utils.resCustom(
+											200,
+											{'msg':MSG_RECO_SUCCESS}
+										)
+
+			else:
+				return utils.resCustom(
+											201,
+											{'msg':MSG_RECO_ING}
+										)		
 
 
 

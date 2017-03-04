@@ -32,4 +32,16 @@ def trackingReco(apikey,reco_hashkey,event_hashkey,account_hashkey,typee):
 					,
 					(apikey,reco_hashkey,event_hashkey,account_hashkey,typee)
 			)
-	
+
+def checkAllRecoEndState(apikey):
+	return utils.fetch_all_json(
+				db_manager.query(
+					"SELECT CALENDAR.reco_state FROM USERDEVICE "
+					"LEFT JOIN CALENDAR on USERDEVICE.account_hashkey = CALENDAR.account_hashkey "
+					"WHERE CALENDAR.reco_state is not NULL and apikey = %s "
+					"and if(google_channel_id is NULL,google_sync_state=0,google_sync_state=3) "
+					"group by reco_state"
+					,
+					(apikey,)
+				)
+			)

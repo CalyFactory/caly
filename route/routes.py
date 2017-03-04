@@ -29,6 +29,12 @@ def initRoute(app):
 						view_func = reco, 
 						methods = ['POST', ]
 					)
+	app.add_url_rule(
+						'/v1.0/reco/checkRecoState',
+						defaults = {'action':'checkRecoState'},
+						view_func = reco, 
+						methods = ['POST', ]
+					)	
 
 	setting = Setting.as_view('setting')
 	app.add_url_rule(
@@ -43,6 +49,7 @@ def initRoute(app):
 						view_func = setting, 
 						methods = ['POST', ]
 					)
+
 
 	events = Events.as_view('events')	
 	app.add_url_rule(
