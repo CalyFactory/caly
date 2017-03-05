@@ -165,7 +165,9 @@ class Sync(MethodView):
 					try:
 						syncEndModel.setSyncEnd(account_hashkey)
 					except Exception as e:
-							return utils.resErr(str(e))
+							return utils.resErr(
+													{'msg':str(e)}
+												)
 
 					user_device = userDeviceModel.getPushToken(apikey)
 					logging.info('device=> ' + str(user_device))

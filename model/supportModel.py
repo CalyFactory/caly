@@ -10,3 +10,11 @@ def getNotice():
 					()
 				)		
 			)		
+def setRequests(apikey,account_hashkey,contents):
+	return db_manager.query(
+				"INSERT INTO REQUESTS (apikey,account_hashkey,contents) "
+				"VALUES(%s,%s,%s)"
+				,
+				(apikey,account_hashkey,contents)
+			)		
+			

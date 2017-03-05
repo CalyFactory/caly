@@ -26,7 +26,9 @@ class Reco(MethodView):
 			try:												
 				recoList = recoModel.getRecoList(eventHashkey,category)
 			except Exception as e:
-				return utils.resErr(str(e))		
+				return utils.resErr(
+										{'msg':str(e)}
+									)		
 
 			if len(recoList) != 0:
 				return utils.resSuccess(
@@ -58,7 +60,9 @@ class Reco(MethodView):
 											{'data':'successInsert'}
 										)
 			except Exception as e:
-				return utils.resErr(str(e))					
+				return utils.resErr(
+										{'msg':str(e)}
+									)					
 
 		elif action == 'checkRecoState':
 			apikey = flask.request.form['apikey']			

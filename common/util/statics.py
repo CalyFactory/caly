@@ -97,6 +97,9 @@ MSG_SUCCESS_GOOLE_SYNC_LOADING = 'success sync loading'
 #캘대브 성공
 MSG_SUCCESS_CALDAV_SYNC = 'Caldav Sync Success'
 
+#
+MSG_SUCCESS = 'success'
+
 
 
 

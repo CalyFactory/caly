@@ -15,6 +15,12 @@ def initRoute(app):
 						view_func = support, 
 						methods = ['POST', ]
 					)
+	app.add_url_rule(
+						'/v1.0/support/requests',
+						defaults = {'action':'requests'},
+						view_func = support, 
+						methods = ['POST', ]
+					)	
 
 	reco = Reco.as_view('reco')
 	app.add_url_rule(

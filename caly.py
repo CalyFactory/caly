@@ -43,7 +43,8 @@ from model import mFcmModel
 logging.debug('currentServerTime=>'+str(datetime.now()))
 
 
-
+# from worker import sync_worker
+# sync_worker.delay('tt')
 
 
 # 2013-09-23T00:00:00-09:00
