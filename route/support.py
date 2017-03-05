@@ -50,7 +50,7 @@ class Support(MethodView):
 				account_hashkey = user[0]['account_hashkey']
 				rows = supportModel.setRequests(apikey,account_hashkey,contents)
 				return utils.resSuccess(
-											{'data':MSG_SUCCESS}
+											{'msg':MSG_SUCCESS}
 										)				
 			except Exception as e:
 				return utils.resErr(
