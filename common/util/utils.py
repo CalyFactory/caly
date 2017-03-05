@@ -14,17 +14,17 @@ syncState = lambda state,data : {'state':state,'data':data}
 def resSuccess(payload):
 	return json.dumps(
 						{'payload':payload}
-					),200,{'Conent_Type':'application/json'}
+					),200,{'Content-Type':'application/json'}
 
 def resErr(err):
 	return json.dumps(
 						{'payload':err}
-					),400,{'Conent_Type':'application/json'}
+					),400,{'Content-Type':'application/json'}
 
 def resCustom(code,payload):
 	return json.dumps(
 						{'payload':payload}
-					),code,{'Conent_Type':'application/json'}
+					),code,{'Content-Type':'application/json'}
 			
 
 
