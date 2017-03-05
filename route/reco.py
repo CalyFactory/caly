@@ -73,8 +73,7 @@ class Reco(MethodView):
 									)		
 			try:
 
-				state = recoModel.checkAllRecoEndState(apikey)
-				print(state)
+				state = recoModel.checkAllRecoEndState(apikey)				
 
 			except Exception as e:
 				return utils.resErr(str(e))		
