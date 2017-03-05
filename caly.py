@@ -38,11 +38,28 @@ app = flask.Flask(__name__, static_url_path='')
 initRoute(app)
 logSet.init()
 
-from datetime import datetime
+from datetime import datetime,timedelta
 from model import mFcmModel
 logging.debug('currentServerTime=>'+str(datetime.now()))
 
 
+# from worker import sync_worker
+# sync_worker.delay('tt')
+
+
+# 2013-09-23T00:00:00-09:00
+# import time
+# range_start = time.strftime("%Y-%m-%dT00:00:00-09:00")
+# range_end = datetime.now()+ timedelta(hours=3600)
+# range_end = datetime.strftime(range_end, "%Y-%m-%dT00:00:00-09:00") 	
+# logging.info('range_start ==> '+range_start)
+# logging.info('range_edn ==> '+range_end)
+# import optparse
+# parser = optparse.OptionParser()
+# parser.add_option('-l', '--debugg', help='--debugmode')
+# (options, args) = parser.parse_args()
+# print(options)
+# print(args)
 
 ##############
 #  테스트요청	 #
@@ -59,51 +76,51 @@ logging.debug('currentServerTime=>'+str(datetime.now()))
 # 	# res = utils.multiReturn(200,'dataa','application/json')
 # 	return utils.multiReturn(200,'dataa','application/json')
 
-@app.route('/refresh')
-def refresh():
-	acToken = flask.request.args.get('acToken')
+# @app.route('/refresh')
+# def refresh():
+# 	acToken = flask.request.args.get('acToken')
 
-	from common import gAPI	
-	#유효성 검사를 하고, 
-	#유효하지 않으면 디비를 업데이트 한다. 
-	# print(gAPI.checkValidAccessToken(acToken))
+# 	from common import gAPI	
+# 	#유효성 검사를 하고, 
+# 	#유효하지 않으면 디비를 업데이트 한다. 
+# 	# print(gAPI.checkValidAccessToken(acToken))
 
 
-	print('ac=>'+acToken)
-	validation_code = gAPI.checkValidAccessToken(acToken)
-	logging.info('validCode = ==>'+str(validation_code))
-	# if validation_code == 200 or validation_code == 201:
-	# 	calendar_list_URL = 'https://www.googleapis.com/calendar/v3/users/me/calendarList'
-	# 	calendar_list = json.loads(network_manager.reqGET(calendar_list_URL,acToken))
+# 	print('ac=>'+acToken)
+# 	validation_code = gAPI.checkValidAccessToken(acToken)
+# 	logging.info('validCode = ==>'+str(validation_code))
+# 	# if validation_code == 200 or validation_code == 201:
+# 	# 	calendar_list_URL = 'https://www.googleapis.com/calendar/v3/users/me/calendarList'
+# 	# 	calendar_list = json.loads(network_manager.reqGET(calendar_list_URL,acToken))
 		
-	# 	1. 응답을 보내기전에 항상 validation check를 해야한다. 
-	# 	2. 그리고 응답을 보낸후.code가 401일경우 다시 validation check를 한다.
+# 	# 	1. 응답을 보내기전에 항상 validation check를 해야한다. 
+# 	# 	2. 그리고 응답을 보낸후.code가 401일경우 다시 validation check를 한다.
 
 
-	# 	logging.debug('data' + str(calendar_list['error']['code']))
-	# 	logging.debug('data' + str(calendar_list))
+# 	# 	logging.debug('data' + str(calendar_list['error']['code']))
+# 	# 	logging.debug('data' + str(calendar_list))
 
-	# 안되는
-	# ya29.Glv5A5aE2I11yFYG6Q6LYKlfzF3h_dNVjpKf0R_wvKEe1AMeyma7E-lJo-Yx1bDIVaO5r2FoaGsHQ-zQl9OZz_jQw6f3JACUc555RXOkmCBldIxM5yzMyE8CZU1w
-	# 에러가 존재한다면 다시 토큰을 요청한다.
-	# if 'error' in calendar_list:
+# 	# 안되는
+# 	# ya29.Glv5A5aE2I11yFYG6Q6LYKlfzF3h_dNVjpKf0R_wvKEe1AMeyma7E-lJo-Yx1bDIVaO5r2FoaGsHQ-zQl9OZz_jQw6f3JACUc555RXOkmCBldIxM5yzMyE8CZU1w
+# 	# 에러가 존재한다면 다시 토큰을 요청한다.
+# 	# if 'error' in calendar_list:
 
 
-	# 	logging.info('noErr!!')
-	# 	# refreshToken = '1/Xvx2_sr-AR0Rp9MCl7ToVltY9Xcf0v1u_9E7yw0W7z-kFF_DS7BDzafawYyFZGPW'
-	# 	# refresh_info = gAPI.getRefreshAccessToken(refreshToken)
-	# 	refresh_info = gAPI.checkValidAccessToken(acToken)
-	# 	logging.info('refresh info ==>' + str(refresh_info))
-	# 	if refresh_info:
-	# 		new_access_token = refresh_info['access_token']
+# 	# 	logging.info('noErr!!')
+# 	# 	# refreshToken = '1/Xvx2_sr-AR0Rp9MCl7ToVltY9Xcf0v1u_9E7yw0W7z-kFF_DS7BDzafawYyFZGPW'
+# 	# 	# refresh_info = gAPI.getRefreshAccessToken(refreshToken)
+# 	# 	refresh_info = gAPI.checkValidAccessToken(acToken)
+# 	# 	logging.info('refresh info ==>' + str(refresh_info))
+# 	# 	if refresh_info:
+# 	# 		new_access_token = refresh_info['access_token']
 
-	# 		#accessToken update한다. 
+# 	# 		#accessToken update한다. 
 
-	# 		return 'updated'
-	# 	else:
-	# 		return 'nope'
+# 	# 		return 'updated'
+# 	# 	else:
+# 	# 		return 'nope'
 
-	return 'str(calendar_list)'
+# 	return 'str(calendar_list)'
 
 @app.route('/caldavTest')
 def caldavTest():

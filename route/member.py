@@ -23,9 +23,12 @@ from common import gAPI
 from model import userDeviceModel
 from model import userAccountModel
 from model import userModel
+from model import calendarModel
 from manager.redis import redis
 
 from common import syncLogic
+from common import statee
+
 # yenos
 # 유저의관한 api 리스트이다.
 class Member(MethodView):
@@ -46,6 +49,7 @@ class Member(MethodView):
 				logging.debug('whoam_i'+ str(who_am_i))
 
 				if who_am_i['state'] == LOGIN_STATE_AUTO:
+					
 					return utils.resSuccess(
 												{'msg':MSG_LOGIN_AUTO}
 											)
@@ -174,7 +178,11 @@ class Member(MethodView):
 				
 				redis.set(apikey,user_hashkey)
 				logging.debug('apikey' + apikey)				
-				logging.debug('user_hashkey' + user_hashkey)											
+				logging.debug('user_hashkey' + user_hashkey)	
+				
+				#로그인이 끝났다면!
+				#로그인끝난상황을 기록한다.
+				statee.userLife(apikey,LIFE_STATE_SIGNUP)
 
 				return utils.resSuccess(
 											{'apikey':apikey}
@@ -211,6 +219,9 @@ class Member(MethodView):
 					logging.debug('user_hashkey' + userHashkey)
 
 				userDeviceModel.updateUserDevice(push_token,device_type,app_version,device_info,uuid,sdkLevel,apikey)
+
+				statee.userLife(apikey,LIFE_STATE_REGISTER_DEVICE)
+				
 				return utils.resSuccess(
 											{'apikey':apikey}
 										)
@@ -272,8 +283,9 @@ class Member(MethodView):
 									)
 
 			account_hashkey = utils.makeHashKey(user_hashkey)
-
-
+			
+			statee.userLife(apikey,LIFE_STATE_ADDACCOUNT)
+			
 			if login_platform == 'naver' or login_platform == 'ical':	
 				#caldav일경우.
 				u_id = flask.request.form['uId']
@@ -318,25 +330,31 @@ class Member(MethodView):
 					#가입이 완료되었다면 동기화 로직을 돈다.
 					#기존 위의 파라미터로도 접속은 가능하지만. 
 					# sync 기본 요청에서는 user로 값을 넣어줘야함으로 맞춰줘야함.
-					syncInfo = syncLogic.caldav(user,user_hashkey,login_platform)
+					try:
+					#일단 캘린더리스트를 삭제하고..					
+						syncInfo = syncLogic.caldav(user,user_hashkey,login_platform)
+					except Exception as e:
+						calendarModel.deleteCalendarList(user[0]['account_hashkey'])
+						return utils.resCustom(
+												201,							
+												{'msg':str(e)}
+											)							
 
-					if syncInfo['state'] == SYNC_CALDAV_SUCCESS:						
+					if syncInfo['state'] == SYNC_CALDAV_SUCCESS:	
+						statee.userLife(apikey,LIFE_STATE_ADDACCOUNT_END)
+						
 						return utils.resSuccess(
 													{'msg':MSG_SUCCESS_ADD_ACCOUNT}
 												)
 
 					else:
-						#실패한경우는 회원가입은 성공했지만 모종의 이유로 동기화는 실패한 상태다.
-						#유저가 다시동기화 할 수 있도록 해주어야한다.
-
+						calendarModel.deleteCalendarList(user[0]['account_hashkey'])
 						#codeReview
 						#최소 에러라인을 알려주면 서로편할것이다.
 						return utils.resCustom(		
 													201,
 													{'msg':str(syncInfo['data'])}
-												)													
-	
-
+												)																
 				except Exception as e:
 					return utils.resErr(
 											{'msg':str(e)}
@@ -390,17 +408,26 @@ class Member(MethodView):
 					
 					logging.debug('user==>'+str(user))
 
-					syncInfo = syncLogic.google(user,apikey)
+					try:
+						syncInfo = syncLogic.google(user,apikey)
+					except Exception as e:
+						calendarModel.deleteCalendarList(user[0]['account_hashkey'])
+						return utils.resCustom(
+												201,							
+												{'msg':str(e)}
+											)						
 					
 					logging.debug('syncInfo==>'+str(syncInfo))
 
 					if syncInfo['state'] == SYNC_GOOGLE_SUCCES:
-						#동기화가 완료되어야만 비로소 가입이가능하다.						
+						statee.userLife(apikey,LIFE_STATE_ADDACCOUNT_END)					
+
 						return utils.resSuccess(
 													{'msg':MSG_SUCCESS_ADD_ACCOUNT}
 												)
 
 					else:
+						calendarModel.deleteCalendarList(user[0]['account_hashkey'])
 						#실패한경우는 회원가입은 성공했지만 모종의 이유로 동기화는 실패한 상태다.
 						#유저가 다시동기화 할 수 있도록 해주어야한다.
 						return utils.resCustom(		
@@ -427,6 +454,9 @@ class Member(MethodView):
 				userDeviceModel.logout(apikey)
 				redis.delete(apikey)
 				logging.debug('delete apikey => ' + apikey)									
+				
+				statee.userLife(apikey,LIFE_STATE_LOGOUT)
+				
 				return utils.resSuccess(
 											{'msg':MSG_LOGOUT_SUCCESS}
 										)

@@ -87,8 +87,9 @@ def updateGoogleSyncState(channel_id,state):
 				,(state,channel_id)
 			)
 
-# def updateGooglePushComplete(channel_id):
-# 	return db_manager.query(
-# 				"UPDATE CALENDAR SET google_push_complete = 3 WHERE google_channel_id = %s"
-# 				,(channel_id,)
-# 			)	
+def deleteCalendarList(account_hashkey):
+	return db_manager.query(
+			"DELETE FROM CALENDAR WHERE account_hashkey = %s"
+			,
+			(account_hashkey,)
+		)

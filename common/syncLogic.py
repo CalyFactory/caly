@@ -21,10 +21,9 @@ import urllib
 from datetime import timedelta,datetime
 from pytz import timezone
 
-
-from common import FCM
 from manager.redis import redis
 from common.util.statics import *
+import time
 
 def caldav(user,user_hashkey,login_platform):
 
@@ -39,7 +38,7 @@ def caldav(user,user_hashkey,login_platform):
 	principal = calDavclient.getPrincipal()
 	homeset = principal.getHomeSet()
 	calendars = homeset.getCalendars()
-	# logging.debug('calendars=>' + str(calendars))
+
 	#캘린더 해시키를 먼저 만든다.
 	arr_calendar_hashkey = []
 	for calendar in calendars:
@@ -54,18 +53,28 @@ def caldav(user,user_hashkey,login_platform):
 
 	for idx,calendar in enumerate(calendars):
 	    
-	    
 	    logging.debug('calnedarsss=> ' + calendar.calendarName)
-	    eventList = calendar.getEventByRange( "20170128T000000Z", "20180223T000000Z")				    
+		
+	    ##TODO
+	    ##RANGE를 현재시간부터 5개월후로!
+	    range_start = time.strftime("%Y%m%dT000000Z")
+	    range_end = datetime.now()+ timedelta(hours=3600)
+	    range_end = datetime.strftime(range_end, "%Y%m%dT000000Z") 	
+	    logging.info('range_start ==> '+range_start)
+	    logging.info('range_edn ==> '+range_end)
+
+	    eventList = calendar.getEventByRange( "20170301T000000Z", "20170729T000000Z")				    
 	    eventDataList = calendar.getCalendarData(eventList)
 	    calendar_hashkey = arr_calendar_hashkey[idx]
 
 	    for event_set in eventDataList:		
 		    logging.debug('eventset => ' + str(event_set.eventData))
-		    event = event_set.eventData['VEVENT']
-		    
-		    
-		   
+		    event = event_set.eventData['VEVENT']		    
+		   	#만약 Transparet인 이벤트라면 다음 루프로 넘어간다.
+		    if 'TRANSP' in event:
+		        if event['TRANSP'] == 'TRANSPARENT':
+		            continue
+
 		    # #uid를 eventId로 쓰면되나
 		    event_id = event_set.eventId
 		    event_hashkey = utils.makeHashKey(event_id)
@@ -73,15 +82,14 @@ def caldav(user,user_hashkey,login_platform):
 		    caldav_event_url = event_set.eventUrl
 		    #etag는 어디서 얻을수 있죠?
 		    caldav_etag = event_set.eTag
-		    summary = event['SUMMARY']
-		    print('sum'+summary)
+		    summary = None
+		    if 'SUMMARY' in event:
+		    	summary = event['SUMMARY']
+
+		    
 		    start_dt = None
 		    end_dt = None
 
-		    ###
-		    #FIxME 성민이가 DTSTART가져오는것 처리해주면 이코드는 버릴거야.
-		    #레거시할 코드.
-		    # koreanZone = 
 		    if 'DTSTART' in event:			
 
 		    	start_dt = event['DTSTART']
@@ -90,19 +98,16 @@ def caldav(user,user_hashkey,login_platform):
 		    		#한국시간으로바꿔준다
 		    		start_dt = start_dt.astimezone(timezone('Asia/Seoul'))
 
-		    elif 'DTEND' in key:
+		    if 'DTEND' in event:
 		    	end_dt = event['DTEND']
 		    	if(isinstance(end_dt,datetime)):
 		    		#한국시간으로바꿔준다
 		    		end_dt = end_dt.astimezone(timezone('Asia/Seoul'))					  
 		    
 		    #타임존 라이브러리정하기
-		    # created_dt = event['CREATED'][:-1]
 		    created_dt = event['CREATED']
 		    if(isinstance(created_dt,datetime)):
 			    created_dt =created_dt.astimezone(timezone('Asia/Seoul'))					  		    
-		    # logging.debug('start_dt=>' + str(start_dt.timezone))
-		    # logging.debug('timezone=>' + str(created_dt.tzname))	
 		    #문자열을 날짜시간으로 변경해줌. 
 		    # created_dt = datetime.strptime(created_dt, "%Y%m%dT%H%M%S") + timedelta(hours=9)	    
 
@@ -113,8 +118,7 @@ def caldav(user,user_hashkey,login_platform):
 		    if(isinstance(updated_dt,datetime)):
 		    		#한국시간으로바꿔준다
 			    updated_dt =updated_dt.astimezone(timezone('Asia/Seoul'))					  		    		    	
-		        # updated_dt = event['LAST-MODIFIED'][:-1]
-		        # updated_dt = datetime.strptime(updated_dt, "%Y%m%dT%H%M%S") + timedelta(hours=9)
+		        
 		    else:		
 			    updated_dt = created_dt
 		    if event['LOCATION'] == '':
@@ -122,7 +126,6 @@ def caldav(user,user_hashkey,login_platform):
 		    else:
 		    	location = event['LOCATION']
 
-		    
 		    logging.debug('hashkey=>' + calendar_hashkey)	
 		    logging.debug('event_hashkey=>' + event_hashkey)	
 		    logging.debug('event_id=>' + event_id)	
@@ -154,6 +157,9 @@ def caldav(user,user_hashkey,login_platform):
 	return utils.syncState(SYNC_CALDAV_SUCCESS,None)
 
 def google(user,apikey):	
+	utils.checkTime(datetime.now(),'start')
+	
+
 	access_token = user[0]['access_token']
 	account_hashkey = user[0]['account_hashkey']
 
@@ -171,7 +177,7 @@ def google(user,apikey):
 		calendar_channelId = utils.makeHashKey(calendar['id'])		
 		arr_channel_id.append(calendar_channelId)		
 	# logging.debug('channl=> ' + str(arr_channel_id))
-		
+			
 	try:
 		#최초 googlepushcomplete 가 0
 		calendarModel.setGoogleCalendar(calendars,account_hashkey,arr_channel_id)
@@ -181,9 +187,20 @@ def google(user,apikey):
 	calendarsInDB = calendarModel.getAllCalendarWithAccountHashkey(account_hashkey)
 
 	#1. 첫째로 캘린더에있는 캘린더들을 돌려서 디비에 이벤트를 저장한다.
+	#TODO
+	#maxResults가 최대 몇개까지인지 확인하고 최대로 가져온다.
+	#RANGE를 현재시간부터 5개월후로!
+	#key가 opqaue인것부터
+	range_start = time.strftime("%Y-%m-%dT00:00:00-09:00")
+	range_end = datetime.now()+ timedelta(hours=3600)
+	range_end = datetime.strftime(range_end, "%Y-%m-%dT00:00:00-09:00") 	
+
 	for calendar in calendarsInDB:
+		logging.info('[timeTest]calendar ForLoop==> '+str(utils.checkTime(datetime.now(),'ing')))
 		body = {
-					'maxResults': 10
+					'maxResults': 1000,
+					'timeMin':range_start,
+					'timeMax':range_end					
 				}	
 		reqEventsList(apikey,calendar,user,body)
 
@@ -193,11 +210,12 @@ def google(user,apikey):
 		if '@gmail.com' in calendar_id or '@naver.com' in calendar_id or '@ical.com' in calendar_id or '@group.calendar.google.com' in calendar_id:
 			calendarModel.updateGoogleSyncState(calendar_channel_id,GOOGLE_SYNC_STATE_PUSH_START)			
 
+	logging.info('[timeTest]end All event Save==> '+str(utils.checkTime(datetime.now(),'ing')))			
 	#notification 저장하기.
 	#기존 state가 ==0 이고 이 요청을 보낸상태면 1로 바꿘준다.
 	#watch에서 받았으면 2로 값을바꾸고 push Notification을 보낸다.
 	for idx, calendar in enumerate(calendars):
-		
+		logging.info('[timeTest]watch Request==> '+str(utils.checkTime(datetime.now(),'ing')))			
 		logging.debug('calender id =>'+calendar['id'])		
 		calendar_id = calendar['id']
 		if '@gmail.com' in calendar_id or '@naver.com' in calendar_id or '@ical.com' in calendar_id or '@group.calendar.google.com' in calendar_id:
@@ -210,10 +228,7 @@ def google(user,apikey):
 			}						
 			res = network_manager.reqPOST(watch_URL,access_token,body)
 			#start push noti
-			
-		# if 'id' in res:
-		# 	calendarModel.updatePushComplete(arr_channel_id[idx],CALENDAR_PUSH_STATE_BEFORE)
-
+	
 			logging.info('ress=s==> '+str(res))
 		#codeReview
 		#status code 를 202등으로 바꾼다.
@@ -232,6 +247,7 @@ def reqEventsList(apikey,calendar,user,body={}):
 	res = json.loads(network_manager.reqGET(URL,access_token,body))
 
 	logging.info('calendarResponse'+str(res))
+	# logging.info('itemLenth'+str(len(res['items'])))
 	for item in res['items']:
 		
 		# logging.debug('event_id=>'+str(item['id']))
@@ -244,38 +260,47 @@ def reqEventsList(apikey,calendar,user,body={}):
 		updated = None
 		location = 'noLocation'
 
-		if('summary' in item):			
+		if 'summary' in item:			
 			summary = item['summary']
-		if('location' in item):
+		if 'location' in item:
 			location = item['location']
 
-		if('date' in item['start'] ):					
+		if 'created' in item:												
+			created = str(item['created'])[:-5]
+			created = datetime.strptime(created, "%Y-%m-%dT%H:%M:%S") + timedelta(hours=9)	    
+		if 'updated' in item:
+			updated = str(item['updated'])[:-5]		
+			updated = datetime.strptime(updated, "%Y-%m-%dT%H:%M:%S") + timedelta(hours=9)	    
+
+
+		if 'date' in item['start']:					
 			start_date = item['start']['date']
 			end_date = item['end']['date']
 
-		elif('dateTime' in item['start']):		
+		elif 'dateTime' in item['start']:		
 			start_date = utils.date_utc_to_current(str(item['start']['dateTime']))
 			end_date = utils.date_utc_to_current(str(item['end']['dateTime']))
-											
-		created = str(item['created'])[:-5]
-		# logging.debug('creatd=>'+created)
-		# '2017-02-25T14:33:22.000Z'
-		created = datetime.strptime(created, "%Y-%m-%dT%H:%M:%S") + timedelta(hours=9)	    
 
-		updated = str(item['updated'])[:-5]
-		# logging.debug('updated=>'+updated)
-		updated = datetime.strptime(updated, "%Y-%m-%dT%H:%M:%S") + timedelta(hours=9)	    
 
 		event_hashkey = utils.makeHashKey(event_id)
 		eventModel.setGoogleEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location)
+	logging.info('[timeTest]cnt= '+str(len(res['items']))+'setEVENTS==> '+str(utils.checkTime(datetime.now(),'ing')))
 
 
 
 	#넥스트 토큰이있을경우 없을때까지 요청을 보낸다.
+
+	range_start = time.strftime("%Y-%m-%dT00:00:00-09:00")
+	range_end = datetime.now()+ timedelta(hours=3600)
+	range_end = datetime.strftime(range_end, "%Y-%m-%dT00:00:00-09:00") 	
+	logging.info('range_start ==> '+range_start)
+	logging.info('range_edn ==> '+range_end)
 	if 'nextPageToken' in res:
 		
 		body = {
-					'maxResults': 10,
+					'maxResults': 1000,
+					'timeMin':range_start,
+					'timeMax':range_end,					
 					'pageToken' : str(res['nextPageToken'])
 				}
 		reqEventsList(apikey,calendar,user,body)

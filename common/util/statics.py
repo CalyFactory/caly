@@ -8,6 +8,39 @@ LOGIN_STATE_AUTO = 'LOGIN_STATE_AUTO'
 LOGIN_STATE_OTHERDEVICE = 'LOGIN_STATE_OTHERDEVICE'
 LOGIN_STATE_RELOGIN = 'LOGIN_STATE_RELOGIN'
 
+
+
+#########유저 lifeSTAT status
+#해당 스테이트가 시작할때 설정해준다. 
+#모든 상황은 성공했을때 로그로 저장된다.
+# 라이프사이클상 순서대로 이루어지지않을 경우 뭔가 문제가 있는 경우이다.
+LIFE_STATE_SIGNUP = 'LIFE_STATE_SIGNUP'
+LIFE_STATE_SIGNIN_AUTO = 'LIFE_STATE_SIGNIN_AUTO'
+LIFE_STATE_SIGNIN_RELOGIN = 'LIFE_STATE_SIGNIN_RELOGIN'
+LIFE_STATE_SIGNIN_OTEHRDEVICE = 'LIFE_STATE_SIGNIN_OTEHRDEVICE'
+
+#싱크요청시작할떄
+LIFE_STATE_SYNCING = 'LIFE_STATE_SYNCING'
+#싱크요청 끝났을때
+LIFE_STATE_SYNC_END = 'LIFE_STATE_SYNC_END'
+
+#addAccount요청 보냈을때
+LIFE_STATE_ADDACCOUNT = 'LIFE_STATE_ADDACCOUNT'
+LIFE_STATE_ADDACCOUNT_END = 'LIFE_STATE_ADDACCOUNT_END'
+
+#recoing은 sync_end일경우 바로 같은 상황이된다.
+# LIFE_STATE_RECOING = 'LIFE_STATE_RECOING'
+#유저에게 추천 끝났다고 요청보냈을때 설정한다.
+LIFE_STATE_RECOEND = 'LIFE_STATE_RECOEND'
+#등록했을경우
+LIFE_STATE_REGISTER_DEVICE = 'LIFE_STATE_REGISTER_DEVICE'
+#유저가 로그아웃 했을경우
+LIFE_STATE_LOGOUT = 'LIFE_STATE_LOGOUT'
+#에러가 나왔을경우
+LIFE_STATE_ERROR = 'LIFE_STATE_ERROR'
+
+
+
 #로그인 에러상황
 LOGIN_ERROR_INVALID = 'inValid apikey!'
 LOGIN_ERROR = 'LOGIN_ERROR'
@@ -46,7 +79,14 @@ MSG_LOGIN_SIGNUP = 'first sign up'
 MSG_LOGIN_COMPLUSION_UPDATE = 'need compulsion update'
 
 MSG_INVALID_TOKENKEY = 'invalid token key'
-MSG_EVENTS_END = 'data end'
+#EVENT 없을경우
+MSG_EVENTS_END = 'event data end'
+#추천 없을경우
+MSG_RECO_END = 'reco data end'
+#그냥 없어
+MSG_DATA_NONE = 'data none'
+MSG_RECO_SUCCESS = 'recomendation ends'
+MSG_RECO_ING = 'recomendation ing'
 
 MSG_SUCCESS_ADD_ACCOUNT = 'success add account'
 MSG_FAILE_ADD_ACCOUNT_REGISTERD = 'already registerd'
@@ -56,6 +96,9 @@ MSG_LOGOUT_SUCCESS = 'log out success'
 MSG_SUCCESS_GOOLE_SYNC_LOADING = 'success sync loading'
 #캘대브 성공
 MSG_SUCCESS_CALDAV_SYNC = 'Caldav Sync Success'
+
+#
+MSG_SUCCESS = 'success'
 
 
 

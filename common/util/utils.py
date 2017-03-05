@@ -4,7 +4,7 @@ import time
 import json
 from time import gmtime, strftime
 from datetime import datetime
-
+from manager.redis import redis
 
 loginState = lambda state,data : {'state':state,'data':data}
 
@@ -14,17 +14,17 @@ syncState = lambda state,data : {'state':state,'data':data}
 def resSuccess(payload):
 	return json.dumps(
 						{'payload':payload}
-					),200,{'Conent_Type':'application/json'}
+					),200,{'Content-Type':'application/json'}
 
 def resErr(err):
 	return json.dumps(
 						{'payload':err}
-					),400,{'Conent_Type':'application/json'}
+					),400,{'Content-Type':'application/json'}
 
 def resCustom(code,payload):
 	return json.dumps(
 						{'payload':payload}
-					),code,{'Conent_Type':'application/json'}
+					),code,{'Content-Type':'application/json'}
 			
 
 
@@ -80,4 +80,18 @@ def date_utc_to_current(date):
 		return date[:date.index('+')]	
 	elif(date.index('-') != -1):
 		return date[:date.index('-')]	
+
+def checkTime(date,state):
+
+	if state == 'start':
+		redis.set('test_start',datetime.now())
+	else:
+		print(redis.get('test_start'))
+		print(date)
+		# 2017-03-01 15:58:11.614747
+		datetime_object = datetime.strptime(redis.get('test_start'), '%Y-%m-%d %H:%M:%S.%f')
+		redis.set('test_start',date)
+		return date-datetime_object
+
+
 

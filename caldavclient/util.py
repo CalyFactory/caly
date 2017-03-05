@@ -51,7 +51,9 @@ def parseICS(ics):
                     result = component.decoded(row[0])
                 else:
                     result = str(row[1])
-            
+                
+                if row[0] in dictResult['VEVENT']:
+                    continue
                 dictResult['VEVENT'][row[0]] = result
     return dictResult
 

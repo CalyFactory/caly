@@ -15,8 +15,11 @@ import datetime
 from model import userDeviceModel
 from model import userAccountModel
 from model import userModel
+
 from manager.redis import redis
 import logging
+from common import statee
+
 def checkLoginState(flask):
 
 	#세션키면 웹서버가 제공해주는 세션키라고 생각할수있다.
@@ -31,9 +34,12 @@ def checkLoginState(flask):
 		
 		
 		if redis.get(apikey):
-			print('has apikey')
+
+			#유저라이프사이클로그저장.
+			statee.userLife(apikey,LIFE_STATE_SIGNIN_AUTO)									
+			
 			return utils.loginState(LOGIN_STATE_AUTO,None)		
-		else:
+		else:	
 			return utils.loginState(LOGIN_ERROR,None)				
 		
 
@@ -54,7 +60,7 @@ def checkLoginState(flask):
 			#이를 에러가 아니라 특정 정보를 주어야한다. 400 msg 와 같이말이다.
 			try:
 				principal = calDavclient.getPrincipal()				
-			except Exception as e:
+			except Exception as e:						
 				return utils.loginState(LOGIN_ERROR,'invalid id/pw')
 			
 			#cal dav일 경우.
@@ -81,8 +87,7 @@ def checkLoginState(flask):
 		
 		## 존재하지 않을경우 => 최초로그인
 		if len(account) == 0:
-			isFirst = True
-		
+			isFirst = True		
 		### id pw 값 or subject에맞는 값이존재 => 로그아웃 이거나 다른 디바이스에서 로그인
 		else :
 			account_hashkey = account[0]['account_hashkey']
@@ -118,7 +123,9 @@ def checkLoginState(flask):
 					userDeviceModel.setUserDevice(device_hashkey,account_hashkey,apikey)
 				except Exception as e:
 					return utils.loginState(LOGIN_ERROR,str(e))
-
+				
+				statee.userLife(apikey,LIFE_STATE_SIGNIN_OTEHRDEVICE)														
+				
 				return utils.loginState(LOGIN_STATE_OTHERDEVICE,{'apikey':apikey})
 				# return LOGIN_STATE_OTHERDEVICE
 
@@ -141,6 +148,8 @@ def checkLoginState(flask):
 					userDeviceModel.updateUserApikey(apikey,uuid)
 				except Exception as e:
 					return utils.loginState(LOGIN_ERROR,str(e))
-
+				
+				statee.userLife(apikey,LIFE_STATE_SIGNIN_RELOGIN)																			
+			
 				return utils.loginState(LOGIN_STATE_RELOGIN,{'apikey':apikey})
 

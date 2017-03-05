@@ -96,11 +96,3 @@ def getHasAccountList(user_hashkey):
 				)			
 			)	
 
-# def checkUserValidation(u_id,u_pw):
-# 	return utils.fetch_all_json(
-# 				db_manager.query(
-# 						"SELECT * FROM USERACCOUNT WHERE user_id = %s AND access_token = %s "
-# 						,
-# 						(u_id,u_pw) 						
-# 				)
-# 			)	

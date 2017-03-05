@@ -29,6 +29,8 @@ from common.util.statics import *
 
 
 from model import mFcmModel
+# from model import userLifeModel
+from common import statee
 from common import syncLogic
 
 class Sync(MethodView):
@@ -53,36 +55,55 @@ class Sync(MethodView):
 			
 			login_platform = user[0]['login_platform']
 
-			if login_platform == 'naver' or login_platform == 'ical':
-			
-				syncInfo = syncLogic.caldav(user,user_hashkey,login_platform)
+			#user_state
+			statee.userLife(apikey,LIFE_STATE_SYNCING)			
+		
+
+			if login_platform == 'naver' or login_platform == 'ical':				
+				try:
+				#일단 캘린더리스트를 삭제하고..					
+					syncInfo = syncLogic.caldav(user,user_hashkey,login_platform)
+				except Exception as e:
+					calendarModel.deleteCalendarList(user[0]['account_hashkey'])
+					return utils.resCustom(
+											201,							
+											{'msg':str(e)}
+										)					
 
 				if syncInfo['state'] == SYNC_CALDAV_SUCCESS:
+					statee.userLife(apikey,LIFE_STATE_SYNC_END)
+					
 					return utils.resSuccess(
 												{'msg':MSG_SUCCESS_CALDAV_SYNC}
 											)
 
 				else:
-					return utils.resErr(
+					calendarModel.deleteCalendarList(user[0]['account_hashkey'])					
+					return utils.resCustom(
+											201,
 											{'msg':syncInfo['data']}
 										)		
 
-				
-
 			elif login_platform == 'google':
-				logging.debug('user==>' + str(user))
-				syncInfo = syncLogic.google(user,apikey)				
-				
-				logging.debug('syncInfo==>' + str(syncInfo))
 
-				if syncInfo['state'] == SYNC_GOOGLE_SUCCES:
-					#동기화가 완료되어야만 비로소 가입이가능하다.
-					# userAccountModel.setCaldavUserAccount(account_hashkey,user_hashkey,login_platform,u_id,u_pw,caldav_homeset)
+				logging.debug('user==>' + str(user))
+				try:
+					syncInfo = syncLogic.google(user,apikey)
+				except Exception as e:
+					calendarModel.deleteCalendarList(user[0]['account_hashkey'])
+					return utils.resCustom(
+											201,							
+											{'msg':str(e)}
+										)				
+				
+				if syncInfo['state'] == SYNC_GOOGLE_SUCCES:					
 					return utils.resSuccess(
 												{'msg':MSG_SUCCESS_GOOLE_SYNC_LOADING}
 											)
 
 				else:
+					calendarModel.deleteCalendarList(user[0]['account_hashkey'])
+
 					#실패한경우는 회원가입은 성공했지만 모종의 이유로 동기화는 실패한 상태다.
 					#유저가 다시동기화 할 수 있도록 해주어야한다.
 					return utils.resCustom(		
@@ -102,12 +123,35 @@ class Sync(MethodView):
 			state = flask.request.headers['X-Goog-Resource-State']
 			account = calendarModel.getAccountHashkey(channel_id)
 			account_hashkey = account[0]['account_hashkey']
+			
 			#동기화 할 경우.
 			if state == 'sync':
 				
 				calendarModel.updateGoogleSyncState(channel_id,GOOGLE_SYNC_STATE_PUSH_END)						
 				calendars = calendarModel.getGoogleSyncState(account_hashkey)
 				apikey = flask.request.headers['X-Goog-Channel-Token']
+
+				
+				###############
+				#####DEBUG#####
+				#pushNoti등록을 해제하는 부분입니다. 
+				#등록 테스트에서 매번등록되면 나중에 변경됬이력이 생겼을때 등록된 수만큼 푸시가 와서 등록하자마 해제하는 로직.
+				###############		
+				access_token = account[0]['access_token']		
+				resource_id = flask.request.headers['X-Goog-Resource-Id']
+				URL = 'https://www.googleapis.com/calendar/v3/channels/stop'
+				body = {
+					"id" : channel_id,
+			  		"resourceId": resource_id
+				}	
+				# print(network_manager.reqPOST(URL,body))
+				result = network_manager.reqPOST(URL,access_token,body) 							
+				logging.info('stop noti => ' + result)
+				###############
+				#####DEBUG#####
+				###############		
+
+
 
 				is_finished_sync = True
 				for calendar in calendars:
@@ -121,7 +165,9 @@ class Sync(MethodView):
 					try:
 						syncEndModel.setSyncEnd(account_hashkey)
 					except Exception as e:
-							return utils.resErr(str(e))
+							return utils.resErr(
+													{'msg':str(e)}
+												)
 
 					user_device = userDeviceModel.getPushToken(apikey)
 					logging.info('device=> ' + str(user_device))
@@ -129,14 +175,12 @@ class Sync(MethodView):
 					if len(user_device) !=0:
 						push_token = user_device[0]['push_token']
 
-					#0일경우는 새로운 계정 추가할 경우.
-					# else:
-						# push_token = 
+					#0일경우는 새로운 계정 추가할 경우.					
 					
 					logging.debug('pushtoken =>' + push_token)
 					data_message = {
 					    "type" : "sync",
-					    "action" : "actions"
+					    "action" : "default"
 					}
 					
 					result = FCM.sendOnlyData(push_token,data_message)
@@ -151,6 +195,8 @@ class Sync(MethodView):
 					result['push_data'] = data_message
 					mFcmModel.insertFcm(result)								
 					logging.info(str(result))
+					
+					statee.userLife(apikey,LIFE_STATE_SYNC_END)									
 					
 
 				else:
