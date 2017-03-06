@@ -247,7 +247,7 @@ def google(user,apikey,time_state):
 			body = {
 				"id" : arr_channel_id[idx],
 				"type" : "web_hook",
-				"address" : "http://dev.caly.io:55566/v1.0/sync/watchReciver",
+				"address" : "https://ssoma.xyz:55566/v1.0/sync/watchReciver",
 				"token" : apikey
 			}						
 			res = network_manager.reqPOST(watch_URL,access_token,body)
