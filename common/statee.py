@@ -3,6 +3,6 @@ from common.util.statics import *
 
 def userLife(apikey,state):
 	try:										
-		userLifeModel.setUserLifeState(apikey,LIFE_STATE_SIGNUP)
+		userLifeModel.setUserLifeState(apikey,state)
 	except Exception as e:
 		logging.error(str(e))

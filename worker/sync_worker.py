@@ -1,4 +1,6 @@
 #-*- coding: utf-8 -*-
+import sys 
+sys.path.append("../")
 
 from celery import Celery
 from celery.signals import worker_init
@@ -11,10 +13,9 @@ import json
 import time
 import random
 import threading
-import logging
  
 
-app = Celery('tasks', broker='amqp://guest:guest@localhost:5672//')
+app = Celery('tasks', broker='amqp://guest:guest@localhost:5672//',)
 
 
 @worker_init.connect
@@ -25,11 +26,11 @@ def init_worker(**kwargs):
 def shutdown_worker(**kwargs):
 	print('shut')
 
-@app.task
-def worker(data):
+@app.task(name='workerrs')
+def workerr(data):
     gameThread = threading.Thread(target=run, args=(data,))
     gameThread.start()
 
-def run(data):
-    
+def run(data):    
     print("celery data : " + str(data))
+    return
