@@ -92,15 +92,15 @@ class Sync(MethodView):
 				logging.debug('user==>' + str(user))
 				try:
 
-
-					syncEndRows = syncEndModel.getSyncEnd(user[0]['account_hashkey'],SYNC_END_TIME_STATE_FORWARD)
-					#기존에 동기화 완료된경우이면 패스.
-					if len(syncEndRows) == 0 :
-						syncInfo = syncLogic.google(user,apikey,SYNC_TIME_STATE_FORWARD)
-					else:
-						return utils.resErr(
-												{'msg':MSG_SYNC_ALREADY}
-											)	
+					syncInfo = syncLogic.google(user,apikey,SYNC_TIME_STATE_FORWARD)
+					# syncEndRows = syncEndModel.getSyncEnd(user[0]['account_hashkey'],SYNC_END_TIME_STATE_FORWARD)
+					# #기존에 동기화 완료된경우이면 패스.
+					# if len(syncEndRows) == 0 :
+						
+					# else:
+					# 	return utils.resErr(
+					# 							{'msg':MSG_SYNC_ALREADY}
+					# 						)	
 
 				except Exception as e:
 					calendarModel.deleteCalendarList(user[0]['account_hashkey'])
@@ -113,7 +113,11 @@ class Sync(MethodView):
 					return utils.resSuccess(
 												{'msg':MSG_SUCCESS_GOOLE_SYNC_LOADING}
 											)
-
+				elif syncInfo['state'] == SYNC_CALDAV_ERR_ALREADY_REIGITER:
+					return utils.resCustom(
+											201,
+											{'msg':syncInfo['data']}
+										)	
 				else:
 					calendarModel.deleteCalendarList(user[0]['account_hashkey'])
 
@@ -168,19 +172,13 @@ class Sync(MethodView):
 
 				is_finished_sync = True
 				for calendar in calendars:
-							
+					logging.info('google state==>'+str(calendar['google_sync_state']))		
 					if calendar['google_sync_state'] != GOOGLE_SYNC_STATE_PUSH_END:
 						is_finished_sync = False
 
 					
 				if is_finished_sync:
 					logging.info('success Sync')
-					try:
-						syncEndModel.setSyncEnd(account_hashkey,SYNC_END_TIME_STATE_FORWARD)
-					except Exception as e:
-							return utils.resErr(
-													{'msg':str(e)}
-												)
 
 					user_device = userDeviceModel.getPushToken(apikey)
 					logging.info('device=> ' + str(user_device))
@@ -209,7 +207,7 @@ class Sync(MethodView):
 					mFcmModel.insertFcm(result)								
 					logging.info(str(result))
 					
-					statee.userLife(apikey,LIFE_STATE_SYNC_END)									
+					statee.userLife(apikey,LIFE_STATE_GOOGLE_PUSH_END)									
 					
 
 				else:

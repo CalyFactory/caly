@@ -29,10 +29,8 @@ import sync_worker
 from common import statee
 
 def caldav(user,apikey,login_platform,time_state):
-
 	
 	#forward일경우 포워트 싱크시작
-
 	log_state = time_state == SYNC_TIME_STATE_FORWARD and LIFE_STATE_CALDAV_FORWARD_SYNCING or LIFE_STATE_CALDAV_BACKWARD_SYNCING
 	statee.userLife(apikey,log_state)
 
@@ -206,7 +204,18 @@ def caldav(user,apikey,login_platform,time_state):
 	return utils.syncState(SYNC_CALDAV_SUCCESS,None)
 
 def google(user,apikey,time_state):	
+	
+	log_state = time_state == SYNC_TIME_STATE_FORWARD and LIFE_STATE_GOOGLE_FORWARD_SYNCING or LIFE_STATE_GOOGLE_BACKWARD_SYNCING
+	statee.userLife(apikey,log_state)
+
 	utils.checkTime(datetime.now(),'start')
+	
+	state = time_state == SYNC_TIME_STATE_FORWARD and SYNC_END_TIME_STATE_FORWARD or SYNC_END_TIME_STATE_BACKWARD
+	syncEndRows = syncEndModel.getSyncEnd(user[0]['account_hashkey'],state)
+
+	#한번이라도 동기화했나?
+	if len(syncEndRows) != 0 :
+		return utils.syncState(SYNC_CALDAV_ERR_ALREADY_REIGITER,MSG_SYNC_ALREADY)
 	
 
 	access_token = user[0]['access_token']
@@ -222,16 +231,21 @@ def google(user,apikey,time_state):
 
 	# #디비에 array로 다이렉트로 넣기위한 코드.
 	arr_channel_id = []
+
+	arr_calendar_hashkey = []
+
 	for calendar in calendars:
 		calendar_channelId = utils.makeHashKey(calendar['id'])		
+		# calendar_hashkey = utils.makeHashKeyNoneTime(calendar['id']+user[0]['login_platform']+user[0]['user_id'])
+
+		# arr_calendar_hashkey.append(calendar_hashkey)
 		arr_channel_id.append(calendar_channelId)		
-	# logging.debug('channl=> ' + str(arr_channel_id))
-			
-	try:
-		#최초 googlepushcomplete 가 0
-		calendarModel.setGoogleCalendar(calendars,account_hashkey,arr_channel_id)
-	except Exception as e:
-		return utils.syncState(SYNC_GOOGLE_ERR_SET_CALENDAR,str(e))		
+	if time_state == SYNC_TIME_STATE_FORWARD:			
+		try:
+			#최초 googlepushcomplete 가 0
+			calendarModel.setGoogleCalendar(calendars,account_hashkey,arr_channel_id)
+		except Exception as e:
+			return utils.syncState(SYNC_GOOGLE_ERR_SET_CALENDAR,str(e))		
 
 	calendarsInDB = calendarModel.getAllCalendarWithAccountHashkey(account_hashkey)
 
@@ -264,40 +278,56 @@ def google(user,apikey,time_state):
 					'timeMin':range_start,
 					'timeMax':range_end					
 				}	
-		reqEventsList(apikey,calendar,user,body)
+		reqEventsList(time_state,apikey,calendar,user,body)
 
 		#캘린더 id가 일반계정이면==>무조건 push를 받음으로 pushStart로 설정해준다.
 		calendar_id = calendar['calendar_id']
 		calendar_channel_id = calendar['google_channel_id']
 		if '@gmail.com' in calendar_id or '@naver.com' in calendar_id or '@ical.com' in calendar_id or '@group.calendar.google.com' in calendar_id:
-			calendarModel.updateGoogleSyncState(calendar_channel_id,GOOGLE_SYNC_STATE_PUSH_START)			
+			if time_state == SYNC_TIME_STATE_FORWARD:
+				calendarModel.updateGoogleSyncState(calendar_channel_id,GOOGLE_SYNC_STATE_PUSH_START)			
 
 	logging.info('[timeTest]end All event Save==> '+str(utils.checkTime(datetime.now(),'ing')))			
 	#notification 저장하기.
 	#기존 state가 ==0 이고 이 요청을 보낸상태면 1로 바꿘준다.
 	#watch에서 받았으면 2로 값을바꾸고 push Notification을 보낸다.
-	for idx, calendar in enumerate(calendars):
-		logging.info('[timeTest]watch Request==> '+str(utils.checkTime(datetime.now(),'ing')))			
-		logging.debug('calender id =>'+calendar['id'])		
-		calendar_id = calendar['id']
-		if '@gmail.com' in calendar_id or '@naver.com' in calendar_id or '@ical.com' in calendar_id or '@group.calendar.google.com' in calendar_id:
-			watch_URL = 'https://www.googleapis.com/calendar/v3/calendars/'+calendar['id']+'/events/watch'
-			body = {
-				"id" : arr_channel_id[idx],
-				"type" : "web_hook",
-				# "address" : "https://ssoma.xyz:55566/v1.0/sync/watchReciver",
-				"address" : "https://caly.io/v1.0/sync/watchReciver",
-				"token" : apikey
-			}						
-			res = network_manager.reqPOST(watch_URL,access_token,body)
-			#start push noti
-	
-			logging.info('ress=s==> '+str(res))
-		#codeReview
-		#status code 를 202등으로 바꾼다.
+	#모든캘린더에대해서 처음에만 
+	if time_state == SYNC_TIME_STATE_FORWARD:
+		for idx, calendar in enumerate(calendars):
+			logging.info('[timeTest]watch Request==> '+str(utils.checkTime(datetime.now(),'ing')))			
+			logging.debug('calender id =>'+calendar['id'])		
+			calendar_id = calendar['id']
+			if '@gmail.com' in calendar_id or '@naver.com' in calendar_id or '@ical.com' in calendar_id or '@group.calendar.google.com' in calendar_id:
+				watch_URL = 'https://www.googleapis.com/calendar/v3/calendars/'+calendar['id']+'/events/watch'
+				body = {
+					"id" : arr_channel_id[idx],
+					"type" : "web_hook",
+					# "address" : "https://ssoma.xyz:55566/v1.0/sync/watchReciver",
+					"address" : "https://caly.io/v1.0/sync/watchReciver",
+					"token" : apikey
+				}						
+				res = network_manager.reqPOST(watch_URL,access_token,body)
+				#start push noti
+		
+				logging.info('ress=s==> '+str(res))
+		
+		#for loop가 최초 다끝나면 나머지 과거 이벤트들을 받아야한다.
+
+		data = {}
+		data['user'] = user
+		data['login_platform'] = 'google'
+		data['apikey'] = apikey
+		sync_worker.worker.delay(data)	
+
+	state = time_state == SYNC_TIME_STATE_FORWARD and SYNC_END_TIME_STATE_FORWARD or SYNC_END_TIME_STATE_BACKWARD
+	syncEndModel.setSyncEnd(account_hashkey,state)					 
+
+	log_state = time_state == SYNC_TIME_STATE_FORWARD and LIFE_STATE_GOOGLE_FORWARD_SYNC_END or LIFE_STATE_GOOGLE_BACKWARD_SYNC_END
+	statee.userLife(apikey,log_state)	
+
 	return utils.syncState(SYNC_GOOGLE_SUCCES,None)
 
-def reqEventsList(apikey,calendar,user,body={}):
+def reqEventsList(time_state,apikey,calendar,user,body={}):
 
 	channel_id = calendar['google_channel_id']
 	account_hashkey = calendar['account_hashkey']
@@ -366,7 +396,7 @@ def reqEventsList(apikey,calendar,user,body={}):
 					'timeMax':range_end,					
 					'pageToken' : str(res['nextPageToken'])
 				}
-		reqEventsList(apikey,calendar,user,body)
+		reqEventsList(time_state,apikey,calendar,user,body)
 
 	else :
 		
@@ -377,7 +407,8 @@ def reqEventsList(apikey,calendar,user,body={}):
 
 		#해당캘린더의 싱크가 끝낫다+> syncToken을 저장해둔다.
 		syncModel.setSync(calendar_hashkey,syncToken)
+		if time_state == SYNC_TIME_STATE_FORWARD:
 		#캘린 더 해시키에 해당하는 googlePushComplete 1로만든다.
-		calendarModel.updateGoogleSyncState(channel_id,GOOGLE_SYNC_STATE_EVENTS_END)
+			calendarModel.updateGoogleSyncState(channel_id,GOOGLE_SYNC_STATE_EVENTS_END)
  
 
