@@ -10,11 +10,7 @@ def getRecoList(event_hashkey,category):
 						"RECOMMENDATION.category, RECOMMENDATION.title, "						
 						"RECOMMENDATION.img_url,RECOMMENDATION.price, "
 						"RECOMMENDATION.map_url,RECOMMENDATION.deep_url, "
-<<<<<<< HEAD
-						"RECOMMENDATION.distance,"					
-=======
 						"RECOMMENDATION.distance "					
->>>>>>> 8832b537e21e2c0de17db1fe8a8298546a93b038
 						"GROUP_CONCAT(HASHTAG.tag_name  order by HASHTAG.tag_name asc SEPARATOR ', ') as tagNames "
 						"FROM RECO_HASHTAG "
 						"LEFT JOIN HASHTAG on RECO_HASHTAG.hash_code = HASHTAG.code "
