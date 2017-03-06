@@ -7,6 +7,10 @@ caldav==0.4.0
 celery==3.1.24
 chardet==2.3.0
 click==6.6
+<<<<<<< HEAD
+
+=======
+>>>>>>> 8832b537e21e2c0de17db1fe8a8298546a93b038
 coverage==4.3.4
 Flask==0.10.1
 Flask-RESTful==0.3.5
