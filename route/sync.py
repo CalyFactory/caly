@@ -61,8 +61,17 @@ class Sync(MethodView):
 
 			if login_platform == 'naver' or login_platform == 'ical':				
 				try:
-				#일단 캘린더리스트를 삭제하고..					
-					syncInfo = syncLogic.caldav(user,user_hashkey,login_platform)
+
+					#이전에 synEnd에서 forward 동기화가 끝났는지를 확인해야한다.
+					syncEndRows = syncEndModel.getSyncEnd(user[0]['account_hashkey'],SYNC_END_TIME_STATE_FORWARD)
+
+					if len(syncEndRows) == 0 :
+						syncInfo = syncLogic.caldav(user,user_hashkey,login_platform,SYNC_TIME_STATE_FORWARD)
+					else:
+						return utils.resErr(
+												{'msg':MSG_SYNC_ALREADY}
+											)						
+
 				except Exception as e:
 					calendarModel.deleteCalendarList(user[0]['account_hashkey'])
 					return utils.resCustom(
@@ -88,7 +97,17 @@ class Sync(MethodView):
 
 				logging.debug('user==>' + str(user))
 				try:
-					syncInfo = syncLogic.google(user,apikey)
+
+
+					syncEndRows = syncEndModel.getSyncEnd(user[0]['account_hashkey'],SYNC_END_TIME_STATE_FORWARD)
+					#기존에 동기화 완료된경우이면 패스.
+					if len(syncEndRows) == 0 :
+						syncInfo = syncLogic.google(user,apikey,SYNC_TIME_STATE_FORWARD)
+					else:
+						return utils.resErr(
+												{'msg':MSG_SYNC_ALREADY}
+											)	
+
 				except Exception as e:
 					calendarModel.deleteCalendarList(user[0]['account_hashkey'])
 					return utils.resCustom(
@@ -163,7 +182,7 @@ class Sync(MethodView):
 				if is_finished_sync:
 					logging.info('success Sync')
 					try:
-						syncEndModel.setSyncEnd(account_hashkey)
+						syncEndModel.setSyncEnd(account_hashkey,SYNC_END_TIME_STATE_FORWARD)
 					except Exception as e:
 							return utils.resErr(
 													{'msg':str(e)}

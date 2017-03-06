@@ -25,7 +25,7 @@ from manager.redis import redis
 from common.util.statics import *
 import time
 
-def caldav(user,user_hashkey,login_platform):
+def caldav(user,user_hashkey,login_platform,time_state):
 
 	logging.info('sync! caldav!')
 
@@ -57,13 +57,22 @@ def caldav(user,user_hashkey,login_platform):
 		
 	    ##TODO
 	    ##RANGE를 현재시간부터 5개월후로!
-	    range_start = time.strftime("%Y%m%dT000000Z")
-	    range_end = datetime.now()+ timedelta(hours=3600)
-	    range_end = datetime.strftime(range_end, "%Y%m%dT000000Z") 	
+	    if time_state == SYNC_TIME_STATE_FORWARD:
+
+		    range_start = time.strftime("%Y%m%dT000000Z")
+		    range_end = datetime.now()+ timedelta(hours=MONTH_TO_HOUR * 5)
+		    range_end = datetime.strftime(range_end, "%Y%m%dT000000Z") 	
+
+	    
+	    elif time_state == SYNC_TIME_STATE_BACKWARD:
+		    range_end = time.strftime("%Y%m%dT000000Z")
+		    range_start = datetime.now() - timedelta(hours=YEAR_TO_HOUR * 3)
+		    range_start = datetime.strftime(range_start, "%Y%m%dT000000Z") 		    			    
+
 	    logging.info('range_start ==> '+range_start)
 	    logging.info('range_edn ==> '+range_end)
 
-	    eventList = calendar.getEventByRange( "20170301T000000Z", "20170729T000000Z")				    
+	    eventList = calendar.getEventByRange( range_start, range_end)				    
 	    eventDataList = calendar.getCalendarData(eventList)
 	    calendar_hashkey = arr_calendar_hashkey[idx]
 
@@ -139,24 +148,26 @@ def caldav(user,user_hashkey,login_platform):
 		    logging.debug('location=>' + str(location))
 		    
 		    try:
+		    	#이벤트를 저장한다.
 		        eventModel.setCaldavEvents(event_hashkey,calendar_hashkey,event_id,summary,start_dt,end_dt,created_dt,updated_dt,location,caldav_event_url,caldav_etag)
 		    except Exception as e:
 			    return utils.syncState(SYNC_CALDAV_ERR_SET_EVENTS,str(e))
 
-		#캘린더마다 싱크된 타임을 기록해준다. 
+		
 	    try:
+	    	#캘린더마다 싱크된 타임을 기록해준다. 
 		    syncModel.setSync(calendar_hashkey,'null')
 	    except Exception as e:
 		    return utils.syncState(SYNC_CALDAV_ERR_SET_SYNC_TIME,str(e))
 
 	try:
-		syncEndModel.setSyncEnd(account_hashkey)
+		syncEndModel.setSyncEnd(account_hashkey,SYNC_END_TIME_STATE_FORWARD)
 	except Exception as e:
 		return utils.syncState(SYNC_CALDAV_ERR_SET_SYNC_END,str(e))
 
 	return utils.syncState(SYNC_CALDAV_SUCCESS,None)
 
-def google(user,apikey):	
+def google(user,apikey,time_state):	
 	utils.checkTime(datetime.now(),'start')
 	
 
@@ -191,9 +202,22 @@ def google(user,apikey):
 	#maxResults가 최대 몇개까지인지 확인하고 최대로 가져온다.
 	#RANGE를 현재시간부터 5개월후로!
 	#key가 opqaue인것부터
-	range_start = time.strftime("%Y-%m-%dT00:00:00-09:00")
-	range_end = datetime.now()+ timedelta(hours=3600)
-	range_end = datetime.strftime(range_end, "%Y-%m-%dT00:00:00-09:00") 	
+
+	if time_state == SYNC_TIME_STATE_FORWARD:
+
+		range_start = time.strftime("%Y-%m-%dT00:00:00-09:00")
+		range_end = datetime.now() + timedelta(hours = MONTH_TO_HOUR * 5)
+		range_end = datetime.strftime(range_end, "%Y-%m-%dT00:00:00-09:00")
+
+	
+	elif time_state == SYNC_TIME_STATE_BACKWARD:
+
+		range_end = time.strftime("%Y-%m-%dT00:00:00-09:00")
+		range_start = datetime.now() - timedelta(hours = YEAR_TO_HOUR * 3)
+		range_start = datetime.strftime(range_start, "%Y-%m-%dT00:00:00-09:00")	
+
+	logging.info('range_start ==> '+range_start)
+	logging.info('range_edn ==> '+range_end)
 
 	for calendar in calendarsInDB:
 		logging.info('[timeTest]calendar ForLoop==> '+str(utils.checkTime(datetime.now(),'ing')))
@@ -223,7 +247,7 @@ def google(user,apikey):
 			body = {
 				"id" : arr_channel_id[idx],
 				"type" : "web_hook",
-				"address" : "https://ssoma.xyz:55566/v1.0/sync/watchReciver",
+				"address" : "http://dev.caly.io:55566/v1.0/sync/watchReciver",
 				"token" : apikey
 			}						
 			res = network_manager.reqPOST(watch_URL,access_token,body)

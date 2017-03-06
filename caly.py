@@ -42,11 +42,8 @@ from datetime import datetime,timedelta
 from model import mFcmModel
 logging.debug('currentServerTime=>'+str(datetime.now()))
 
-
-# from worker import sync_worker
-# sync_worker.delay('tt')
-
-
+# from manager.redis import redis
+# redis.set('6ca94e78b288976bfe2ba14db9e63f47352bff98e95d760dfdd20532','7376bbce83353207ac435c8a519b4812c1113ca5f2ab2529988405e8')
 # 2013-09-23T00:00:00-09:00
 # import time
 # range_start = time.strftime("%Y-%m-%dT00:00:00-09:00")
@@ -122,9 +119,13 @@ logging.debug('currentServerTime=>'+str(datetime.now()))
 
 # 	return 'str(calendar_list)'
 
+
 @app.route('/caldavTest')
 def caldavTest():
-	caldavWrapper.updateCal()
+	
+
+	print('hi')
+	# caldavWrapper.updateCal()
 	return 'hi'
 
 def event_stream():
@@ -192,12 +193,10 @@ def fireFcm():
 	return FCM.sendOnlyData(token,data_message)	
 
 
-
-
-
 if __name__ == '__main__':
 
 	ssl_context = ('./key/last.crt', './key/ssoma.key')
-	app.run(host='0.0.0.0', debug = True, port = 55566, ssl_context = ssl_context,threaded=True)
+	app.run(host='0.0.0.0', debug = True, port = 55566,threaded=True)
+	# app.run(host='0.0.0.0', debug = True, port = 55566, ssl_context = ssl_context,threaded=True)
 
 	
