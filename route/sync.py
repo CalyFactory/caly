@@ -56,21 +56,12 @@ class Sync(MethodView):
 			login_platform = user[0]['login_platform']
 
 			#user_state
-			statee.userLife(apikey,LIFE_STATE_SYNCING)			
 		
 
 			if login_platform == 'naver' or login_platform == 'ical':				
 				try:
 
-					#이전에 synEnd에서 forward 동기화가 끝났는지를 확인해야한다.
-					syncEndRows = syncEndModel.getSyncEnd(user[0]['account_hashkey'],SYNC_END_TIME_STATE_FORWARD)
-
-					if len(syncEndRows) == 0 :
-						syncInfo = syncLogic.caldav(user,user_hashkey,login_platform,SYNC_TIME_STATE_FORWARD)
-					else:
-						return utils.resErr(
-												{'msg':MSG_SYNC_ALREADY}
-											)						
+					syncInfo = syncLogic.caldav(user,apikey,login_platform,SYNC_TIME_STATE_FORWARD)
 
 				except Exception as e:
 					calendarModel.deleteCalendarList(user[0]['account_hashkey'])
@@ -80,12 +71,15 @@ class Sync(MethodView):
 										)					
 
 				if syncInfo['state'] == SYNC_CALDAV_SUCCESS:
-					statee.userLife(apikey,LIFE_STATE_SYNC_END)
 					
 					return utils.resSuccess(
 												{'msg':MSG_SUCCESS_CALDAV_SYNC}
 											)
-
+				elif syncInfo['state'] == SYNC_CALDAV_ERR_ALREADY_REIGITER:
+					return utils.resCustom(
+											201,
+											{'msg':syncInfo['data']}
+										)							
 				else:
 					calendarModel.deleteCalendarList(user[0]['account_hashkey'])					
 					return utils.resCustom(
@@ -131,7 +125,7 @@ class Sync(MethodView):
 											)											
 
 
-	#watchReciver를 테스트해봐야됨.
+		#watchReciver를 테스트해봐야됨.
 		elif action == 'watchReciver':
 			
 			logging.info('watch')

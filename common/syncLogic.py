@@ -1,3 +1,4 @@
+
 import logging
 from flask.views import MethodView
 import flask
@@ -24,10 +25,26 @@ from pytz import timezone
 from manager.redis import redis
 from common.util.statics import *
 import time
+import sync_worker
+from common import statee
 
-def caldav(user,user_hashkey,login_platform,time_state):
+def caldav(user,apikey,login_platform,time_state):
 
-	logging.info('sync! caldav!')
+	
+	#forward일경우 포워트 싱크시작
+
+	log_state = time_state == SYNC_TIME_STATE_FORWARD and LIFE_STATE_CALDAV_FORWARD_SYNCING or LIFE_STATE_CALDAV_BACKWARD_SYNCING
+	statee.userLife(apikey,log_state)
+
+	
+	state = time_state == SYNC_TIME_STATE_FORWARD and SYNC_END_TIME_STATE_FORWARD or SYNC_END_TIME_STATE_BACKWARD
+	syncEndRows = syncEndModel.getSyncEnd(user[0]['account_hashkey'],state)
+
+	#한번이라도 동기화했나?
+	if len(syncEndRows) != 0 :
+		return utils.syncState(SYNC_CALDAV_ERR_ALREADY_REIGITER,MSG_SYNC_ALREADY)
+	
+	
 
 	u_id = user[0]['user_id']
 	u_pw = user[0]['access_token']
@@ -42,128 +59,149 @@ def caldav(user,user_hashkey,login_platform,time_state):
 	#캘린더 해시키를 먼저 만든다.
 	arr_calendar_hashkey = []
 	for calendar in calendars:
-		calendar_hashkey = utils.makeHashKey(calendar.calendarId)
+		# 캘린더url + login_platform이 같으면 항상 같은 값이나오도록한다.
+		# 이는 후에 background에서 돌경우 같은 캘린더를 찾긱위해 디비를 다시 돌지 않게 하기 위함이다
+		calendar_hashkey = utils.makeHashKeyNoneTime(calendar.calendarUrl+login_platform)
 		arr_calendar_hashkey.append(calendar_hashkey)
-	try:
-		calendarModel.setCaldavCalendar(calendars,account_hashkey,arr_calendar_hashkey)
-	except Exception as e:
-	    return utils.syncState(SYNC_CALDAV_ERR_SET_CALENDAR,str(e))
+
+	#최초 forward로 돌때는 캘린더에 해시키를 저장해줘야된다.
+	#아닐경우는 그냥 기존것에 더해주며됨	
+	if time_state == SYNC_TIME_STATE_FORWARD:
+
+		try:
+			calendarModel.setCaldavCalendar(calendars,account_hashkey,arr_calendar_hashkey)
+		except Exception as e:
+			return utils.syncState(SYNC_CALDAV_ERR_SET_CALENDAR,str(e))
 	
 	logging.debug('hashkey = >' + str(arr_calendar_hashkey))
 
 	for idx,calendar in enumerate(calendars):
-	    
-	    logging.debug('calnedarsss=> ' + calendar.calendarName)
 		
-	    ##TODO
-	    ##RANGE를 현재시간부터 5개월후로!
-	    if time_state == SYNC_TIME_STATE_FORWARD:
+		logging.debug('calnedarsss=> ' + calendar.calendarName)
+		
+		##TODO
+		##RANGE를 현재시간부터 5개월후로!
+		if time_state == SYNC_TIME_STATE_FORWARD:
 
-		    range_start = time.strftime("%Y%m%dT000000Z")
-		    range_end = datetime.now()+ timedelta(hours=MONTH_TO_HOUR * 5)
-		    range_end = datetime.strftime(range_end, "%Y%m%dT000000Z") 	
+			range_start = time.strftime("%Y%m%dT000000Z")
+			range_end = datetime.now()+ timedelta(hours=MONTH_TO_HOUR * 5)
+			range_end = datetime.strftime(range_end, "%Y%m%dT000000Z") 	
 
-	    
-	    elif time_state == SYNC_TIME_STATE_BACKWARD:
-		    range_end = time.strftime("%Y%m%dT000000Z")
-		    range_start = datetime.now() - timedelta(hours=YEAR_TO_HOUR * 3)
-		    range_start = datetime.strftime(range_start, "%Y%m%dT000000Z") 		    			    
+		
+		elif time_state == SYNC_TIME_STATE_BACKWARD:
+			range_end = time.strftime("%Y%m%dT000000Z")
+			range_start = datetime.now() - timedelta(hours=YEAR_TO_HOUR * 3)
+			range_start = datetime.strftime(range_start, "%Y%m%dT000000Z") 							
 
-	    logging.info('range_start ==> '+range_start)
-	    logging.info('range_edn ==> '+range_end)
+		logging.info('range_start ==> '+range_start)
+		logging.info('range_edn ==> '+range_end)
 
-	    eventList = calendar.getEventByRange( range_start, range_end)				    
-	    eventDataList = calendar.getCalendarData(eventList)
-	    calendar_hashkey = arr_calendar_hashkey[idx]
+		eventList = calendar.getEventByRange( range_start, range_end)					
+		eventDataList = calendar.getCalendarData(eventList)
+		calendar_hashkey = arr_calendar_hashkey[idx]
 
-	    for event_set in eventDataList:		
-		    logging.debug('eventset => ' + str(event_set.eventData))
-		    event = event_set.eventData['VEVENT']		    
+		for event_set in eventDataList:		
+			logging.debug('eventset => ' + str(event_set.eventData))
+			event = event_set.eventData['VEVENT']			
 		   	#만약 Transparet인 이벤트라면 다음 루프로 넘어간다.
-		    if 'TRANSP' in event:
-		        if event['TRANSP'] == 'TRANSPARENT':
-		            continue
+			if 'TRANSP' in event:
+				if event['TRANSP'] == 'TRANSPARENT':
+					continue
 
-		    # #uid를 eventId로 쓰면되나
-		    event_id = event_set.eventId
-		    event_hashkey = utils.makeHashKey(event_id)
-		    # eventurl은 무엇을 저장해야되나여
-		    caldav_event_url = event_set.eventUrl
-		    #etag는 어디서 얻을수 있죠?
-		    caldav_etag = event_set.eTag
-		    summary = None
-		    if 'SUMMARY' in event:
-		    	summary = event['SUMMARY']
+			# #uid를 eventId로 쓰면되나
+			event_id = event_set.eventId
+			event_hashkey = utils.makeHashKey(event_id)
+			# eventurl은 무엇을 저장해야되나여
+			caldav_event_url = event_set.eventUrl
+			#etag는 어디서 얻을수 있죠?
+			caldav_etag = event_set.eTag
+			summary = None
+			if 'SUMMARY' in event:
+				summary = event['SUMMARY']
 
-		    
-		    start_dt = None
-		    end_dt = None
+			
+			start_dt = None
+			end_dt = None
 
-		    if 'DTSTART' in event:			
+			if 'DTSTART' in event:			
 
-		    	start_dt = event['DTSTART']
-		    	# datetime일경우만
-		    	if(isinstance(start_dt,datetime)):
-		    		#한국시간으로바꿔준다
-		    		start_dt = start_dt.astimezone(timezone('Asia/Seoul'))
+				start_dt = event['DTSTART']
+				# datetime일경우만
+				if(isinstance(start_dt,datetime)):
+					#한국시간으로바꿔준다
+					start_dt = start_dt.astimezone(timezone('Asia/Seoul'))
 
-		    if 'DTEND' in event:
-		    	end_dt = event['DTEND']
-		    	if(isinstance(end_dt,datetime)):
-		    		#한국시간으로바꿔준다
-		    		end_dt = end_dt.astimezone(timezone('Asia/Seoul'))					  
-		    
-		    #타임존 라이브러리정하기
-		    created_dt = event['CREATED']
-		    if(isinstance(created_dt,datetime)):
-			    created_dt =created_dt.astimezone(timezone('Asia/Seoul'))					  		    
-		    #문자열을 날짜시간으로 변경해줌. 
-		    # created_dt = datetime.strptime(created_dt, "%Y%m%dT%H%M%S") + timedelta(hours=9)	    
+			if 'DTEND' in event:
+				end_dt = event['DTEND']
+				if(isinstance(end_dt,datetime)):
+					#한국시간으로바꿔준다
+					end_dt = end_dt.astimezone(timezone('Asia/Seoul'))					  
+			
+			#타임존 라이브러리정하기
+			created_dt = event['CREATED']
+			if(isinstance(created_dt,datetime)):
+				created_dt =created_dt.astimezone(timezone('Asia/Seoul'))					  			
+			#문자열을 날짜시간으로 변경해줌. 
+			# created_dt = datetime.strptime(created_dt, "%Y%m%dT%H%M%S") + timedelta(hours=9)		
 
 
-		    if 'LAST-MODIFIED' in event:
-		    	updated_dt = event['LAST-MODIFIED']
+			if 'LAST-MODIFIED' in event:
+				updated_dt = event['LAST-MODIFIED']
 	
-		    if(isinstance(updated_dt,datetime)):
-		    		#한국시간으로바꿔준다
-			    updated_dt =updated_dt.astimezone(timezone('Asia/Seoul'))					  		    		    	
-		        
-		    else:		
-			    updated_dt = created_dt
-		    if event['LOCATION'] == '':
-		    	location = 'noLocation'
-		    else:
-		    	location = event['LOCATION']
+			if(isinstance(updated_dt,datetime)):
+					#한국시간으로바꿔준다
+				updated_dt =updated_dt.astimezone(timezone('Asia/Seoul'))					  							
+				
+			else:		
+				updated_dt = created_dt
+			if event['LOCATION'] == '':
+				location = 'noLocation'
+			else:
+				location = event['LOCATION']
 
-		    logging.debug('hashkey=>' + calendar_hashkey)	
-		    logging.debug('event_hashkey=>' + event_hashkey)	
-		    logging.debug('event_id=>' + event_id)	
-		    logging.debug('caldav_event_url=>' + caldav_event_url)	
-		    logging.debug('caldav_etag=>' + caldav_etag)	
-		    logging.debug('summary=>' + summary)
-		    logging.debug('start_dt=>' + str(start_dt))
-		    logging.debug('end_dt=>' + str(end_dt))
-		    logging.debug('created_dt=>' + str(created_dt))
-		    logging.debug('updated_dt=>' + str(updated_dt))
-		    logging.debug('location=>' + str(location))
-		    
-		    try:
-		    	#이벤트를 저장한다.
-		        eventModel.setCaldavEvents(event_hashkey,calendar_hashkey,event_id,summary,start_dt,end_dt,created_dt,updated_dt,location,caldav_event_url,caldav_etag)
-		    except Exception as e:
-			    return utils.syncState(SYNC_CALDAV_ERR_SET_EVENTS,str(e))
+			logging.debug('hashkey=>' + calendar_hashkey)	
+			logging.debug('event_hashkey=>' + event_hashkey)	
+			logging.debug('event_id=>' + event_id)	
+			logging.debug('caldav_event_url=>' + caldav_event_url)	
+			logging.debug('caldav_etag=>' + caldav_etag)	
+			logging.debug('summary=>' + summary)
+			logging.debug('start_dt=>' + str(start_dt))
+			logging.debug('end_dt=>' + str(end_dt))
+			logging.debug('created_dt=>' + str(created_dt))
+			logging.debug('updated_dt=>' + str(updated_dt))
+			logging.debug('location=>' + str(location))
+			
+			try:
+				#이벤트를 저장한다.
+				eventModel.setCaldavEvents(event_hashkey,calendar_hashkey,event_id,summary,start_dt,end_dt,created_dt,updated_dt,location,caldav_event_url,caldav_etag)
+			except Exception as e:
+				return utils.syncState(SYNC_CALDAV_ERR_SET_EVENTS,str(e))
 
 		
-	    try:
-	    	#캘린더마다 싱크된 타임을 기록해준다. 
-		    syncModel.setSync(calendar_hashkey,'null')
-	    except Exception as e:
-		    return utils.syncState(SYNC_CALDAV_ERR_SET_SYNC_TIME,str(e))
+		try:
+			#캘린더마다 싱크된 타임을 기록해준다. 
+			syncModel.setSync(calendar_hashkey,'null')
+		except Exception as e:
+			return utils.syncState(SYNC_CALDAV_ERR_SET_SYNC_TIME,str(e))
 
 	try:
-		syncEndModel.setSyncEnd(account_hashkey,SYNC_END_TIME_STATE_FORWARD)
+		state = time_state == SYNC_TIME_STATE_FORWARD and SYNC_END_TIME_STATE_FORWARD or SYNC_END_TIME_STATE_BACKWARD
+		syncEndModel.setSyncEnd(account_hashkey,state)
+			
 	except Exception as e:
 		return utils.syncState(SYNC_CALDAV_ERR_SET_SYNC_END,str(e))
+
+	log_state = time_state == SYNC_TIME_STATE_FORWARD and LIFE_STATE_CALDAV_FORWARD_SYNC_END or LIFE_STATE_CALDAV_BACKWARD_SYNC_END
+	statee.userLife(apikey,log_state)	
+	# 미래것이 끝났고 에러없이 마무리됬다면, 과거꺼를 돌려야한다. 
+	# 미래것일 상태에서만 요청을 하도록 한다.	
+	if time_state == SYNC_TIME_STATE_FORWARD:
+		data = {}
+		data['user'] = user
+		data['user_hashkey'] = user[0]['user_hashkey']
+		data['login_platform'] = login_platform
+		data['apikey'] = apikey
+		sync_worker.worker.delay(data)		
 
 	return utils.syncState(SYNC_CALDAV_SUCCESS,None)
 
@@ -247,7 +285,8 @@ def google(user,apikey,time_state):
 			body = {
 				"id" : arr_channel_id[idx],
 				"type" : "web_hook",
-				"address" : "https://ssoma.xyz:55566/v1.0/sync/watchReciver",
+				# "address" : "https://ssoma.xyz:55566/v1.0/sync/watchReciver",
+				"address" : "https://caly.io/v1.0/sync/watchReciver",
 				"token" : apikey
 			}						
 			res = network_manager.reqPOST(watch_URL,access_token,body)
@@ -291,10 +330,10 @@ def reqEventsList(apikey,calendar,user,body={}):
 
 		if 'created' in item:												
 			created = str(item['created'])[:-5]
-			created = datetime.strptime(created, "%Y-%m-%dT%H:%M:%S") + timedelta(hours=9)	    
+			created = datetime.strptime(created, "%Y-%m-%dT%H:%M:%S") + timedelta(hours=9)		
 		if 'updated' in item:
 			updated = str(item['updated'])[:-5]		
-			updated = datetime.strptime(updated, "%Y-%m-%dT%H:%M:%S") + timedelta(hours=9)	    
+			updated = datetime.strptime(updated, "%Y-%m-%dT%H:%M:%S") + timedelta(hours=9)		
 
 
 		if 'date' in item['start']:					

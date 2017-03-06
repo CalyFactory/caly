@@ -1,5 +1,10 @@
 # #-*- coding: utf-8 -*-
 
+
+# import os
+# from pathlib import Path
+# print(Path(os.getcwd()).parent)
+
 from sqlalchemy import create_engine
 from sqlalchemy.pool import QueuePool
 from sqlalchemy.orm import scoped_session

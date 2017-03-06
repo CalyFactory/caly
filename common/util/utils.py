@@ -51,8 +51,7 @@ def makeHashKey(solt):
 	soltt = soltt.encode('utf-8')
 	return hashlib.sha224(soltt).hexdigest()
 
-def makeHashKeyNoneTime(solf):
-
+def makeHashKeyNoneTime(solt):
 	soltt = str(solt+'secrettskkey')
 	soltt = soltt.encode('utf-8')
 	return hashlib.sha224(soltt).hexdigest()
