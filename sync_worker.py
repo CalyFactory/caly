@@ -47,7 +47,7 @@ def run(data):
 	if login_platform == 'naver' or login_platform == 'ical':
 		user = data['user']
 		user_hashkey = data['user_hashkey']
-		syncInfo = syncLogic.caldav(user,user_hashkey,login_platform,SYNC_TIME_STATE_BACKWARD)
+		syncInfo = syncLogic.caldav(user,apikey,login_platform,SYNC_TIME_STATE_BACKWARD)
 	elif login_platform == 'google':
 		user = data['user']
 		apikey = data['apikey']
