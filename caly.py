@@ -196,7 +196,7 @@ def fireFcm():
 if __name__ == '__main__':
 
 	ssl_context = ('./key/last.crt', './key/ssoma.key')
-	app.run(host='0.0.0.0', debug = True, port = 55566,threaded=True)
-	# app.run(host='0.0.0.0', debug = True, port = 55566, ssl_context = ssl_context,threaded=True)
+# /	app.run(host='0.0.0.0', debug = True, port = 55566,threaded=True)
+	app.run(host='0.0.0.0', debug = True, port = 55566, ssl_context = ssl_context,threaded=True)
 
 	
