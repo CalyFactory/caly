@@ -56,7 +56,7 @@ def caldav(user,apikey,login_platform,time_state):
 		
 	#outbox인경우 403에러가 발생함으로 이것은  빼버린다
 	for idx,calendar in enumerate(calendars):
-		if  '/calendars/outbox/' in calendar.calendarUrl:
+		if  '/calendars/outbox/' in calendar.calendarUrl and login_platform == 'ical':
 			calendars.pop(idx)		
 
 	#캘린더 해시키를 먼저 만든다.
