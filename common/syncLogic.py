@@ -53,10 +53,18 @@ def caldav(user,apikey,login_platform,time_state):
 	principal = calDavclient.getPrincipal()
 	homeset = principal.getHomeSet()
 	calendars = homeset.getCalendars()
+		
+	#outbox인경우 403에러가 발생함으로 이것은  빼버린다
+	for idx,calendar in enumerate(calendars):
+		if  '/calendars/outbox/' in calendar.calendarUrl:
+			calendars.pop(idx)		
 
 	#캘린더 해시키를 먼저 만든다.
 	arr_calendar_hashkey = []
-	for calendar in calendars:
+
+	for idx,calendar in enumerate(calendars):
+		logging.debug('calenndarrr'+str(calendar.calendarUrl))
+
 		# 캘린더url + login_platform이 같으면 항상 같은 값이나오도록한다.
 		# 이는 후에 background에서 돌경우 같은 캘린더를 찾긱위해 디비를 다시 돌지 않게 하기 위함이다
 		calendar_hashkey = utils.makeHashKeyNoneTime(calendar.calendarUrl+login_platform)
@@ -65,13 +73,13 @@ def caldav(user,apikey,login_platform,time_state):
 	#최초 forward로 돌때는 캘린더에 해시키를 저장해줘야된다.
 	#아닐경우는 그냥 기존것에 더해주며됨	
 	if time_state == SYNC_TIME_STATE_FORWARD:
-
+		logging.debug('SYNC FORWARD')
 		try:
 			calendarModel.setCaldavCalendar(calendars,account_hashkey,arr_calendar_hashkey)
 		except Exception as e:
+			logging.debug('set calendar err')
 			return utils.syncState(SYNC_CALDAV_ERR_SET_CALENDAR,str(e))
 	
-	logging.debug('hashkey = >' + str(arr_calendar_hashkey))
 
 	for idx,calendar in enumerate(calendars):
 		
@@ -99,7 +107,7 @@ def caldav(user,apikey,login_platform,time_state):
 		calendar_hashkey = arr_calendar_hashkey[idx]
 
 		for event_set in eventDataList:		
-			logging.debug('eventset => ' + str(event_set.eventData))
+			logging.debug('eventsetttt => ' + str(event_set.eventData))
 			event = event_set.eventData['VEVENT']			
 		   	#만약 Transparet인 이벤트라면 다음 루프로 넘어간다.
 			if 'TRANSP' in event:
@@ -114,12 +122,18 @@ def caldav(user,apikey,login_platform,time_state):
 			#etag는 어디서 얻을수 있죠?
 			caldav_etag = event_set.eTag
 			summary = None
+			location = 'noLocation'			
+			start_dt = None
+			end_dt = None
+			created_dt = None
+			updated_dt = None
+
+
+
 			if 'SUMMARY' in event:
 				summary = event['SUMMARY']
 
 			
-			start_dt = None
-			end_dt = None
 
 			if 'DTSTART' in event:			
 
@@ -136,9 +150,10 @@ def caldav(user,apikey,login_platform,time_state):
 					end_dt = end_dt.astimezone(timezone('Asia/Seoul'))					  
 			
 			#타임존 라이브러리정하기
-			created_dt = event['CREATED']
-			if(isinstance(created_dt,datetime)):
-				created_dt =created_dt.astimezone(timezone('Asia/Seoul'))					  			
+			if 'CREATED' in event:
+				created_dt = event['CREATED']
+				if(isinstance(created_dt,datetime)):
+					created_dt =created_dt.astimezone(timezone('Asia/Seoul'))					  			
 			#문자열을 날짜시간으로 변경해줌. 
 			# created_dt = datetime.strptime(created_dt, "%Y%m%dT%H%M%S") + timedelta(hours=9)		
 
@@ -152,10 +167,12 @@ def caldav(user,apikey,login_platform,time_state):
 				
 			else:		
 				updated_dt = created_dt
-			if event['LOCATION'] == '':
-				location = 'noLocation'
-			else:
-				location = event['LOCATION']
+
+			if 'LOCATION' in event:	
+				if event['LOCATION'] == '':
+					location = 'noLocation'
+				else:
+					location = event['LOCATION']
 
 			logging.debug('hashkey=>' + calendar_hashkey)	
 			logging.debug('event_hashkey=>' + event_hashkey)	
