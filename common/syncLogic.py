@@ -54,10 +54,15 @@ def caldav(user,apikey,login_platform,time_state):
 	homeset = principal.getHomeSet()
 	calendars = homeset.getCalendars()
 		
-	#outbox인경우 403에러가 발생함으로 이것은  빼버린다
+	
 	for idx,calendar in enumerate(calendars):
+		#outbox인경우 403에러가 발생함으로 이것은  빼버린다
 		if  '/calendars/outbox/' in calendar.calendarUrl and login_platform == 'ical':
 			calendars.pop(idx)		
+		#calendarid가 calendars인경우 이것도 뺀다.
+		#모든캘린더를 모아둔 데이터로 중복으로 이벤트가 저장되게된다.
+		if calendar.calendarId == 'calendars':
+			calendars.pop(idx)
 
 	#캘린더 해시키를 먼저 만든다.
 	arr_calendar_hashkey = []
@@ -105,14 +110,18 @@ def caldav(user,apikey,login_platform,time_state):
 		eventList = calendar.getEventByRange( range_start, range_end)					
 		eventDataList = calendar.getCalendarData(eventList)
 		calendar_hashkey = arr_calendar_hashkey[idx]
-
+		logging.debug('eventDataList==>'+str(eventDataList))
 		for event_set in eventDataList:		
 			logging.debug('eventsetttt => ' + str(event_set.eventData))
-			event = event_set.eventData['VEVENT']			
+			event = event_set.eventData['VEVENT']	
+			#네이버일경우만!		
 		   	#만약 Transparet인 이벤트라면 다음 루프로 넘어간다.
+		   	#ical일경우는 타면안된다.
 			if 'TRANSP' in event:
-				if event['TRANSP'] == 'TRANSPARENT':
+				if event['TRANSP'] == 'TRANSPARENT' and login_platform == 'naver':
 					continue
+				elif login_platform == 'ical':
+					pass
 
 			# #uid를 eventId로 쓰면되나
 			event_id = event_set.eventId

@@ -54,8 +54,7 @@ def setGoogleUserAccount(account_hashkey,user_hashkey,login_platform,u_id,access
 						refresh_token
 					)
 				)			
-
-						
+					
 
 #sync						
 def getUserAccount(user_hashkey):

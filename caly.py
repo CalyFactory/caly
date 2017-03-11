@@ -37,20 +37,19 @@ import logging
 app = flask.Flask(__name__, static_url_path='')
 
 
+
 initRoute(app)
-logSet.init()
+# if debugg
+# logSet.init()
 
-from datetime import datetime,timedelta
-from model import mFcmModel
-logging.debug('currentServerTime=>'+str(datetime.now()))
+# if production
+logging.basicConfig(level=logging.DEBUG, filename='log_caly.log',
+                  format='%(asctime)s %(levelname)s: %(message)s',
+                  datefmt='%Y-%m-%d %H:%M:%S')
 
-# import sync_worker
-# data = {}
-# data['user'] = 'user'
-# data['user_hashkey'] = 'user_hashkey'
-# data['login_platform'] = 'login_platform'
-# print('proxy data =>'+str(data))
-# sync_worker.worker.delay(data)
+# from datetime import datetime,timedelta
+# from model import mFcmModel
+# logging.debug('currentServerTime=>'+str(datetime.now()))
 
 @app.route('/')
 def hello_wordl():
@@ -119,14 +118,17 @@ def fireFcm():
 	token = flask.request.args.get('token')		
 	
 
-	pks = "dtolwBZTUXk:APA91bH0WSHNkw8sF7syIMKKcyjmzpeUEh4NzsAenuaNPX36lOwezlz0_X7yVp8b2CUmFKoo1lJkKFXiEPcex9LgOj2RqV07Rdgxy17PEAOfDIMVblJC4Pss-HHGpf7v8WLsPIEUVXx-"
-	arr = ["cFK43rjMHoQ:APA91bE3HyJ1BVCI2Xrq3YJCrFll1Cjea3n8wVavHKiYVm1ktzRnbOrwICaSlBOcRP7Vg4c7fAFhBV4JdZd3fF-FZ49G8EgYgiozpKVAuXKU-3eI5YLleqghdBI521gvS4W_soc-vd4v","ejmnO9bSKDs:APA91bHyHu_W-jnnYWQqzEmvmlNarRZqJYEsC_6UHPCjpHmV0-0YrLA0-PXvfpYLarXg62qhZ6b_GFpg8yfqTL_fm8EEvM5PViF6mVbjSrSN4su9NwrY9bngzQSUMynJIB4LAIsSWzbl"]
+	# pks = "dtolwBZTUXk:APA91bH0WSHNkw8sF7syIMKKcyjmzpeUEh4NzsAenuaNPX36lOwezlz0_X7yVp8b2CUmFKoo1lJkKFXiEPcex9LgOj2RqV07Rdgxy17PEAOfDIMVblJC4Pss-HHGpf7v8WLsPIEUVXx-"
+	# arr = ["cFK43rjMHoQ:APA91bE3HyJ1BVCI2Xrq3YJCrFll1Cjea3n8wVavHKiYVm1ktzRnbOrwICaSlBOcRP7Vg4c7fAFhBV4JdZd3fF-FZ49G8EgYgiozpKVAuXKU-3eI5YLleqghdBI521gvS4W_soc-vd4v","ejmnO9bSKDs:APA91bHyHu_W-jnnYWQqzEmvmlNarRZqJYEsC_6UHPCjpHmV0-0YrLA0-PXvfpYLarXg62qhZ6b_GFpg8yfqTL_fm8EEvM5PViF6mVbjSrSN4su9NwrY9bngzQSUMynJIB4LAIsSWzbl"]
 	data_message = {
-	    "type" : "sync",
-	    "action" : "actions"
+	    "type" : "noti",
+	    "title" : "공지사항입니다 ",
+	    "body" : "콩! 콩 콩진호가간다!"
 	}
-	print(FCM.sendOnlyData(token,data_message))
-	return FCM.sendOnlyData(token,data_message)	
+	# print(FCM.sendOnlyData(token,data_message))
+	FCM.sendOnlyData(token,data_message)
+	return 'FCM.sendOnlyData(token,data_message)'
+
 
 
 if __name__ == '__main__':

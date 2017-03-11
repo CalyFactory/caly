@@ -21,6 +21,7 @@ from oauth2client import client
 from common import gAPI
 
 from model import userDeviceModel
+from model import supportModel
 from model import userAccountModel
 from model import userModel
 from model import calendarModel
@@ -71,6 +72,11 @@ class Member(MethodView):
 												200,
 												who_am_i['data']
 											)
+				elif who_am_i['state'] == LOGIN_STATE_RESIGNUP:				
+					return utils.resCustom(
+												203,
+												who_am_i['data']
+											)	
 
 				elif who_am_i['state'] == LOGIN_ERROR_INVALID:
 					return utils.resCustom(
@@ -219,7 +225,7 @@ class Member(MethodView):
 					logging.debug('user_hashkey' + userHashkey)
 
 				userDeviceModel.updateUserDevice(push_token,device_type,app_version,device_info,uuid,sdkLevel,apikey)
-
+				userModel.updateUserIsActive(user_hashkey,1)
 				statee.userLife(apikey,LIFE_STATE_REGISTER_DEVICE)
 				
 				return utils.resSuccess(
@@ -466,3 +472,48 @@ class Member(MethodView):
 				return utils.resErr(
 										{'msg':str(e)}
 									)
+		elif action == 'withdrawal':
+
+			apikey = flask.request.form['apikey']
+			contents = flask.request.form['contents']
+			user_hashkey = redis.get(apikey)
+			# if not user_hashkey:
+			# 	return utils.resErr(
+			# 							{'msg':MSG_INVALID_TOKENKEY}
+			# 						)			
+			try:
+				#일단 사유 받자.
+				user = userAccountModel.getUserAccount(user_hashkey)				
+				account_hashkey = user[0]['account_hashkey']
+				rows = supportModel.setRequests(apikey,account_hashkey,contents,REQUESTS_TYPE_WITHDRAWAL)
+				
+				# 1. 유저 iactive 0 으로 설정
+				# 2. 유저 디바이스 '모두' 날리고
+				# 2.5 레디스도 날리고.
+				# 3. 다시 들어올경우.
+				# 4. isacitve 체크, 0 인경우. api키를주고, 유저에게 회원가입로직을 다시 받고, (훼이더웨이)
+				# 5. registeruserdeivce 등록해줌.
+				# 6. user 1로 바꿔줌
+
+				userModel.updateUserIsActive(user_hashkey,0)
+				# user = userAccountModel.getUserAccount(user_hashkey)
+				# logging.debug('account =>'+str(user))
+				apikeys = userDeviceModel.getUserApikeyList(user_hashkey)
+
+				for apikey in apikeys:
+					redis.delete(apikey['apikey'])	
+
+				userDeviceModel.deleteUserDeviceAll(user_hashkey)
+				
+				
+				statee.userLife(apikey,LIFE_STATE_WITHDRAWAL)
+				
+				return utils.resSuccess(
+											{'msg':MSG_WITHDRAWL_SUCCESS}
+										)
+			
+			except Exception as e:
+
+				return utils.resErr(
+										{'msg':str(e)}
+									)				

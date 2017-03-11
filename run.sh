@@ -1,1 +1,0 @@
-source envCaly/bin/activate
