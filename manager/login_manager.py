@@ -93,6 +93,7 @@ def checkLoginState(flask):
 		else :
 			account_hashkey = account[0]['account_hashkey']
 			user_hashkey = account[0]['user_hashkey']
+			user_is_active = userModel.getUserIsActive(user_hashkey)[0]['is_active']
 			isFirst = False
 		
 		logging.debug('isFirst => '+str(isFirst))
@@ -104,7 +105,7 @@ def checkLoginState(flask):
 				#codereview
 				#ros라 여러개나올것같다.
 				device = userDeviceModel.getUserDeviceWithUuid(uuid)
-				user_is_active = userModel.getUserIsActive(user_hashkey)[0]['is_active']
+				
 
 			except Exception as e:
 				return utils.loginState(LOGIN_ERROR,str(e))

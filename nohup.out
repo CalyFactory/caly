@@ -5432,3 +5432,482 @@ init
 2017-03-11 09:27:41,531 INFO sqlalchemy.engine.base.Engine COMMIT
 run_caly.sh: line 1: 27769 Killed                  NEW_RELIC_CONFIG_FILE=newrelic.ini newrelic-admin run-program gunicorn -w $(( `cat /proc/cpuinfo | grep 'core id' | wc -l` + 1 )) -b 0.0.0.0:55566 caly:app
 run_worker.sh: line 1: 27823 Killed                  NEW_RELIC_CONFIG_FILE=newrelic.ini newrelic-admin run-program celery -A sync_worker worker --loglevel=debug -f log_sync_worker.log
+[2017-03-11 14:34:03 +0900] [1015] [INFO] Starting gunicorn 19.7.0
+[2017-03-11 14:34:03 +0900] [1015] [INFO] Listening at: http://0.0.0.0:55566 (1015)
+[2017-03-11 14:34:03 +0900] [1015] [INFO] Using worker: sync
+[2017-03-11 14:34:03 +0900] [1020] [INFO] Booting worker with pid: 1020
+[2017-03-11 14:34:03 +0900] [1022] [INFO] Booting worker with pid: 1022
+[2017-03-11 14:34:04 +0900] [1023] [INFO] Booting worker with pid: 1023
+[2017-03-11 14:34:04 +0900] [1024] [INFO] Booting worker with pid: 1024
+[2017-03-11 14:34:04 +0900] [1026] [INFO] Booting worker with pid: 1026
+[2017-03-11 14:34:04 +0900] [1033] [INFO] Booting worker with pid: 1033
+[2017-03-11 14:34:04 +0900] [1034] [INFO] Booting worker with pid: 1034
+[2017-03-11 14:34:04 +0900] [1035] [INFO] Booting worker with pid: 1035
+[2017-03-11 14:34:04 +0900] [1042] [INFO] Booting worker with pid: 1042
+2017-03-11 14:34:59,655 INFO sqlalchemy.engine.base.Engine SHOW VARIABLES LIKE 'sql_mode'
+2017-03-11 14:34:59,656 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:34:59,660 INFO sqlalchemy.engine.base.Engine SELECT DATABASE()
+2017-03-11 14:34:59,660 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:34:59,662 INFO sqlalchemy.engine.base.Engine show collation where `Charset` = 'utf8' and `Collation` = 'utf8_bin'
+2017-03-11 14:34:59,662 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:34:59,666 INFO sqlalchemy.engine.base.Engine SELECT CAST('test plain returns' AS CHAR(60)) AS anon_1
+2017-03-11 14:34:59,669 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:34:59,670 INFO sqlalchemy.engine.base.Engine SELECT CAST('test unicode returns' AS CHAR(60)) AS anon_1
+2017-03-11 14:34:59,674 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:34:59,675 INFO sqlalchemy.engine.base.Engine SELECT CAST('test collated returns' AS CHAR CHARACTER SET utf8) COLLATE utf8_bin AS anon_1
+2017-03-11 14:34:59,675 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:34:59,677 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 14:34:59,677 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 14:34:59,678 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 14:38:54,019 INFO sqlalchemy.engine.base.Engine SHOW VARIABLES LIKE 'sql_mode'
+2017-03-11 14:38:54,019 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:38:54,021 INFO sqlalchemy.engine.base.Engine SELECT DATABASE()
+2017-03-11 14:38:54,021 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:38:54,022 INFO sqlalchemy.engine.base.Engine show collation where `Charset` = 'utf8' and `Collation` = 'utf8_bin'
+2017-03-11 14:38:54,022 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:38:54,024 INFO sqlalchemy.engine.base.Engine SELECT CAST('test plain returns' AS CHAR(60)) AS anon_1
+2017-03-11 14:38:54,024 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:38:54,024 INFO sqlalchemy.engine.base.Engine SELECT CAST('test unicode returns' AS CHAR(60)) AS anon_1
+2017-03-11 14:38:54,024 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:38:54,025 INFO sqlalchemy.engine.base.Engine SELECT CAST('test collated returns' AS CHAR CHARACTER SET utf8) COLLATE utf8_bin AS anon_1
+2017-03-11 14:38:54,025 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:38:54,026 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 14:38:54,026 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 14:38:54,027 INFO sqlalchemy.engine.base.Engine COMMIT
+[2017-03-11 14:43:19 +0900] [1340] [INFO] Booting worker with pid: 1340
+[2017-03-11 14:43:19 +0900] [1341] [INFO] Booting worker with pid: 1341
+[2017-03-11 14:43:19 +0900] [1342] [INFO] Booting worker with pid: 1342
+[2017-03-11 14:43:19 +0900] [1343] [INFO] Booting worker with pid: 1343
+[2017-03-11 14:43:19 +0900] [1344] [INFO] Booting worker with pid: 1344
+[2017-03-11 14:43:19 +0900] [1348] [INFO] Booting worker with pid: 1348
+[2017-03-11 14:43:19 +0900] [1015] [INFO] Handling signal: hup
+[2017-03-11 14:43:19 +0900] [1015] [INFO] Hang up: Master
+[2017-03-11 14:43:19 +0900] [1352] [INFO] Booting worker with pid: 1352
+[2017-03-11 14:43:19 +0900] [1353] [INFO] Booting worker with pid: 1353
+[2017-03-11 14:43:19 +0900] [1356] [INFO] Booting worker with pid: 1356
+[2017-03-11 14:43:19 +0900] [1354] [INFO] Booting worker with pid: 1354
+[2017-03-11 14:43:19 +0900] [1340] [INFO] Worker exiting (pid: 1340)
+[2017-03-11 14:43:19 +0900] [1341] [INFO] Worker exiting (pid: 1341)
+[2017-03-11 14:43:19 +0900] [1355] [INFO] Booting worker with pid: 1355
+[2017-03-11 14:43:19 +0900] [1357] [INFO] Booting worker with pid: 1357
+[2017-03-11 14:43:19 +0900] [1358] [INFO] Booting worker with pid: 1358
+[2017-03-11 14:43:19 +0900] [1359] [INFO] Booting worker with pid: 1359
+[2017-03-11 14:43:19 +0900] [1360] [INFO] Booting worker with pid: 1360
+[2017-03-11 14:43:19 +0900] [1342] [INFO] Worker exiting (pid: 1342)
+[2017-03-11 14:43:19 +0900] [1344] [INFO] Worker exiting (pid: 1344)
+[2017-03-11 14:43:19 +0900] [1343] [INFO] Worker exiting (pid: 1343)
+[2017-03-11 14:43:19 +0900] [1348] [INFO] Worker exiting (pid: 1348)
+2017-03-11 14:45:03,485 INFO sqlalchemy.engine.base.Engine SHOW VARIABLES LIKE 'sql_mode'
+2017-03-11 14:45:03,485 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:45:03,487 INFO sqlalchemy.engine.base.Engine SELECT DATABASE()
+2017-03-11 14:45:03,487 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:45:03,487 INFO sqlalchemy.engine.base.Engine show collation where `Charset` = 'utf8' and `Collation` = 'utf8_bin'
+2017-03-11 14:45:03,487 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:45:03,488 INFO sqlalchemy.engine.base.Engine SELECT CAST('test plain returns' AS CHAR(60)) AS anon_1
+2017-03-11 14:45:03,488 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:45:03,489 INFO sqlalchemy.engine.base.Engine SELECT CAST('test unicode returns' AS CHAR(60)) AS anon_1
+2017-03-11 14:45:03,489 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:45:03,489 INFO sqlalchemy.engine.base.Engine SELECT CAST('test collated returns' AS CHAR CHARACTER SET utf8) COLLATE utf8_bin AS anon_1
+2017-03-11 14:45:03,489 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:45:03,490 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 14:45:03,490 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 14:45:03,490 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 14:48:30,359 INFO sqlalchemy.engine.base.Engine SHOW VARIABLES LIKE 'sql_mode'
+2017-03-11 14:48:30,359 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:48:30,360 INFO sqlalchemy.engine.base.Engine SELECT DATABASE()
+2017-03-11 14:48:30,360 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:48:30,361 INFO sqlalchemy.engine.base.Engine show collation where `Charset` = 'utf8' and `Collation` = 'utf8_bin'
+2017-03-11 14:48:30,361 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:48:30,362 INFO sqlalchemy.engine.base.Engine SELECT CAST('test plain returns' AS CHAR(60)) AS anon_1
+2017-03-11 14:48:30,362 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:48:30,362 INFO sqlalchemy.engine.base.Engine SELECT CAST('test unicode returns' AS CHAR(60)) AS anon_1
+2017-03-11 14:48:30,362 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:48:30,363 INFO sqlalchemy.engine.base.Engine SELECT CAST('test collated returns' AS CHAR CHARACTER SET utf8) COLLATE utf8_bin AS anon_1
+2017-03-11 14:48:30,363 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:48:30,363 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 14:48:30,364 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 14:48:30,364 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 14:55:27,107 INFO sqlalchemy.engine.base.Engine SHOW VARIABLES LIKE 'sql_mode'
+2017-03-11 14:55:27,107 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:55:27,109 INFO sqlalchemy.engine.base.Engine SELECT DATABASE()
+2017-03-11 14:55:27,109 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:55:27,109 INFO sqlalchemy.engine.base.Engine show collation where `Charset` = 'utf8' and `Collation` = 'utf8_bin'
+2017-03-11 14:55:27,109 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:55:27,111 INFO sqlalchemy.engine.base.Engine SELECT CAST('test plain returns' AS CHAR(60)) AS anon_1
+2017-03-11 14:55:27,111 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:55:27,111 INFO sqlalchemy.engine.base.Engine SELECT CAST('test unicode returns' AS CHAR(60)) AS anon_1
+2017-03-11 14:55:27,111 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:55:27,112 INFO sqlalchemy.engine.base.Engine SELECT CAST('test collated returns' AS CHAR CHARACTER SET utf8) COLLATE utf8_bin AS anon_1
+2017-03-11 14:55:27,112 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 14:55:27,112 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 14:55:27,112 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 14:55:27,113 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 15:00:41,867 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac58033c8 for Connection at 0x7f2ac57f7518> exceeded timeout; recycling
+2017-03-11 15:00:41,869 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 15:00:41,869 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 15:00:41,870 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 15:07:16,382 INFO sqlalchemy.engine.base.Engine SHOW VARIABLES LIKE 'sql_mode'
+2017-03-11 15:07:16,382 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:07:16,384 INFO sqlalchemy.engine.base.Engine SELECT DATABASE()
+2017-03-11 15:07:16,384 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:07:16,384 INFO sqlalchemy.engine.base.Engine show collation where `Charset` = 'utf8' and `Collation` = 'utf8_bin'
+2017-03-11 15:07:16,384 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:07:16,385 INFO sqlalchemy.engine.base.Engine SELECT CAST('test plain returns' AS CHAR(60)) AS anon_1
+2017-03-11 15:07:16,385 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:07:16,386 INFO sqlalchemy.engine.base.Engine SELECT CAST('test unicode returns' AS CHAR(60)) AS anon_1
+2017-03-11 15:07:16,386 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:07:16,386 INFO sqlalchemy.engine.base.Engine SELECT CAST('test collated returns' AS CHAR CHARACTER SET utf8) COLLATE utf8_bin AS anon_1
+2017-03-11 15:07:16,386 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:07:16,387 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 15:07:16,387 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 15:07:16,387 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 15:18:55,672 INFO sqlalchemy.engine.base.Engine SHOW VARIABLES LIKE 'sql_mode'
+2017-03-11 15:18:55,673 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:18:55,677 INFO sqlalchemy.engine.base.Engine SELECT DATABASE()
+2017-03-11 15:18:55,677 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:18:55,680 INFO sqlalchemy.engine.base.Engine show collation where `Charset` = 'utf8' and `Collation` = 'utf8_bin'
+2017-03-11 15:18:55,681 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:18:55,692 INFO sqlalchemy.engine.base.Engine SELECT CAST('test plain returns' AS CHAR(60)) AS anon_1
+2017-03-11 15:18:55,692 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:18:55,694 INFO sqlalchemy.engine.base.Engine SELECT CAST('test unicode returns' AS CHAR(60)) AS anon_1
+2017-03-11 15:18:55,694 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:18:55,696 INFO sqlalchemy.engine.base.Engine SELECT CAST('test collated returns' AS CHAR CHARACTER SET utf8) COLLATE utf8_bin AS anon_1
+2017-03-11 15:18:55,696 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:18:55,698 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 15:18:55,698 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 15:18:55,699 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 15:23:13,079 INFO sqlalchemy.engine.base.Engine SHOW VARIABLES LIKE 'sql_mode'
+2017-03-11 15:23:13,079 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:23:13,081 INFO sqlalchemy.engine.base.Engine SELECT DATABASE()
+2017-03-11 15:23:13,081 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:23:13,082 INFO sqlalchemy.engine.base.Engine show collation where `Charset` = 'utf8' and `Collation` = 'utf8_bin'
+2017-03-11 15:23:13,082 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:23:13,083 INFO sqlalchemy.engine.base.Engine SELECT CAST('test plain returns' AS CHAR(60)) AS anon_1
+2017-03-11 15:23:13,083 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:23:13,084 INFO sqlalchemy.engine.base.Engine SELECT CAST('test unicode returns' AS CHAR(60)) AS anon_1
+2017-03-11 15:23:13,084 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:23:13,085 INFO sqlalchemy.engine.base.Engine SELECT CAST('test collated returns' AS CHAR CHARACTER SET utf8) COLLATE utf8_bin AS anon_1
+2017-03-11 15:23:13,085 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:23:13,086 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 15:23:13,086 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 15:23:13,086 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 15:27:01,111 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 15:27:01,111 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 15:27:01,112 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 15:40:49,248 INFO sqlalchemy.engine.base.Engine SHOW VARIABLES LIKE 'sql_mode'
+2017-03-11 15:40:49,248 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:40:49,251 INFO sqlalchemy.engine.base.Engine SELECT DATABASE()
+2017-03-11 15:40:49,251 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:40:49,252 INFO sqlalchemy.engine.base.Engine show collation where `Charset` = 'utf8' and `Collation` = 'utf8_bin'
+2017-03-11 15:40:49,252 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:40:49,253 INFO sqlalchemy.engine.base.Engine SELECT CAST('test plain returns' AS CHAR(60)) AS anon_1
+2017-03-11 15:40:49,253 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:40:49,254 INFO sqlalchemy.engine.base.Engine SELECT CAST('test unicode returns' AS CHAR(60)) AS anon_1
+2017-03-11 15:40:49,254 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:40:49,255 INFO sqlalchemy.engine.base.Engine SELECT CAST('test collated returns' AS CHAR CHARACTER SET utf8) COLLATE utf8_bin AS anon_1
+2017-03-11 15:40:49,255 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 15:40:49,255 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 15:40:49,255 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 15:40:49,256 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 15:48:30,671 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 15:48:30,671 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 15:48:30,671 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 15:49:15,586 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac685e948 for Connection at 0x7f2ac57f7710> exceeded timeout; recycling
+2017-03-11 15:49:15,587 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 15:49:15,588 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 15:49:15,588 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 16:02:04,287 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac5802248 for Connection at 0x7f2ac57f4438> exceeded timeout; recycling
+2017-03-11 16:02:04,289 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 16:02:04,289 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 16:02:04,290 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 16:10:42,950 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac5803708 for Connection at 0x7f2ac40a0518> exceeded timeout; recycling
+2017-03-11 16:10:42,952 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 16:10:42,952 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 16:10:42,953 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 16:14:22,749 INFO sqlalchemy.engine.base.Engine SHOW VARIABLES LIKE 'sql_mode'
+2017-03-11 16:14:22,750 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 16:14:22,752 INFO sqlalchemy.engine.base.Engine SELECT DATABASE()
+2017-03-11 16:14:22,752 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 16:14:22,753 INFO sqlalchemy.engine.base.Engine show collation where `Charset` = 'utf8' and `Collation` = 'utf8_bin'
+2017-03-11 16:14:22,753 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 16:14:22,755 INFO sqlalchemy.engine.base.Engine SELECT CAST('test plain returns' AS CHAR(60)) AS anon_1
+2017-03-11 16:14:22,755 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 16:14:22,756 INFO sqlalchemy.engine.base.Engine SELECT CAST('test unicode returns' AS CHAR(60)) AS anon_1
+2017-03-11 16:14:22,756 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 16:14:22,757 INFO sqlalchemy.engine.base.Engine SELECT CAST('test collated returns' AS CHAR CHARACTER SET utf8) COLLATE utf8_bin AS anon_1
+2017-03-11 16:14:22,757 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 16:14:22,758 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 16:14:22,758 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 16:14:22,759 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 16:23:20,568 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac57fda48 for Connection at 0x7f2ac57f84a8> exceeded timeout; recycling
+2017-03-11 16:23:20,570 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 16:23:20,571 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 16:23:20,571 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 16:24:18,253 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac57ffc88 for Connection at 0x7f2ac57f2630> exceeded timeout; recycling
+2017-03-11 16:24:18,255 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 16:24:18,255 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 16:24:18,255 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 16:33:42,510 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac47084c8 for Connection at 0x7f2ac472e320> exceeded timeout; recycling
+2017-03-11 16:33:42,512 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 16:33:42,512 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 16:33:42,513 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 16:45:46,751 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac4742348 for Connection at 0x7f2ac57f7be0> exceeded timeout; recycling
+2017-03-11 16:45:46,752 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 16:45:46,752 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 16:45:46,753 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 16:54:30,076 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac57f8bc8 for Connection at 0x7f2ac57f7240> exceeded timeout; recycling
+2017-03-11 16:54:30,077 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 16:54:30,077 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 16:54:30,078 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 16:55:07,814 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac68879c8 for Connection at 0x7f2ac4778048> exceeded timeout; recycling
+2017-03-11 16:55:07,815 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 16:55:07,815 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 16:55:07,815 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 17:12:55,200 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac57ffbc8 for Connection at 0x7f2ac57f6588> exceeded timeout; recycling
+2017-03-11 17:12:55,202 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 17:12:55,202 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 17:12:55,202 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 17:37:30,481 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac57feec8 for Connection at 0x7f2ac57f3780> exceeded timeout; recycling
+2017-03-11 17:37:30,483 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 17:37:30,483 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 17:37:30,484 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 17:58:47,644 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac4714788 for Connection at 0x7f2ac472e470> exceeded timeout; recycling
+2017-03-11 17:58:47,645 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 17:58:47,645 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 17:58:47,646 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 18:03:01,672 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac6887548 for Connection at 0x7f2ac40a0550> exceeded timeout; recycling
+2017-03-11 18:03:01,673 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 18:03:01,673 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 18:03:01,674 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 18:11:42,753 INFO sqlalchemy.engine.base.Engine SHOW VARIABLES LIKE 'sql_mode'
+2017-03-11 18:11:42,753 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 18:11:42,754 INFO sqlalchemy.engine.base.Engine SELECT DATABASE()
+2017-03-11 18:11:42,754 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 18:11:42,755 INFO sqlalchemy.engine.base.Engine show collation where `Charset` = 'utf8' and `Collation` = 'utf8_bin'
+2017-03-11 18:11:42,755 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 18:11:42,756 INFO sqlalchemy.engine.base.Engine SELECT CAST('test plain returns' AS CHAR(60)) AS anon_1
+2017-03-11 18:11:42,756 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 18:11:42,756 INFO sqlalchemy.engine.base.Engine SELECT CAST('test unicode returns' AS CHAR(60)) AS anon_1
+2017-03-11 18:11:42,756 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 18:11:42,757 INFO sqlalchemy.engine.base.Engine SELECT CAST('test collated returns' AS CHAR CHARACTER SET utf8) COLLATE utf8_bin AS anon_1
+2017-03-11 18:11:42,757 INFO sqlalchemy.engine.base.Engine {}
+2017-03-11 18:11:42,758 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 18:11:42,758 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 18:11:42,758 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 18:15:07,895 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 18:15:07,895 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 18:15:07,896 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 18:20:07,843 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac57fde08 for Connection at 0x7f2ac57f66d8> exceeded timeout; recycling
+2017-03-11 18:20:07,848 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 18:20:07,848 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 18:20:07,850 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 18:24:46,379 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 18:24:46,379 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 18:24:46,379 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 18:27:07,749 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 18:27:07,749 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 18:27:07,750 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 18:40:02,203 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac57f3cc8 for Connection at 0x7f2ac472ee48> exceeded timeout; recycling
+2017-03-11 18:40:02,204 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 18:40:02,204 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 18:40:02,204 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 18:49:35,848 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac57fed48 for Connection at 0x7f2ac57f6710> exceeded timeout; recycling
+2017-03-11 18:49:35,850 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 18:49:35,850 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 18:49:35,851 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 19:01:01,416 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac57ff8c8 for Connection at 0x7f2ac57f53c8> exceeded timeout; recycling
+2017-03-11 19:01:01,418 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 19:01:01,418 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 19:01:01,419 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 19:01:33,277 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac4739d48 for Connection at 0x7f2ac472ee48> exceeded timeout; recycling
+2017-03-11 19:01:33,278 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 19:01:33,278 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 19:01:33,279 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 19:08:53,720 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac57e4c48 for Connection at 0x7f2ac4799b38> exceeded timeout; recycling
+2017-03-11 19:08:53,721 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 19:08:53,721 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 19:08:53,722 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 19:09:47,839 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac4090448 for Connection at 0x7f2ac4778710> exceeded timeout; recycling
+2017-03-11 19:09:47,841 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 19:09:47,841 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 19:09:47,842 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 19:16:22,909 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac6881c08 for Connection at 0x7f2ac4736710> exceeded timeout; recycling
+2017-03-11 19:16:22,910 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 19:16:22,911 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 19:16:22,911 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 19:19:17,419 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac5806c08 for Connection at 0x7f2ac57f6908> exceeded timeout; recycling
+2017-03-11 19:19:17,420 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 19:19:17,420 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 19:19:17,420 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 19:33:03,136 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac4794b88 for Connection at 0x7f2ac472ef60> exceeded timeout; recycling
+2017-03-11 19:33:03,137 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 19:33:03,137 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 19:33:03,138 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 19:39:16,576 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac472ba48 for Connection at 0x7f2ac57f55c0> exceeded timeout; recycling
+2017-03-11 19:39:16,577 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 19:39:16,578 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 19:39:16,578 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 19:43:45,396 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac4717708 for Connection at 0x7f2ac4736908> exceeded timeout; recycling
+2017-03-11 19:43:45,397 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 19:43:45,397 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 19:43:45,398 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 19:54:07,474 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac4764ec8 for Connection at 0x7f2ac57f68d0> exceeded timeout; recycling
+2017-03-11 19:54:07,476 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 19:54:07,476 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 19:54:07,476 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 20:03:18,013 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac6885f08 for Connection at 0x7f2ac57f5400> exceeded timeout; recycling
+2017-03-11 20:03:18,014 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 20:03:18,014 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 20:03:18,015 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 20:08:14,532 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac40a29c8 for Connection at 0x7f2ac40a0860> exceeded timeout; recycling
+2017-03-11 20:08:14,533 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 20:08:14,533 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 20:08:14,534 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 20:11:00,757 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac472d808 for Connection at 0x7f2ac4778668> exceeded timeout; recycling
+2017-03-11 20:11:00,758 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 20:11:00,758 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 20:11:00,759 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 20:17:27,374 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac6886548 for Connection at 0x7f2ac40914a8> exceeded timeout; recycling
+2017-03-11 20:17:27,376 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 20:17:27,376 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 20:17:27,377 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 20:23:47,949 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac4720608 for Connection at 0x7f2ac47787b8> exceeded timeout; recycling
+2017-03-11 20:23:47,950 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 20:23:47,950 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 20:23:47,951 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 20:28:49,514 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac47941c8 for Connection at 0x7f2ac472e908> exceeded timeout; recycling
+2017-03-11 20:28:49,515 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 20:28:49,516 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 20:28:49,516 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 20:38:25,298 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac4787f08 for Connection at 0x7f2ac57f6710> exceeded timeout; recycling
+2017-03-11 20:38:25,302 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 20:38:25,302 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 20:38:25,304 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 20:41:35,189 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac47376c8 for Connection at 0x7f2ac47354e0> exceeded timeout; recycling
+2017-03-11 20:41:35,190 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 20:41:35,190 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 20:41:35,191 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 20:52:28,447 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac5806288 for Connection at 0x7f2ac57f6780> exceeded timeout; recycling
+2017-03-11 20:52:28,449 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 20:52:28,449 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 20:52:28,449 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 21:00:25,533 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac57f6a48 for Connection at 0x7f2ac472e4e0> exceeded timeout; recycling
+2017-03-11 21:00:25,534 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 21:00:25,534 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 21:00:25,535 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 21:10:41,007 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac6b60ac8 for Connection at 0x7f2ac40926a0> exceeded timeout; recycling
+2017-03-11 21:10:41,008 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 21:10:41,008 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 21:10:41,008 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 21:12:34,169 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac409d908 for Connection at 0x7f2ac4099b00> exceeded timeout; recycling
+2017-03-11 21:12:34,170 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 21:12:34,170 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 21:12:34,170 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 21:19:47,268 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac47429c8 for Connection at 0x7f2ac472ee10> exceeded timeout; recycling
+2017-03-11 21:19:47,271 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 21:19:47,271 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 21:19:47,273 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 21:24:20,637 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac4705288 for Connection at 0x7f2ac40a0b00> exceeded timeout; recycling
+2017-03-11 21:24:20,639 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 21:24:20,639 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 21:24:20,640 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 21:28:45,581 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac58071c8 for Connection at 0x7f2ac408c0b8> exceeded timeout; recycling
+2017-03-11 21:28:45,582 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 21:28:45,583 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 21:28:45,583 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 21:38:10,241 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac5806388 for Connection at 0x7f2ac430b4e0> exceeded timeout; recycling
+2017-03-11 21:38:10,242 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 21:38:10,242 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 21:38:10,242 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 21:43:19,107 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac42eec88 for Connection at 0x7f2ac408cf98> exceeded timeout; recycling
+2017-03-11 21:43:19,108 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 21:43:19,108 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 21:43:19,108 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 21:46:32,090 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac4730448 for Connection at 0x7f2ac472ea58> exceeded timeout; recycling
+2017-03-11 21:46:32,092 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 21:46:32,092 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 21:46:32,092 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 21:55:28,351 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac470db08 for Connection at 0x7f2ac40996a0> exceeded timeout; recycling
+2017-03-11 21:55:28,354 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 21:55:28,354 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 21:55:28,356 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 21:56:18,453 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac4787e08 for Connection at 0x7f2ac6881550> exceeded timeout; recycling
+2017-03-11 21:56:18,454 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 21:56:18,454 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 21:56:18,455 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 22:04:19,752 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac5806108 for Connection at 0x7f2ac57f6588> exceeded timeout; recycling
+2017-03-11 22:04:19,753 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 22:04:19,753 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 22:04:19,754 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 22:07:46,929 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac477ac88 for Connection at 0x7f2ac472e400> exceeded timeout; recycling
+2017-03-11 22:07:46,930 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 22:07:46,930 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 22:07:46,931 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 22:12:41,214 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac47b2ec8 for Connection at 0x7f2ac408c860> exceeded timeout; recycling
+2017-03-11 22:12:41,216 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 22:12:41,216 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 22:12:41,216 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 22:18:24,457 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac4741888 for Connection at 0x7f2ac57f8128> exceeded timeout; recycling
+2017-03-11 22:18:24,459 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 22:18:24,460 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 22:18:24,462 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 22:25:27,382 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac57fd6c8 for Connection at 0x7f2ac47345f8> exceeded timeout; recycling
+2017-03-11 22:25:27,383 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 22:25:27,383 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 22:25:27,384 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 22:34:13,099 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac47946c8 for Connection at 0x7f2ac57f4f28> exceeded timeout; recycling
+2017-03-11 22:34:13,100 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 22:34:13,100 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 22:34:13,101 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 22:42:21,023 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac937f988 for Connection at 0x7f2ac57f8d68> exceeded timeout; recycling
+2017-03-11 22:42:21,024 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 22:42:21,024 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 22:42:21,024 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 22:42:43,147 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac47566c8 for Connection at 0x7f2ac4734550> exceeded timeout; recycling
+2017-03-11 22:42:43,148 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 22:42:43,148 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 22:42:43,149 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 22:51:38,459 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac472be88 for Connection at 0x7f2ac40994a8> exceeded timeout; recycling
+2017-03-11 22:51:38,460 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 22:51:38,460 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 22:51:38,461 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 22:54:57,619 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac4787e88 for Connection at 0x7f2ac472ef98> exceeded timeout; recycling
+2017-03-11 22:54:57,620 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 22:54:57,620 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 22:54:57,620 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 23:06:54,144 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2acd5fb348 for Connection at 0x7f2ac408c860> exceeded timeout; recycling
+2017-03-11 23:06:54,145 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 23:06:54,145 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 23:06:54,146 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 23:15:37,006 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac6e4cf08 for Connection at 0x7f2ac57f4710> exceeded timeout; recycling
+2017-03-11 23:15:37,007 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 23:15:37,007 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 23:15:37,008 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 23:23:15,329 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac47a5f08 for Connection at 0x7f2ac57f3e10> exceeded timeout; recycling
+2017-03-11 23:23:15,330 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 23:23:15,330 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 23:23:15,331 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 23:26:25,399 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac5806388 for Connection at 0x7f2ac57f2828> exceeded timeout; recycling
+2017-03-11 23:26:25,401 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 23:26:25,401 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 23:26:25,401 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 23:37:26,865 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac57eca88 for Connection at 0x7f2ac4734198> exceeded timeout; recycling
+2017-03-11 23:37:26,866 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 23:37:26,866 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 23:37:26,867 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 23:48:41,109 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac4785748 for Connection at 0x7f2ac47997b8> exceeded timeout; recycling
+2017-03-11 23:48:41,110 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 23:48:41,110 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 23:48:41,111 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 23:51:38,225 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 23:51:38,226 INFO sqlalchemy.engine.base.Engine {'p0': 'e2f0f6f6160b5af646fd8ba58ed2307388e330405f39bb4e71a27101'}
+2017-03-11 23:51:38,226 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-11 23:59:06,026 INFO sqlalchemy.pool.QueuePool Connection <ConnectionWrapper at 0x7f2ac477b2c8 for Connection at 0x7f2ac4099da0> exceeded timeout; recycling
+2017-03-11 23:59:06,027 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-11 23:59:06,027 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-11 23:59:06,028 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-12 00:07:04,550 INFO sqlalchemy.engine.base.Engine SELECT access_token,CALENDAR.account_hashkey from CALENDAR INNER JOIN USERACCOUNT on CALENDAR.account_hashkey = USERACCOUNT.account_hashkey WHERE CALENDAR.google_channel_id = %(p0)s 
+2017-03-12 00:07:04,550 INFO sqlalchemy.engine.base.Engine {'p0': '7a40fb7477e674621484b5da1eb0ad49a41f2a08eca4d7faab2924ab'}
+2017-03-12 00:07:04,551 INFO sqlalchemy.engine.base.Engine COMMIT
+run_caly.sh: line 1:  1015 Killed                  NEW_RELIC_CONFIG_FILE=newrelic.ini newrelic-admin run-program gunicorn -w $(( `cat /proc/cpuinfo | grep 'core id' | wc -l` + 1 )) -b 0.0.0.0:55566 caly:app
+run_worker.sh: line 1:  1071 Killed                  NEW_RELIC_CONFIG_FILE=newrelic.ini newrelic-admin run-program celery -A sync_worker worker --loglevel=debug -f log_sync_worker.log

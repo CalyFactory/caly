@@ -47,7 +47,7 @@ def deleteEvents(event_id):
 									event_id,
 								)
 							)
-def getEventsBackward(user_hashkey,standard_date,pager,rangee):
+def getEventsBackward(user_hashkey,standard_date,pager,rangee,account_hashkey):
 
 	return utils.fetch_all_json(				
 				db_manager.query(
@@ -61,15 +61,16 @@ def getEventsBackward(user_hashkey,standard_date,pager,rangee):
 					"ORDER BY start_dt DESC LIMIT %s,%s "
 					") "
 					"AS source "
+					"where start_dt > (select cTime from SYNC_END where account_hashkey  = %s and sync_time_state = 1)"
+					
 					"ORDER BY start_dt "
 					,
 					(			
-						user_hashkey,standard_date,pager,rangee
+						user_hashkey,standard_date,pager,rangee,account_hashkey
 					)
 				)
 
 			)	
-# def getEventsBackward(user_hashkey,)
 def getEventsForward(user_hashkey,standard_date,pager,rangee):
 
 	return utils.fetch_all_json(				
@@ -80,7 +81,8 @@ def getEventsForward(user_hashkey,standard_date,pager,rangee):
 					"INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey " 
 					"WHERE user_hashkey = %s AND start_dt >= %s " 					
 					"ORDER BY start_dt "
-					"limit %s,%s",
+					"limit %s,%s"
+					,
 					(			
 						user_hashkey,standard_date,pager,rangee
 					)
@@ -88,7 +90,7 @@ def getEventsForward(user_hashkey,standard_date,pager,rangee):
 
 			)
 #오늘날자부터 과거 3개 미래 4개 가져오는 쿼리
-def getEventsFirst(user_hashkey,standard_date,start_range,end_range):
+def getEventsFirst(account_hashkey,user_hashkey,standard_date,start_range,end_range):
 
 	return utils.fetch_all_json(				
 				db_manager.query(
@@ -97,7 +99,7 @@ def getEventsFirst(user_hashkey,standard_date,start_range,end_range):
 					"INNER JOIN CALENDAR ON USERACCOUNT.account_hashkey = CALENDAR.account_hashkey " 							
 					"INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey "+
 					"WHERE start_dt > (" 
-					"SELECT SYNC_END.ctime FROM USERACCOUNT INNER JOIN SYNC_END ON USERACCOUNT.account_hashkey = SYNC_END.account_hashkey ORDER BY SYNC_END.ctime LIMIT 1 " +
+					"SELECT ctime FROM SYNC_END WHERE account_hashkey = %s and sync_time_state = 1" +
 					") "
 					"AND user_hashkey = %s AND start_dt < %s ORDER BY start_dt DESC LIMIT %s ) "
 					"UNION "
@@ -106,13 +108,13 @@ def getEventsFirst(user_hashkey,standard_date,start_range,end_range):
 					"INNER JOIN CALENDAR ON USERACCOUNT.account_hashkey = CALENDAR.account_hashkey "
 					"INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey "
 					"WHERE start_dt > ("
-					"SELECT SYNC_END.ctime FROM USERACCOUNT INNER JOIN SYNC_END ON USERACCOUNT.account_hashkey = SYNC_END.account_hashkey ORDER BY SYNC_END.ctime LIMIT 1"
+					"SELECT ctime FROM SYNC_END WHERE account_hashkey = %s and sync_time_state = 1"
 					") " 
 					"AND user_hashkey = %s AND start_dt >= %s ORDER BY start_dt limit %s ) "
 					"ORDER BY start_dt "
 					  ,
 					(			
-						user_hashkey,standard_date,start_range,user_hashkey,standard_date,end_range
+						account_hashkey,user_hashkey,standard_date,start_range,account_hashkey,user_hashkey,standard_date,end_range
 					)
 				)
 
