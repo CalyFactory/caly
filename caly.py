@@ -36,7 +36,8 @@ from common import FCM
 import logging
 app = flask.Flask(__name__, static_url_path='')
 
-
+# from bot import slackAlarmBot
+# slackAlarmBot.alertSyncEnd()
 
 initRoute(app)
 # if debugg
@@ -47,9 +48,7 @@ logging.basicConfig(level=logging.DEBUG, filename='log_caly.log',
                   format='%(asctime)s %(levelname)s: %(message)s',
                   datefmt='%Y-%m-%d %H:%M:%S')
 
-# from datetime import datetime,timedelta
-# from model import mFcmModel
-# logging.debug('currentServerTime=>'+str(datetime.now()))
+
 
 @app.route('/')
 def hello_wordl():

@@ -24,14 +24,14 @@ def getRecoList(event_hashkey,category):
 			)
 
 
-def trackingReco(apikey,reco_hashkey,event_hashkey,account_hashkey,typee):
+def trackingReco(apikey,reco_hashkey,event_hashkey,account_hashkey,typee,residense_time):
 	return db_manager.query(
 					"INSERT INTO RECO_TRACKER "
-					"(apikey,reco_hashkey,event_hashkey,account_hashkey,type) "
+					"(apikey,reco_hashkey,event_hashkey,account_hashkey,type,residense_time) "
 					"values "
-					"(%s,%s,%s,%s,%s)"
+					"(%s,%s,%s,%s,%s,%s)"
 					,
-					(apikey,reco_hashkey,event_hashkey,account_hashkey,typee)
+					(apikey,reco_hashkey,event_hashkey,account_hashkey,typee,residense_time)
 			)
 
 def checkAllRecoEndState(apikey):

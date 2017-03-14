@@ -35,6 +35,8 @@ def init_worker(**kwargs):
 def shutdown_worker(**kwargs):
 	print('shut')
 
+#codereview
+#nametask를 쓰느 이유.
 @app.task(name='task')
 def worker(data):
 	gameThread = threading.Thread(target=run, args=(data,))

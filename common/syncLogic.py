@@ -27,6 +27,8 @@ from common.util.statics import *
 import time
 import sync_worker
 from common import statee
+from bot import slackAlarmBot
+
 
 def caldav(user,apikey,login_platform,time_state):
 	
@@ -84,28 +86,27 @@ def caldav(user,apikey,login_platform,time_state):
 		except Exception as e:
 			logging.debug('set calendar err')
 			return utils.syncState(SYNC_CALDAV_ERR_SET_CALENDAR,str(e))
+		
+	##TODO
+	##RANGE를 현재시간부터 5개월후로!
+	if time_state == SYNC_TIME_STATE_FORWARD:
+
+		range_start = time.strftime("%Y%m%dT000000Z")
+		range_end = datetime.now()+ timedelta(hours=MONTH_TO_HOUR * 5)
+		range_end = datetime.strftime(range_end, "%Y%m%dT000000Z") 	
+
 	
+	elif time_state == SYNC_TIME_STATE_BACKWARD:
+		range_end = time.strftime("%Y%m%dT000000Z")
+		range_start = datetime.now() - timedelta(hours=YEAR_TO_HOUR * 3)
+		range_start = datetime.strftime(range_start, "%Y%m%dT000000Z") 							
+
+		logging.info('range_start ==> '+range_start)
+		logging.info('range_edn ==> '+range_end)	
 
 	for idx,calendar in enumerate(calendars):
 		
 		logging.debug('calnedarsss=> ' + calendar.calendarName)
-		
-		##TODO
-		##RANGE를 현재시간부터 5개월후로!
-		if time_state == SYNC_TIME_STATE_FORWARD:
-
-			range_start = time.strftime("%Y%m%dT000000Z")
-			range_end = datetime.now()+ timedelta(hours=MONTH_TO_HOUR * 5)
-			range_end = datetime.strftime(range_end, "%Y%m%dT000000Z") 	
-
-		
-		elif time_state == SYNC_TIME_STATE_BACKWARD:
-			range_end = time.strftime("%Y%m%dT000000Z")
-			range_start = datetime.now() - timedelta(hours=YEAR_TO_HOUR * 3)
-			range_start = datetime.strftime(range_start, "%Y%m%dT000000Z") 							
-
-		logging.info('range_start ==> '+range_start)
-		logging.info('range_edn ==> '+range_end)
 
 		eventList = calendar.getEventByRange( range_start, range_end)					
 		eventDataList = calendar.getCalendarData(eventList)
@@ -220,6 +221,7 @@ def caldav(user,apikey,login_platform,time_state):
 	# 미래것이 끝났고 에러없이 마무리됬다면, 과거꺼를 돌려야한다. 
 	# 미래것일 상태에서만 요청을 하도록 한다.	
 	if time_state == SYNC_TIME_STATE_FORWARD:
+		slackAlarmBot.alertSyncEnd()
 		data = {}
 		data['user'] = user
 		data['user_hashkey'] = user[0]['user_hashkey']
@@ -234,6 +236,7 @@ def google(user,apikey,time_state):
 	log_state = time_state == SYNC_TIME_STATE_FORWARD and LIFE_STATE_GOOGLE_FORWARD_SYNCING or LIFE_STATE_GOOGLE_BACKWARD_SYNCING
 	statee.userLife(apikey,log_state)
 
+	#걸리는 시간 체크
 	utils.checkTime(datetime.now(),'start')
 	
 	state = time_state == SYNC_TIME_STATE_FORWARD and SYNC_END_TIME_STATE_FORWARD or SYNC_END_TIME_STATE_BACKWARD
@@ -323,12 +326,13 @@ def google(user,apikey,time_state):
 			logging.info('[timeTest]watch Request==> '+str(utils.checkTime(datetime.now(),'ing')))			
 			logging.debug('calender id =>'+calendar['id'])		
 			calendar_id = calendar['id']
+			#code review
+			#좀 자세히 정리해서 해결방안을 모색할 수 있도록 준비해온다.
 			if '@gmail.com' in calendar_id or '@naver.com' in calendar_id or '@ical.com' in calendar_id or '@group.calendar.google.com' in calendar_id:
 				watch_URL = 'https://www.googleapis.com/calendar/v3/calendars/'+calendar['id']+'/events/watch'
 				body = {
 					"id" : arr_channel_id[idx],
 					"type" : "web_hook",
-					# "address" : "https://ssoma.xyz:55566/v1.0/sync/watchReciver",
 					"address" : "https://caly.io/v1.0/sync/watchReciver",
 					"token" : apikey
 				}						
@@ -338,7 +342,7 @@ def google(user,apikey,time_state):
 				logging.info('ress=s==> '+str(res))
 		
 		#for loop가 최초 다끝나면 나머지 과거 이벤트들을 받아야한다.
-
+		slackAlarmBot.alertSyncEnd()
 		data = {}
 		data['user'] = user
 		data['login_platform'] = 'google'
