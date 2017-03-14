@@ -41,8 +41,7 @@ def job():
 
             )    
     text = (":coffee: 어제의 가입자수 :  " + str(regit[0]['users']) +
-            "\n        어제의 등록 계정수 : " + str(account[0]['users']) +
-            "\n        어제의 설치수 : " + '테스트벨류'
+            "\n        어제의 등록 계정수 : " + str(account[0]['users'])             
             
     )
     slackClient.api_call(
