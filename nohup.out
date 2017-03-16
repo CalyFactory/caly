@@ -5911,3 +5911,28 @@ run_worker.sh: line 1: 27823 Killed                  NEW_RELIC_CONFIG_FILE=newre
 2017-03-12 00:07:04,551 INFO sqlalchemy.engine.base.Engine COMMIT
 run_caly.sh: line 1:  1015 Killed                  NEW_RELIC_CONFIG_FILE=newrelic.ini newrelic-admin run-program gunicorn -w $(( `cat /proc/cpuinfo | grep 'core id' | wc -l` + 1 )) -b 0.0.0.0:55566 caly:app
 run_worker.sh: line 1:  1071 Killed                  NEW_RELIC_CONFIG_FILE=newrelic.ini newrelic-admin run-program celery -A sync_worker worker --loglevel=debug -f log_sync_worker.log
+[2017-03-16 12:19:14 +0900] [27460] [INFO] Starting gunicorn 19.7.0
+[2017-03-16 12:19:14 +0900] [27460] [ERROR] Connection in use: ('0.0.0.0', 55566)
+[2017-03-16 12:19:14 +0900] [27460] [ERROR] Retrying in 1 second.
+[2017-03-16 12:19:15 +0900] [27460] [ERROR] Connection in use: ('0.0.0.0', 55566)
+[2017-03-16 12:19:15 +0900] [27460] [ERROR] Retrying in 1 second.
+[2017-03-16 12:19:16 +0900] [27460] [ERROR] Connection in use: ('0.0.0.0', 55566)
+[2017-03-16 12:19:16 +0900] [27460] [ERROR] Retrying in 1 second.
+[2017-03-16 12:19:17 +0900] [27460] [ERROR] Connection in use: ('0.0.0.0', 55566)
+[2017-03-16 12:19:17 +0900] [27460] [ERROR] Retrying in 1 second.
+[2017-03-16 12:19:18 +0900] [27460] [ERROR] Connection in use: ('0.0.0.0', 55566)
+[2017-03-16 12:19:18 +0900] [27460] [ERROR] Retrying in 1 second.
+[2017-03-16 12:19:19 +0900] [27460] [ERROR] Can't connect to ('0.0.0.0', 55566)
+[2017-03-16 12:19:48 +0900] [27519] [INFO] Starting gunicorn 19.7.0
+[2017-03-16 12:19:48 +0900] [27519] [ERROR] Connection in use: ('0.0.0.0', 55566)
+[2017-03-16 12:19:48 +0900] [27519] [ERROR] Retrying in 1 second.
+[2017-03-16 12:19:49 +0900] [27519] [ERROR] Connection in use: ('0.0.0.0', 55566)
+[2017-03-16 12:19:49 +0900] [27519] [ERROR] Retrying in 1 second.
+[2017-03-16 12:19:50 +0900] [27519] [ERROR] Connection in use: ('0.0.0.0', 55566)
+[2017-03-16 12:19:50 +0900] [27519] [ERROR] Retrying in 1 second.
+[2017-03-16 12:19:51 +0900] [27519] [ERROR] Connection in use: ('0.0.0.0', 55566)
+[2017-03-16 12:19:51 +0900] [27519] [ERROR] Retrying in 1 second.
+[2017-03-16 12:19:52 +0900] [27519] [ERROR] Connection in use: ('0.0.0.0', 55566)
+[2017-03-16 12:19:52 +0900] [27519] [ERROR] Retrying in 1 second.
+[2017-03-16 12:19:53 +0900] [27519] [ERROR] Can't connect to ('0.0.0.0', 55566)
+run_worker.sh: line 1: 27474 Killed                  NEW_RELIC_CONFIG_FILE=newrelic.ini newrelic-admin run-program celery -A sync_worker worker --loglevel=debug -f log_sync_worker.log

@@ -26,7 +26,7 @@ from model import userAccountModel
 from model import userModel
 from model import calendarModel
 from manager.redis import redis
-
+from common import cryptoo
 from common import syncLogic
 from common import statee
 
@@ -102,7 +102,8 @@ class Member(MethodView):
 			if login_platform == 'naver' or login_platform == 'ical':	
 				logging.info('naver')
 				u_id = flask.request.form['uId']
-				u_pw = flask.request.form['uPw']				
+				u_pw = flask.request.form['uPw']			
+				u_pw = cryptoo.encryptt(u_pw)	
 				
 
 			elif login_platform == 'google':
@@ -163,6 +164,7 @@ class Member(MethodView):
 					user = userAccountModel.getCaldavUserAccount(u_id,u_pw,login_platform)
 					#검색을 했는데 길이가 0이면, 유저가 없는경우임으로 추가를 해준다.
 					if len(user) == 0:
+						
 						userAccountModel.setCaldavUserAccount(account_hashkey,user_hashkey,login_platform,u_id,u_pw,caldav_homeset)
 					#유저가 존재하면 이미 등록된 아이디라고 알려준다.
 					else:		
@@ -296,6 +298,7 @@ class Member(MethodView):
 				#caldav일경우.
 				u_id = flask.request.form['uId']
 				u_pw = flask.request.form['uPw']
+				u_pw = cryptoo.encryptt(u_pw)
 				try:
 					calDavclient = caldavWrapper.getCalDavClient(login_platform,u_id,u_pw)									
 
@@ -319,6 +322,9 @@ class Member(MethodView):
 					logging.debug('user = >'+str(user))
 
 					if len(user) == 0:
+
+						
+						
 						
 						userAccountModel.setCaldavUserAccount(account_hashkey,user_hashkey,login_platform,u_id,u_pw,caldav_homeset)
 						
