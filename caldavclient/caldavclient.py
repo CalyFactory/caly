@@ -59,10 +59,13 @@ class CaldavClient:
         return self
             
     def setCalendars(self, calendarList):
+        
         if self.principal == None:
-            raise Exception('principal is not inited')
+            self.setPrincipal(self.hostname)
+            return self.setCalendars(calendarList)
         elif self.principal.homeset == None:
-            raise Exception('homeset is not inited')
+            self.setHomeSet(self.hostname)
+            return self.setCalendars(calendarList)
         else:
             for calendar in calendarList:
                 calendar.hostname = self.principal.homeset.hostname
@@ -176,7 +179,7 @@ class CaldavClient:
             self.eventList = None
         """
 
-        def __init__(self, calendarUrl, calendarName, cTag, client = None, hostname = None):
+        def __init__(self, calendarUrl, calendarName, cTag, client = None, hostname = None, etc = None):
             self.hostname = util.getHostnameFromUrl(hostname)
             self.calendarId = util.splitIdfromUrl(calendarUrl)
             self.calendarUrl = calendarUrl
@@ -185,6 +188,7 @@ class CaldavClient:
             self.domainUrl = self.hostname + calendarUrl
             self.client = client
             self.eventList = None
+            self.etc = etc
 
 
         def isChanged(self):
