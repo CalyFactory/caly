@@ -6,15 +6,16 @@ def getNotice():
 				db_manager.query(
 					"SELECT notice_title,notice_description,create_datetime "
 					"FROM NOTICE "
+					"ORDER BY create_datetime DESC"
 					,
 					()
 				)		
 			)		
-def setRequests(apikey,account_hashkey,contents):
+def setRequests(apikey,account_hashkey,contents,type):
 	return db_manager.query(
-				"INSERT INTO REQUESTS (apikey,account_hashkey,contents) "
-				"VALUES(%s,%s,%s)"
+				"INSERT INTO REQUESTS (apikey,account_hashkey,contents,type) "
+				"VALUES(%s,%s,%s,%s)"
 				,
-				(apikey,account_hashkey,contents)
+				(apikey,account_hashkey,contents,type)
 			)		
 			

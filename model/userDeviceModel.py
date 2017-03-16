@@ -164,3 +164,28 @@ def getUserAccountHashkey(apikey):
 					)
 				)
 			)
+def getUserApikeyList(user_hashkey):
+	return 	utils.fetch_all_json(
+				db_manager.query(
+					"SELECT apikey FROM USERACCOUNT " 					
+					"LEFT JOIN USERDEVICE on USERACCOUNT.account_hashkey = USERDEVICE.account_hashkey "
+					"WHERE user_hashkey = %s "
+					,
+					(									
+						user_hashkey,					
+					)
+				)
+			)	
+
+
+def deleteUserDeviceAll(user_hashkey):
+	return 	db_manager.query(
+					"DELETE USERDEVICE FROM USERDEVICE " 					
+					"LEFT JOIN USERACCOUNT on USERACCOUNT.account_hashkey = USERDEVICE.account_hashkey "
+					"WHERE user_hashkey = %s"
+					,
+					(									
+						user_hashkey,					
+					)
+				)
+			

@@ -45,6 +45,8 @@ class Reco(MethodView):
 			reco_hashkey = flask.request.form['recoHashkey']
 			event_hashkey = flask.request.form['eventHashkey']
 			typee = flask.request.form['type']
+			residense_time = None
+			residense_time = flask.request.form['residenseTime']
 			
 			if not redis.get(apikey):
 				return utils.resErr(
@@ -55,7 +57,7 @@ class Reco(MethodView):
 				account_hashkey = userDeviceModel.getUserAccountHashkey(apikey)[0]['account_hashkey']
 				# print(account_hashkey[0])
 				# logging.debug(account_hashkey[0]['account_hashkey'])
-				recoModel.trackingReco(apikey,reco_hashkey,event_hashkey,account_hashkey,typee)			
+				recoModel.trackingReco(apikey,reco_hashkey,event_hashkey,account_hashkey,typee,residense_time)			
 				return utils.resSuccess(
 											{'data':'successInsert'}
 										)

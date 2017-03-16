@@ -80,7 +80,7 @@ def initRoute(app):
 						methods = ['POST', ]
 					)
 
-
+# withdrawal
 	member = Member.as_view('member')
 	app.add_url_rule(
 						'/v1.0/member/addAccount',
@@ -125,6 +125,12 @@ def initRoute(app):
 						view_func = member, 
 						methods = ['POST', ]
 					)
+	app.add_url_rule(
+						'/v1.0/member/withdrawal',
+						defaults = {'action':'withdrawal'},
+						view_func = member, 
+						methods = ['POST', ]
+					)	
 
 	googleAuth = GoogleAuth.as_view('gAuthAPI')
 	app.add_url_rule(

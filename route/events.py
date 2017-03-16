@@ -2,6 +2,7 @@ from manager import db_manager
 from flask.views import MethodView
 from model import eventModel
 from model import userAccountModel
+from model import userDeviceModel
 
 from common.util import utils
 from manager.redis import redis
@@ -27,10 +28,12 @@ class Events(MethodView):
 										{'msg':MSG_INVALID_TOKENKEY}
 									)
 			try:
+				account_hashkey = userDeviceModel.getUserAccountHashkey(apikey)[0]['account_hashkey']
+
 				if int(pageNum) == 0 :
 
 					logging.debug('call first Events')
-					rows = eventModel.getEventsFirst(user_hashkey,current_time,EVENTS_FORWARD_CNT,EVENTS_BACKWARD_CNT)
+					rows = eventModel.getEventsFirst(account_hashkey,user_hashkey,current_time,EVENTS_FORWARD_CNT,EVENTS_BACKWARD_CNT)
 
 				elif int(pageNum) > 0 :
 					logging.debug('call forward')
@@ -50,7 +53,7 @@ class Events(MethodView):
 					
 					pager = (int(pageNum)-1) * int(rangee) + EVENTS_BACKWARD_CNT				
 
-					rows = eventModel.getEventsBackward(user_hashkey,current_time,pager,rangee)
+					rows = eventModel.getEventsBackward(user_hashkey,current_time,pager,rangee,account_hashkey)
 				
 			except Exception as e:
 				return utils.resErr(str(e))		

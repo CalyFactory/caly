@@ -1,5 +1,6 @@
 from model import userLifeModel
 from common.util.statics import *
+import logging
 
 def userLife(apikey,state):
 	try:										

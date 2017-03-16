@@ -14,3 +14,26 @@ def setUser(user_hashkey,gender,birth):
 					birth
 				)
 			)
+
+def updateUserIsActive(user_hashkey,state):
+	return 	db_manager.query(
+				"UPDATE USER SET is_active = %s " 
+				"WHERE user_hashkey  = %s "				
+				,
+				(			
+					state,user_hashkey
+				)
+			)
+
+def getUserIsActive(user_hashkey):
+	return utils.fetch_all_json(
+					db_manager.query(
+						"SELECT is_active FROM USER " 
+						"WHERE user_hashkey  = %s "				
+						,
+						(			
+							user_hashkey,
+						)
+					)	
+				)
+

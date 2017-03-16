@@ -12,8 +12,6 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 import json 
-
-
 with open('./key/conf.json') as conf_json:
     conf = json.load(conf_json)
 

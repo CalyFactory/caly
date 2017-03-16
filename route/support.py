@@ -44,11 +44,10 @@ class Support(MethodView):
 										{'msg':MSG_INVALID_TOKENKEY}
 									)
 			try:
-				print(user_hashkey)
-				user = userAccountModel.getUserAccount(user_hashkey)
-				print(user)
+				
+				user = userAccountModel.getUserAccount(user_hashkey)				
 				account_hashkey = user[0]['account_hashkey']
-				rows = supportModel.setRequests(apikey,account_hashkey,contents)
+				rows = supportModel.setRequests(apikey,account_hashkey,contents,REQUESTS_TYPE_DEFAULT)
 				return utils.resSuccess(
 											{'msg':MSG_SUCCESS}
 										)				
