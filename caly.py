@@ -39,6 +39,7 @@ app = flask.Flask(__name__, static_url_path='')
 # from bot import slackAlarmBot
 # slackAlarmBot.alertSyncEnd()
 
+
 initRoute(app)
 # if debugg
 # logSet.init()
