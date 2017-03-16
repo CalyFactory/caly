@@ -1,9 +1,12 @@
 from manager import db_manager
 from caldavclient import CaldavClient
 from common.util import utils
-
-
+from common import cryptoo
+import logging
 def getCalDavClient(login_platform,u_id,u_pw):
+	logging.debug(u_pw)
+	u_pw = cryptoo.decryptt(u_pw)
+	logging.debug(u_pw)
 	if login_platform == 'naver':		
 		hostname = 'https://caldav.calendar.naver.com/principals/'
 	elif login_platform == 'ical':

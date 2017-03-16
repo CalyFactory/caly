@@ -82,16 +82,6 @@ XML_REQ_CALENDARDATA = (
          <C:comp name="VCALENDAR">
            <C:prop name="VERSION"/>
            <C:comp name="VEVENT">
-             <C:prop name="SUMMARY"/>
-             <C:prop name="UID"/>
-             <C:prop name="DTSTART"/>
-             <C:prop name="DTEND"/>
-             <C:prop name="DURATION"/>
-             <C:prop name="RRULE"/>
-             <C:prop name="RDATE"/>
-             <C:prop name="EXRULE"/>
-             <C:prop name="EXDATE"/>
-             <C:prop name="RECURRENCE-ID"/>
            </C:comp>
          </C:comp>
        </C:calendar-data>
