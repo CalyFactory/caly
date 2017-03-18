@@ -3,7 +3,7 @@ import base64
 import binascii
 BLOCK_SIZE = 32
 PADDING = ' '
-secret = "FB3582CE098666CA6857CFEB81A6595D"
+
 # iv = '1234512345123451'
 # cipher = AES.new(secret,AES.MODE_CBC,iv)
 cipher = AES.new(secret)
