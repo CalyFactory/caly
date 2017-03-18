@@ -413,8 +413,9 @@ def reqEventsList(time_state,apikey,calendar,user,body={}):
 			start_date = utils.date_utc_to_current(str(item['start']['dateTime']))
 			end_date = utils.date_utc_to_current(str(item['end']['dateTime']))
 
-		if 'reccurence' in item:
-			reccurence = item["recurrence"]
+		if 'recurrence' in item:
+			logging.debug('rec => '+str(item['recurrence'][0]))			
+			recurrence = item['recurrence'][0]
 
 		event_hashkey = utils.makeHashKey(event_id)
 		eventModel.setGoogleEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location,recurrence)
