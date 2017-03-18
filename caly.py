@@ -38,7 +38,13 @@ app = flask.Flask(__name__, static_url_path='')
 
 # from bot import slackAlarmBot
 # slackAlarmBot.alertSyncEnd()
+sampleStr = """ "vRecur({'FREQ': ['WEEKLY'], 'BYDAY': ['WE', 'FR'], 'INTERVAL': [1]})" """
+startIndex = sampleStr.index("{")
+endIndex = sampleStr.index("}")
 
+print(sampleStr[startIndex:endIndex])
+# print(sampleStr.index("{"))
+# print(sampleStr.find("}"))
 
 initRoute(app)
 # if debugg
