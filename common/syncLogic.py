@@ -137,6 +137,8 @@ def caldav(user,apikey,login_platform,time_state):
 			end_dt = None
 			created_dt = None
 			updated_dt = None
+			#반복 설정.
+			recurrence = None
 
 
 
@@ -184,6 +186,12 @@ def caldav(user,apikey,login_platform,time_state):
 				else:
 					location = event['LOCATION']
 
+			if 'RRULE' in event:
+				recurrence = event['RRULE']
+				startIndex = recurrence.index("{")
+				endIndex = recurrence.index("}")
+				recurrence = recurrence[startIndex+1:endIndex]
+
 			logging.debug('hashkey=>' + calendar_hashkey)	
 			logging.debug('event_hashkey=>' + event_hashkey)	
 			logging.debug('event_id=>' + event_id)	
@@ -198,7 +206,7 @@ def caldav(user,apikey,login_platform,time_state):
 			
 			try:
 				#이벤트를 저장한다.
-				eventModel.setCaldavEvents(event_hashkey,calendar_hashkey,event_id,summary,start_dt,end_dt,created_dt,updated_dt,location,caldav_event_url,caldav_etag)
+				eventModel.setCaldavEvents(event_hashkey,calendar_hashkey,event_id,summary,start_dt,end_dt,created_dt,updated_dt,location,caldav_event_url,caldav_etag,recurrence)
 			except Exception as e:
 				return utils.syncState(SYNC_CALDAV_ERR_SET_EVENTS,str(e))
 
@@ -382,6 +390,7 @@ def reqEventsList(time_state,apikey,calendar,user,body={}):
 		created = None
 		updated = None
 		location = 'noLocation'
+		recurrence = None
 
 		if 'summary' in item:			
 			summary = item['summary']
@@ -404,9 +413,11 @@ def reqEventsList(time_state,apikey,calendar,user,body={}):
 			start_date = utils.date_utc_to_current(str(item['start']['dateTime']))
 			end_date = utils.date_utc_to_current(str(item['end']['dateTime']))
 
+		if 'reccurence' in item:
+			reccurence = item["recurrence"]
 
 		event_hashkey = utils.makeHashKey(event_id)
-		eventModel.setGoogleEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location)
+		eventModel.setGoogleEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location,recurrence)
 	logging.info('[timeTest]cnt= '+str(len(res['items']))+'setEVENTS==> '+str(utils.checkTime(datetime.now(),'ing')))
 
 
