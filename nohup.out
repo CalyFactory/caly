@@ -5936,3 +5936,44 @@ run_worker.sh: line 1:  1071 Killed                  NEW_RELIC_CONFIG_FILE=newre
 [2017-03-16 12:19:52 +0900] [27519] [ERROR] Retrying in 1 second.
 [2017-03-16 12:19:53 +0900] [27519] [ERROR] Can't connect to ('0.0.0.0', 55566)
 run_worker.sh: line 1: 27474 Killed                  NEW_RELIC_CONFIG_FILE=newrelic.ini newrelic-admin run-program celery -A sync_worker worker --loglevel=debug -f log_sync_worker.log
+2017-03-16 18:02:19,044 INFO sqlalchemy.engine.base.Engine SHOW VARIABLES LIKE 'sql_mode'
+2017-03-16 18:02:19,044 INFO sqlalchemy.engine.base.Engine {}
+2017-03-16 18:02:19,046 INFO sqlalchemy.engine.base.Engine SELECT DATABASE()
+2017-03-16 18:02:19,046 INFO sqlalchemy.engine.base.Engine {}
+2017-03-16 18:02:19,046 INFO sqlalchemy.engine.base.Engine show collation where `Charset` = 'utf8' and `Collation` = 'utf8_bin'
+2017-03-16 18:02:19,046 INFO sqlalchemy.engine.base.Engine {}
+2017-03-16 18:02:19,047 INFO sqlalchemy.engine.base.Engine SELECT CAST('test plain returns' AS CHAR(60)) AS anon_1
+2017-03-16 18:02:19,047 INFO sqlalchemy.engine.base.Engine {}
+2017-03-16 18:02:19,048 INFO sqlalchemy.engine.base.Engine SELECT CAST('test unicode returns' AS CHAR(60)) AS anon_1
+2017-03-16 18:02:19,048 INFO sqlalchemy.engine.base.Engine {}
+2017-03-16 18:02:19,048 INFO sqlalchemy.engine.base.Engine SELECT CAST('test collated returns' AS CHAR CHARACTER SET utf8) COLLATE utf8_bin AS anon_1
+2017-03-16 18:02:19,048 INFO sqlalchemy.engine.base.Engine {}
+2017-03-16 18:02:19,049 INFO sqlalchemy.engine.base.Engine select count(*) as users from USER where created > date_sub(now(), interval 1 day)
+2017-03-16 18:02:19,049 INFO sqlalchemy.engine.base.Engine {}
+2017-03-16 18:02:19,049 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-16 18:02:19,049 INFO sqlalchemy.engine.base.Engine select count(*) as users from USERACCOUNT where create_datetime > date_sub(now(), interval 1 day); 
+2017-03-16 18:02:19,049 INFO sqlalchemy.engine.base.Engine {}
+2017-03-16 18:02:19,050 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-16 18:07:12,932 INFO sqlalchemy.engine.base.Engine SHOW VARIABLES LIKE 'sql_mode'
+2017-03-16 18:07:12,932 INFO sqlalchemy.engine.base.Engine {}
+2017-03-16 18:07:12,933 INFO sqlalchemy.engine.base.Engine SELECT DATABASE()
+2017-03-16 18:07:12,933 INFO sqlalchemy.engine.base.Engine {}
+2017-03-16 18:07:12,934 INFO sqlalchemy.engine.base.Engine show collation where `Charset` = 'utf8' and `Collation` = 'utf8_bin'
+2017-03-16 18:07:12,934 INFO sqlalchemy.engine.base.Engine {}
+2017-03-16 18:07:12,934 INFO sqlalchemy.engine.base.Engine SELECT CAST('test plain returns' AS CHAR(60)) AS anon_1
+2017-03-16 18:07:12,934 INFO sqlalchemy.engine.base.Engine {}
+2017-03-16 18:07:12,935 INFO sqlalchemy.engine.base.Engine SELECT CAST('test unicode returns' AS CHAR(60)) AS anon_1
+2017-03-16 18:07:12,935 INFO sqlalchemy.engine.base.Engine {}
+2017-03-16 18:07:12,935 INFO sqlalchemy.engine.base.Engine SELECT CAST('test collated returns' AS CHAR CHARACTER SET utf8) COLLATE utf8_bin AS anon_1
+2017-03-16 18:07:12,935 INFO sqlalchemy.engine.base.Engine {}
+2017-03-16 18:07:12,936 INFO sqlalchemy.engine.base.Engine select count(*) as users from USERACCOUNT where create_datetime > date_sub(now(), interval 1 day); 
+2017-03-16 18:07:12,936 INFO sqlalchemy.engine.base.Engine {}
+2017-03-16 18:07:12,936 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-17 09:00:00,231 INFO sqlalchemy.pool.QueuePool Connection <pymysql.connections.Connection object at 0x7f9d7f1dc358> exceeded timeout; recycling
+2017-03-17 09:00:00,232 INFO sqlalchemy.engine.base.Engine select count(*) as users from USERACCOUNT where create_datetime > date_sub(now(), interval 1 day); 
+2017-03-17 09:00:00,232 INFO sqlalchemy.engine.base.Engine {}
+2017-03-17 09:00:00,233 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-18 09:00:00,320 INFO sqlalchemy.pool.QueuePool Connection <pymysql.connections.Connection object at 0x7f9d7f1dc358> exceeded timeout; recycling
+2017-03-18 09:00:00,324 INFO sqlalchemy.engine.base.Engine select count(*) as users from USERACCOUNT where create_datetime > date_sub(now(), interval 1 day); 
+2017-03-18 09:00:00,324 INFO sqlalchemy.engine.base.Engine {}
+2017-03-18 09:00:00,325 INFO sqlalchemy.engine.base.Engine COMMIT
