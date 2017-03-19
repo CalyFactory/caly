@@ -6,3 +6,5 @@ log_caly.log
 log_sync_worker.log
 newrelic.ini
 sandbox.py
+*.log
+celerybeat-schedule
