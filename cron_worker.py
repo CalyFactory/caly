@@ -11,8 +11,13 @@ import uuid
 from common.util import utils
 from datetime import datetime
 from pytz import timezone
+from caldavclient import CaldavClient
 
+import logging
 
+sqla_logger = logging.getLogger('sqlalchemy.engine.base.Engine')
+for hdlr in sqla_logger.handlers:
+    sqla_logger.removeHandler(hdlr)
 
 
 app = Celery('tasks', broker='amqp://guest:guest@localhost:5672//')
@@ -37,7 +42,7 @@ def findEventList(eventList, eventIdList):
 
 
 
-@periodic_task(run_every=timedelta(seconds=5))
+@periodic_task(run_every=timedelta(seconds=30))
 def accountDistributor():
     print("hello")
     
@@ -58,6 +63,7 @@ def accountDistributor():
 
 @app.task
 def syncWorker(account):
+    print("start sync check")
     calendars = utils.fetch_all_json(
         db_manager.query(
             """
