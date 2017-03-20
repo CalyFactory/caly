@@ -80,7 +80,7 @@ class Reco(MethodView):
 			except Exception as e:
 				return utils.resErr(str(e))		
 			
-			if len(state) == 1 and state[0]['reco_state'] == 2:
+			if len(state) == 1 and state[0]['reco_state'] == 3:
 				return utils.resCustom(
 											200,
 											{'msg':MSG_RECO_SUCCESS}

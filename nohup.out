@@ -5977,6 +5977,16 @@ run_worker.sh: line 1: 27474 Killed                  NEW_RELIC_CONFIG_FILE=newre
 2017-03-18 09:00:00,324 INFO sqlalchemy.engine.base.Engine select count(*) as users from USERACCOUNT where create_datetime > date_sub(now(), interval 1 day); 
 2017-03-18 09:00:00,324 INFO sqlalchemy.engine.base.Engine {}
 2017-03-18 09:00:00,325 INFO sqlalchemy.engine.base.Engine COMMIT
+<<<<<<< HEAD
+2017-03-19 09:00:00,290 INFO sqlalchemy.pool.QueuePool Connection <pymysql.connections.Connection object at 0x7f9d7f1dc390> exceeded timeout; recycling
+2017-03-19 09:00:00,292 INFO sqlalchemy.engine.base.Engine select count(*) as users from USERACCOUNT where create_datetime > date_sub(now(), interval 1 day); 
+2017-03-19 09:00:00,292 INFO sqlalchemy.engine.base.Engine {}
+2017-03-19 09:00:00,293 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-20 09:00:00,529 INFO sqlalchemy.pool.QueuePool Connection <pymysql.connections.Connection object at 0x7f9d7f1dc438> exceeded timeout; recycling
+2017-03-20 09:00:00,530 INFO sqlalchemy.engine.base.Engine select count(*) as users from USERACCOUNT where create_datetime > date_sub(now(), interval 1 day); 
+2017-03-20 09:00:00,530 INFO sqlalchemy.engine.base.Engine {}
+2017-03-20 09:00:00,530 INFO sqlalchemy.engine.base.Engine COMMIT
+=======
 Traceback (most recent call last):
   File "caly.py", line 133, in <module>
     flaskrun(app)
@@ -6072,3 +6082,4 @@ run_worker.sh: line 1:  6043 Killed                  NEW_RELIC_CONFIG_FILE=newre
 [2017-03-19 23:17:20 +0900] [6374] [INFO] Booting worker with pid: 6374
 [2017-03-19 23:17:20 +0900] [6375] [INFO] Booting worker with pid: 6375
 run_caly.sh: line 1:  6368 Killed                  NEW_RELIC_CONFIG_FILE=newrelic.ini newrelic-admin run-program gunicorn -w $(( `cat /proc/cpuinfo | grep 'core id' | wc -l` + 1 )) -b 0.0.0.0:55566 caly:app
+>>>>>>> daddd2fd80fba0caa08a8f6cb16a2754593f7028
