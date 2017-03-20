@@ -153,8 +153,8 @@ def eventRowToList(eventRow):
     eventList = []
     for row in eventRow:
         event = caldavclient.CaldavClient.Event(
-            eventUrl = row['event_url'],
-            eTag = row['e_tag']
+            eventUrl = row['caldav_event_url'],
+            eTag = row['caldav_etag']
         )
         eventList.append(event)
     return eventList
