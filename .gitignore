@@ -11,3 +11,6 @@ log/
 fabfile.py
 ops/
 nohup.out
+*.log
+celerybeat-schedule
+
