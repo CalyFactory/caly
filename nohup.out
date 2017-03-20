@@ -5977,3 +5977,11 @@ run_worker.sh: line 1: 27474 Killed                  NEW_RELIC_CONFIG_FILE=newre
 2017-03-18 09:00:00,324 INFO sqlalchemy.engine.base.Engine select count(*) as users from USERACCOUNT where create_datetime > date_sub(now(), interval 1 day); 
 2017-03-18 09:00:00,324 INFO sqlalchemy.engine.base.Engine {}
 2017-03-18 09:00:00,325 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-19 09:00:00,290 INFO sqlalchemy.pool.QueuePool Connection <pymysql.connections.Connection object at 0x7f9d7f1dc390> exceeded timeout; recycling
+2017-03-19 09:00:00,292 INFO sqlalchemy.engine.base.Engine select count(*) as users from USERACCOUNT where create_datetime > date_sub(now(), interval 1 day); 
+2017-03-19 09:00:00,292 INFO sqlalchemy.engine.base.Engine {}
+2017-03-19 09:00:00,293 INFO sqlalchemy.engine.base.Engine COMMIT
+2017-03-20 09:00:00,529 INFO sqlalchemy.pool.QueuePool Connection <pymysql.connections.Connection object at 0x7f9d7f1dc438> exceeded timeout; recycling
+2017-03-20 09:00:00,530 INFO sqlalchemy.engine.base.Engine select count(*) as users from USERACCOUNT where create_datetime > date_sub(now(), interval 1 day); 
+2017-03-20 09:00:00,530 INFO sqlalchemy.engine.base.Engine {}
+2017-03-20 09:00:00,530 INFO sqlalchemy.engine.base.Engine COMMIT

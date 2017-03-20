@@ -19,6 +19,7 @@ from model import userModel
 from manager.redis import redis
 import logging
 from common import statee
+from common import cryptoo
 
 def checkLoginState(flask):
 
@@ -53,7 +54,7 @@ def checkLoginState(flask):
 			logging.debug('naver')
 			u_id = flask.request.form['uId']
 			u_pw = flask.request.form['uPw']
-				
+			u_pw = cryptoo.encryptt(u_pw)	
 			calDavclient = caldavWrapper.getCalDavClient(login_platform,u_id,u_pw)
 			#FIXME!!! 
 			#현재 로그인 실해일 경우 에러가 나서 유효하지않은 id/pw일것이다.

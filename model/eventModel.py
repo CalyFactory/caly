@@ -95,7 +95,7 @@ def getEventsFirst(account_hashkey,user_hashkey,standard_date,start_range,end_ra
 	return utils.fetch_all_json(				
 				db_manager.query(
 					"( "
-					"SELECT CALENDAR.calendar_hashkey,EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.recurrance,EVENT.start_dt,EVENT.summary,EVENT.location,EVENT.reco_state FROM USERACCOUNT "
+					"SELECT CALENDAR.calendar_hashkey,EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.start_dt,EVENT.summary,EVENT.location,EVENT.reco_state FROM USERACCOUNT "
 					"INNER JOIN CALENDAR ON USERACCOUNT.account_hashkey = CALENDAR.account_hashkey " 							
 					"INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey "+
 					"WHERE start_dt > (" 
@@ -104,7 +104,7 @@ def getEventsFirst(account_hashkey,user_hashkey,standard_date,start_range,end_ra
 					"AND user_hashkey = %s AND start_dt < %s ORDER BY start_dt DESC LIMIT %s ) "
 					"UNION "
 					"( "
-					"SELECT CALENDAR.calendar_hashkey,EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.recurrance,EVENT.start_dt,EVENT.summary,EVENT.location,EVENT.reco_state FROM USERACCOUNT "
+					"SELECT CALENDAR.calendar_hashkey,EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.start_dt,EVENT.summary,EVENT.location,EVENT.reco_state FROM USERACCOUNT "
 					"INNER JOIN CALENDAR ON USERACCOUNT.account_hashkey = CALENDAR.account_hashkey "
 					"INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey "
 					"WHERE start_dt > ("
