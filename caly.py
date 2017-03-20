@@ -35,23 +35,15 @@ from caldavclient import CaldavClient
 from common import FCM
 import logging
 app = flask.Flask(__name__, static_url_path='')
+from common.flaskrun import flaskrun
 
-# from bot import slackAlarmBot
-# slackAlarmBot.alertSyncEnd()
-# sampleStr = """ "vRecur({'FREQ': ['WEEKLY'], 'BYDAY': ['WE', 'FR'], 'INTERVAL': [1]})" """
-# startIndex = sampleStr.index("{")
-# endIndex = sampleStr.index("}")
-
-# print(sampleStr[startIndex:endIndex])
-# print(sampleStr.index("{"))
-# print(sampleStr.find("}"))
 
 initRoute(app)
 # if debugg
 # logSet.init()
 
 # if production
-logging.basicConfig(level=logging.DEBUG, filename='log_caly.log',
+logging.basicConfig(level=logging.DEBUG, filename='log/log_caly.log',
                   format='%(asctime)s %(levelname)s: %(message)s',
                   datefmt='%Y-%m-%d %H:%M:%S')
 
@@ -138,6 +130,8 @@ def fireFcm():
 
 
 if __name__ == '__main__':
-	app.run(host='0.0.0.0', debug = True, port = 55566,threaded=True)
+	flaskrun(app)
+
+	# app.run(host='0.0.0.0', debug = True, port = 55566,threaded=True)
 
 	
