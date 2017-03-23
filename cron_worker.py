@@ -20,7 +20,14 @@ for hdlr in sqla_logger.handlers:
     sqla_logger.removeHandler(hdlr)
 
 
-app = Celery('tasks', broker='amqp://guest:guest@localhost:5672//')
+with open('./key/conf.json') as conf_json:
+    conf = json.load(conf_json)
+
+
+app = Celery('tasks', broker='amqp://'+conf['rabbitmq']['user']+':'+conf['rabbitmq']['password']+'@'+conf['rabbitmq']['hostname']+'//')
+
+app.conf.task_default_queue = 'periodicSync'
+
 
 def getHostname(login_platform):
     if login_platform == "naver":
@@ -49,7 +56,7 @@ def accountDistributor():
     accountList = utils.fetch_all_json(
         db_manager.query(
             """
-            SELECT *
+            SELECT * 
             FROM USERACCOUNT
             """
         )
