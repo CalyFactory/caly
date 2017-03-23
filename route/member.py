@@ -81,7 +81,7 @@ class Member(MethodView):
 				elif who_am_i['state'] == LOGIN_ERROR_INVALID:
 					return utils.resCustom(
 											401,
-											{'msg':LOGIN_ERROR_INVALID}
+											{'msg':who_am_i['data']}
 										)
 				
 				elif who_am_i['state'] == LOGIN_ERROR:
