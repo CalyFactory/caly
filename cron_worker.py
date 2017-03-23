@@ -24,9 +24,8 @@ with open('./key/conf.json') as conf_json:
     conf = json.load(conf_json)
 
 
-app = Celery('tasks', broker='amqp://'+conf['rabbitmq']['user']+':'+conf['rabbitmq']['password']+'@'+conf['rabbitmq']['hostname']+'//')
+app = Celery('tasks', broker='amqp://'+conf['rabbitmq']['user']+':'+conf['rabbitmq']['password']+'@'+conf['rabbitmq']['hostname']+'//', queue='periodicSyncQueue')
 
-app.conf.task_default_queue = 'periodicSync'
 
 
 def getHostname(login_platform):
@@ -68,7 +67,7 @@ def accountDistributor():
         syncWorker.delay(account)
         
 
-@app.task
+@app.task()
 def syncWorker(account):
     print("start sync check")
     calendars = utils.fetch_all_json(
@@ -152,7 +151,8 @@ def syncWorker(account):
                 """
                 UPDATE CALENDAR 
                 SET 
-                `caldav_ctag` = %s
+                `caldav_ctag` = %s,
+                `reco_state` = 1
                 WHERE 
                 `calendar_hashkey` = %s
                 """,
@@ -336,7 +336,8 @@ def changeEvent(calendar, newEventList, changedList):
             `end_dt` = %s,
             `created_dt` = %s,
             `updated_dt` = %s,
-            `location` = %s
+            `location` = %s,
+            `reco_state` = 1
             WHERE 
             `event_id` = %s
             """
