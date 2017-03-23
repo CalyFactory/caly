@@ -38,6 +38,7 @@ app = flask.Flask(__name__, static_url_path='')
 from common.flaskrun import flaskrun
 
 
+
 initRoute(app)
 # if debugg
 # logSet.init()
@@ -131,6 +132,7 @@ def fireFcm():
 
 if __name__ == '__main__':
 	flaskrun(app)
+
 
 	# app.run(host='0.0.0.0', debug = True, port = 55566,threaded=True)
 

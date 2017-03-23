@@ -28,6 +28,9 @@ import time
 import sync_worker
 from common import statee
 from bot import slackAlarmBot
+import json 
+with open('./key/conf.json') as conf_json:
+    conf = json.load(conf_json)
 
 
 def caldav(user,apikey,login_platform,time_state):
@@ -341,7 +344,7 @@ def google(user,apikey,time_state):
 				body = {
 					"id" : arr_channel_id[idx],
 					"type" : "web_hook",
-					"address" : "https://caly.io/v1.0/sync/watchReciver",
+					"address" : conf['googleWatchAddress'],
 					"token" : apikey
 				}						
 				res = network_manager.reqPOST(watch_URL,access_token,body)

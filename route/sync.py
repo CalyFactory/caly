@@ -248,8 +248,14 @@ class Sync(MethodView):
 						event_id = item['id']
 						status = item['status']
 						location = 'noLocation'
+						recurrence = None
+
 						if('location' in item):
 							location = item['location']													
+
+						if 'recurrence' in item:
+							logging.debug('rec => '+str(item['recurrence'][0]))			
+							recurrence = item['recurrence'][0]														
 
 						#삭제는 아래와같은 키값들을 제공해주지 않는다.
 						if status != 'cancelled':
@@ -281,17 +287,19 @@ class Sync(MethodView):
 
 						if status == 'confirmed' and created == updated:
 							logging.debug('addEvent')
+
+
 							event_hashkey = utils.makeHashKey(event_id)
 
-							eventModel.setGoogleEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location)
-				
+							eventModel.setGoogleEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location,recurrence)
+							calendarModel.updateCalendarRecoState(calendar_hashkey,CALENDAR_RECO_STATE_DO)
 						#업데이트 한 경우이다. 
 						#id값을 찾아서 변환된값을 바꿔준다.
 						elif status =='confirmed' and created != updated:
 							logging.debug('updated')
 							# update events set calendar_id = 'testid', summary = 'sum' where id = '67'
 							eventModel.updateEvents(summary,start_date,end_date,created,updated,location,event_id)
-						
+							calendarModel.updateCalendarRecoState(calendar_hashkey,CALENDAR_RECO_STATE_DO)
 
 						elif status == 'cancelled':
 							logging.debug('cancelled')							

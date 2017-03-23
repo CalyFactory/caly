@@ -6083,3 +6083,47 @@ run_worker.sh: line 1:  6043 Killed                  NEW_RELIC_CONFIG_FILE=newre
 [2017-03-19 23:17:20 +0900] [6375] [INFO] Booting worker with pid: 6375
 run_caly.sh: line 1:  6368 Killed                  NEW_RELIC_CONFIG_FILE=newrelic.ini newrelic-admin run-program gunicorn -w $(( `cat /proc/cpuinfo | grep 'core id' | wc -l` + 1 )) -b 0.0.0.0:55566 caly:app
 >>>>>>> daddd2fd80fba0caa08a8f6cb16a2754593f7028
+Traceback (most recent call last):
+  File "/home/yenos/caly/caly.py", line 133, in <module>
+    flaskrun(app)
+  File "/home/yenos/caly/common/flaskrun.py", line 45, in flaskrun
+    port=int(options.port)
+  File "/home/yenos/caly/envCaly/lib/python3.5/site-packages/flask/app.py", line 772, in run
+    run_simple(host, port, self, **options)
+  File "/home/yenos/caly/envCaly/lib/python3.5/site-packages/werkzeug/serving.py", line 694, in run_simple
+    inner()
+  File "/home/yenos/caly/envCaly/lib/python3.5/site-packages/werkzeug/serving.py", line 656, in inner
+    fd=fd)
+  File "/home/yenos/caly/envCaly/lib/python3.5/site-packages/werkzeug/serving.py", line 550, in make_server
+    passthrough_errors, ssl_context, fd=fd)
+  File "/home/yenos/caly/envCaly/lib/python3.5/site-packages/werkzeug/serving.py", line 464, in __init__
+    HTTPServer.__init__(self, (host, int(port)), handler)
+  File "/usr/lib/python3.5/socketserver.py", line 440, in __init__
+    self.server_bind()
+  File "/usr/lib/python3.5/http/server.py", line 138, in server_bind
+    socketserver.TCPServer.server_bind(self)
+  File "/usr/lib/python3.5/socketserver.py", line 454, in server_bind
+    self.socket.bind(self.server_address)
+OSError: [Errno 98] Address already in use
+Traceback (most recent call last):
+  File "/home/yenos/caly/caly.py", line 133, in <module>
+    flaskrun(app)
+  File "/home/yenos/caly/common/flaskrun.py", line 45, in flaskrun
+    port=int(options.port)
+  File "/home/yenos/caly/envCaly/lib/python3.5/site-packages/flask/app.py", line 772, in run
+    run_simple(host, port, self, **options)
+  File "/home/yenos/caly/envCaly/lib/python3.5/site-packages/werkzeug/serving.py", line 694, in run_simple
+    inner()
+  File "/home/yenos/caly/envCaly/lib/python3.5/site-packages/werkzeug/serving.py", line 656, in inner
+    fd=fd)
+  File "/home/yenos/caly/envCaly/lib/python3.5/site-packages/werkzeug/serving.py", line 550, in make_server
+    passthrough_errors, ssl_context, fd=fd)
+  File "/home/yenos/caly/envCaly/lib/python3.5/site-packages/werkzeug/serving.py", line 464, in __init__
+    HTTPServer.__init__(self, (host, int(port)), handler)
+  File "/usr/lib/python3.5/socketserver.py", line 440, in __init__
+    self.server_bind()
+  File "/usr/lib/python3.5/http/server.py", line 138, in server_bind
+    socketserver.TCPServer.server_bind(self)
+  File "/usr/lib/python3.5/socketserver.py", line 454, in server_bind
+    self.socket.bind(self.server_address)
+OSError: [Errno 98] Address already in use

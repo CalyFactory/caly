@@ -1,5 +1,7 @@
 from common.util import utils
 from manager import db_manager
+
+
 #sync
 def setCaldavCalendar(calendars,account_hashkey,arr_calendar_hashkey):
 	arrQueryString = []
@@ -85,6 +87,11 @@ def updateGoogleSyncState(channel_id,state):
 	return db_manager.query(
 				"UPDATE CALENDAR SET google_sync_state = %s WHERE google_channel_id = %s"
 				,(state,channel_id)
+			)
+def updateCalendarRecoState(calendar_hashkey,reco_state):
+	return db_manager.query(
+				"UPDATE CALENDAR SET reco_state= %s WHERE calendar_hashkey = %s"
+				,(reco_state,calendar_hashkey)
 			)
 
 def deleteCalendarList(account_hashkey):

@@ -26,16 +26,20 @@ def setCaldavEvents(event_hashkey,calendar_hashkey,event_id,summary,start_dt,end
 
 def updateEvents(summary,start_date,end_date,created,updated,location,event_id):
 	return db_manager.query(
-								"UPDATE EVENT set " 								
-								"summary = %s, "
-								"start_dt = %s, "
-								"end_dt = %s, "
-								"created_dt = %s, "
-								"updated_dt = %s, "
-								"location = %s "
-								"where event_id = %s",
+								"""
+								UPDATE EVENT set 
+								summary = %s, 
+								start_dt = %s, 
+								end_dt = %s, 
+								created_dt = %s,
+								updated_dt = %s,
+								location = %s,
+								reco_state = %s
+								where event_id = %s
+								"""								
+								,
 								(			
-									summary,start_date,end_date,created,updated,location,event_id
+									summary,start_date,end_date,created,updated,location,1,event_id
 								)
 							)
 
