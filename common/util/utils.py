@@ -46,8 +46,7 @@ def subDateWithCurrent(date):
 
 
 def makeHashKey(solt):
-	soltt = str(solt)+str(time.time()*1000)
-	print(soltt)
+	soltt = str(solt)+str(time.time()*1000)	
 	soltt = soltt.encode('utf-8')
 	return hashlib.sha224(soltt).hexdigest()
 
@@ -85,8 +84,7 @@ def checkTime(date,state):
 	if state == 'start':
 		redis.set('test_start',datetime.now())
 	else:
-		print(redis.get('test_start'))
-		print(date)
+
 		# 2017-03-01 15:58:11.614747
 		datetime_object = datetime.strptime(redis.get('test_start'), '%Y-%m-%d %H:%M:%S.%f')
 		redis.set('test_start',date)
