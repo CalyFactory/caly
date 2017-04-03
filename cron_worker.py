@@ -12,6 +12,7 @@ from common.util import utils
 from datetime import datetime
 from pytz import timezone
 from caldavclient import CaldavClient
+from caldavclient.exception import AuthException
 from common import cryptoo
 import logging
 
@@ -100,7 +101,7 @@ def syncWorker(account):
             hostname = getHostname(account['login_platform']),
             auth = (
                 account['user_id'],
-                cryptoo.decryptt(account['access_token'])
+                (account['access_token'])
             )
         ).setCalendars(calendarList)       #db에서 로드해서 list calendar object 로 삽입
         #.setPrincipal(account['home_set_cal_url'])   #db 에서 로드 
@@ -108,6 +109,18 @@ def syncWorker(account):
     )
 
     for calendar in calendarList:
+        
+        try:
+            isChanged = calendar.isChanged()
+        except AuthException as e:
+            print("error") # 요기서 처리하시면 됩니당 ^_^
+            print(e)
+            continue
+        except Exception as e:
+            print("error")
+            print(e)
+            continue
+
         if calendar.isChanged():
             print("something changed")
             print(calendar.etc)

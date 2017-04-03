@@ -9,6 +9,7 @@ from datetime import datetime
 import json
 from icalendar import Calendar, Event
 import icalendar
+from caldavclient.exception import AuthException
 
 def requestData(method = "PROPFIND", hostname = "", depth = 0, data = "", auth = ("","")):
     if isinstance(auth, tuple):
@@ -33,7 +34,10 @@ def requestData(method = "PROPFIND", hostname = "", depth = 0, data = "", auth =
         )
 
     if response.status_code<200 or response.status_code>299:
-        raise Exception('http code error' + str(response.status_code))
+        if response.status_code == 401:
+            raise AuthException('user auth error')
+        else:
+            raise Exception('http code error' + str(response.status_code))
 
     return response
 
