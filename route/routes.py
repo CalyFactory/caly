@@ -131,6 +131,14 @@ def initRoute(app):
 						view_func = member, 
 						methods = ['POST', ]
 					)	
+	app.add_url_rule(
+						'/v1.0/member/updateAccount',
+						defaults = {'action':'updateAccount'},
+						view_func = member, 
+						methods = ['POST', ]
+					)		
+
+	
 
 	googleAuth = GoogleAuth.as_view('gAuthAPI')
 	app.add_url_rule(

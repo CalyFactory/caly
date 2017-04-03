@@ -12,9 +12,10 @@ from common.util import utils
 from datetime import datetime
 from pytz import timezone
 from caldavclient import CaldavClient
-
+from common import cryptoo
 import logging
 
+from bot import slackAlarmBot
 # sqla_logger = logging.getLogger('sqlalchemy.engine.base.Engine')
 # for hdlr in sqla_logger.handlers:
 #     sqla_logger.removeHandler(hdlr)
@@ -100,7 +101,7 @@ def syncWorker(account):
             hostname = getHostname(account['login_platform']),
             auth = (
                 account['user_id'],
-                account['access_token']
+                cryptoo.decryptt(account['access_token'])
             )
         ).setCalendars(calendarList)       #db에서 로드해서 list calendar object 로 삽입
         #.setPrincipal(account['home_set_cal_url'])   #db 에서 로드 
@@ -130,8 +131,8 @@ def syncWorker(account):
             )
             newEventList = calendar.updateAllEvent()
 
-            print(oldEventList)
-            print(newEventList)
+            # print(oldEventList)
+            # print(newEventList)
             eventDiff = caldavclient.util.diffEvent(oldEventList, newEventList)
 
 
@@ -161,6 +162,9 @@ def syncWorker(account):
                     calendar.etc
                 )
             )
+            slackAlarmBot.alertEventUpdateEnd("추가 or 변경")    
+
+
             
 
 def addEvent(calendar, newEventList, addedList):
@@ -259,6 +263,7 @@ def addEvent(calendar, newEventList, addedList):
 
             )
         )
+    
 
 def removeEvent(calendar, newEventList, removedList):
     print("일정이 삭제되었다.")

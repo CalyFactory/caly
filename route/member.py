@@ -64,18 +64,18 @@ class Member(MethodView):
 				elif who_am_i['state'] == LOGIN_STATE_OTHERDEVICE:
 					return utils.resCustom(
 												201,
-												who_am_i['data']
+												{'msg':who_am_i['data']}
 											)	
 
 				elif who_am_i['state'] == LOGIN_STATE_RELOGIN:				
 					return utils.resCustom(
 												200,
-												who_am_i['data']
+												{'msg':who_am_i['data']}
 											)
 				elif who_am_i['state'] == LOGIN_STATE_RESIGNUP:				
 					return utils.resCustom(
 												203,
-												who_am_i['data']
+												{'msg':who_am_i['data']}
 											)	
 
 				elif who_am_i['state'] == LOGIN_ERROR_INVALID:
@@ -91,7 +91,7 @@ class Member(MethodView):
 			else :
 				return utils.resCustom(
 											403,
-											{'data':MSG_LOGIN_COMPLUSION_UPDATE}
+											{'msg':MSG_LOGIN_COMPLUSION_UPDATE}
 										)		
 			
 		elif action == 'signUp':
@@ -199,6 +199,36 @@ class Member(MethodView):
 				return utils.resErr(
 										{'msg':str(e)}
 									)		
+		elif action == 'updateAccount':
+
+			login_platform = flask.request.form['loginPlatform']
+			if login_platform == 'naver' or login_platform == 'ical':	
+				
+				u_id = flask.request.form['uId']
+				u_pw = flask.request.form['uPw']			
+				u_pw = cryptoo.encryptt(u_pw)
+				try:
+					calDavclient = caldavWrapper.getCalDavClient(login_platform,u_id,u_pw)
+					principal = calDavclient.getPrincipal()					
+					userAccountModel.updateCaldavUserAccount(u_id,u_pw,login_platform)
+				
+				except Exception as e:
+					#그래도 비밀번호가 또 틀렸을경우 401을 리턴한다.
+					# logging.debug(str(e))
+					if str(e) == 'http code error401':
+						return utils.resCustom(
+											401,
+											{'msg':str(e)}
+										)
+																			
+					return utils.resErr(
+										{'msg':str(e)}
+									)
+
+				return utils.resSuccess(
+											{'msg':'success!'}
+										)				
+
 
 		elif action == 'registerDevice':
 			

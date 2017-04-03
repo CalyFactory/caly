@@ -10,6 +10,18 @@ def getCaldavUserAccount(u_id,u_pw,login_platform):
 						(u_id,u_pw,login_platform) 						
 				)
 			)
+def updateCaldavUserAccount(u_id,u_pw,login_platform):
+	return db_manager.query(
+						"""
+						UPDATE USERACCOUNT
+						SET access_token = %s
+						WHERE user_id = %s and login_platform = %s
+						"""
+						,
+						(u_pw,u_id,login_platform) 						
+				)
+
+
 #login_manager	
 def getGoogleUserAccount(subject):
 	return utils.fetch_all_json(
@@ -77,10 +89,12 @@ def getUserAccountWithAccessToken(access_token):
 
 def updateUserAccessToken(access_token,new_access_token,google_expire_time):
 	return db_manager.query(
-						"UPDATE USERACCOUNT " 
-						"SET access_token = %s, " 
-						"google_expire_time = %s "
-						"WHERE access_token = %s "
+						"""
+						UPDATE USERACCOUNT 
+						SET access_token = %s, 
+						google_expire_time = %s 
+						WHERE access_token = %s 
+						"""
 						,
 						(new_access_token,google_expire_time,access_token) 						
 				)				
