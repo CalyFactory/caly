@@ -24,7 +24,11 @@ from common.util.statics import *
 import logging
 
 
-app = Celery('tasks', broker='amqp://guest:guest@localhost:5672//')
+with open('./key/conf.json') as conf_json:
+    conf = json.load(conf_json)
+
+
+app = Celery('tasks', broker='amqp://'+conf['rabbitmq']['user']+':'+conf['rabbitmq']['password']+'@'+conf['rabbitmq']['hostname']+'//')
 
 
 @worker_init.connect
