@@ -15,9 +15,9 @@ from caldavclient import CaldavClient
 
 import logging
 
-sqla_logger = logging.getLogger('sqlalchemy.engine.base.Engine')
-for hdlr in sqla_logger.handlers:
-    sqla_logger.removeHandler(hdlr)
+# sqla_logger = logging.getLogger('sqlalchemy.engine.base.Engine')
+# for hdlr in sqla_logger.handlers:
+#     sqla_logger.removeHandler(hdlr)
 
 
 app = Celery('tasks', broker='amqp://guest:guest@localhost:5672//')
@@ -42,7 +42,7 @@ def findEventList(eventList, eventIdList):
 
 
 
-@periodic_task(run_every=timedelta(seconds=30))
+@periodic_task(run_every=timedelta(seconds=10))
 def accountDistributor():
     print("hello")
     

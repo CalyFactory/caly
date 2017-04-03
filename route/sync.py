@@ -32,6 +32,7 @@ from model import mFcmModel
 # from model import userLifeModel
 from common import statee
 from common import syncLogic
+from bot import slackAlarmBot
 
 class Sync(MethodView):
 #sync는 캘린더 리스트 가져오기 => 이벤트리스트 저장하기.(최신기록 먼저)
@@ -293,6 +294,7 @@ class Sync(MethodView):
 
 							eventModel.setGoogleEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location,recurrence)
 							calendarModel.updateCalendarRecoState(calendar_hashkey,CALENDAR_RECO_STATE_DO)
+							slackAlarmBot.alertEventUpdateEnd("추가")
 						#업데이트 한 경우이다. 
 						#id값을 찾아서 변환된값을 바꿔준다.
 						elif status =='confirmed' and created != updated:
@@ -300,6 +302,7 @@ class Sync(MethodView):
 							# update events set calendar_id = 'testid', summary = 'sum' where id = '67'
 							eventModel.updateEvents(summary,start_date,end_date,created,updated,location,event_id)
 							calendarModel.updateCalendarRecoState(calendar_hashkey,CALENDAR_RECO_STATE_DO)
+							slackAlarmBot.alertEventUpdateEnd("업데이트")
 
 						elif status == 'cancelled':
 							logging.debug('cancelled')							
