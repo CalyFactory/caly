@@ -214,13 +214,12 @@ class Member(MethodView):
 				
 				except Exception as e:
 					#그래도 비밀번호가 또 틀렸을경우 401을 리턴한다.
-					# logging.debug(str(e))
 					if str(e) == 'http code error401':
 						return utils.resCustom(
 											401,
 											{'msg':str(e)}
 										)
-																			
+
 					return utils.resErr(
 										{'msg':str(e)}
 									)
@@ -513,10 +512,10 @@ class Member(MethodView):
 			apikey = flask.request.form['apikey']
 			contents = flask.request.form['contents']
 			user_hashkey = redis.get(apikey)
-			# if not user_hashkey:
-			# 	return utils.resErr(
-			# 							{'msg':MSG_INVALID_TOKENKEY}
-			# 						)			
+			if not user_hashkey:
+				return utils.resErr(
+										{'msg':MSG_INVALID_TOKENKEY}
+									)			
 			try:
 				#일단 사유 받자.
 				user = userAccountModel.getUserAccount(user_hashkey)				
@@ -531,18 +530,27 @@ class Member(MethodView):
 				# 5. registeruserdeivce 등록해줌.
 				# 6. user 1로 바꿔줌
 
+				
+				
+				# user
+
+				#1. user  isactive 0
 				userModel.updateUserIsActive(user_hashkey,0)
-				# user = userAccountModel.getUserAccount(user_hashkey)
-				# logging.debug('account =>'+str(user))
+
+				
+
+				#3 userAccount => userid/accesstoken/caldavHomeset/subject/refreshtoken/ 
+				userAccountModel.withdraw(user_hashkey)
+				userDeviceModel.withdraw(account_hashkey)
+
+				#2. api key remove
 				apikeys = userDeviceModel.getUserApikeyList(user_hashkey)
-
-				for apikey in apikeys:
-					redis.delete(apikey['apikey'])	
-
-				userDeviceModel.deleteUserDeviceAll(user_hashkey)
-				
-				
 				statee.userLife(apikey,LIFE_STATE_WITHDRAWAL)
+				
+				for apikey in apikeys:
+					redis.delete(apikey['apikey'])					
+				
+				
 				
 				return utils.resSuccess(
 											{'msg':MSG_WITHDRAWL_SUCCESS}

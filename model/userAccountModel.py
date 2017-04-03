@@ -108,4 +108,21 @@ def getHasAccountList(user_hashkey):
 						(user_hashkey,) 						
 				)			
 			)	
-
+	#3 userAccount => userid/accesstoken/caldavHomeset/subject/refreshtoken/ 
+def withdraw(user_hashkey):
+	return 	db_manager.query(
+				"""
+				UPDATE USERACCOUNT 
+				SET user_id = "None",
+				access_token = "None",
+				caldav_homeset = NULL,
+				is_active = NULL,
+				subject = NULL,
+				refresh_token = NULL
+				WHERE user_hashkey  = %s 
+				"""
+				,
+				(			
+					user_hashkey,
+				)
+			)

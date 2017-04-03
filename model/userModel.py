@@ -25,6 +25,7 @@ def updateUserIsActive(user_hashkey,state):
 				)
 			)
 
+
 def getUserIsActive(user_hashkey):
 	return utils.fetch_all_json(
 					db_manager.query(
