@@ -25,7 +25,7 @@ with open('./key/conf.json') as conf_json:
 
 
 app = Celery('tasks', broker='amqp://'+conf['rabbitmq']['user']+':'+conf['rabbitmq']['password']+'@'+conf['rabbitmq']['hostname']+'//', queue='periodicSyncQueue')
-
+app.conf.task_default_queue = 'periodicSyncQueue'
 
 
 def getHostname(login_platform):
