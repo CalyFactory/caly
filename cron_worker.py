@@ -20,7 +20,13 @@ for hdlr in sqla_logger.handlers:
     sqla_logger.removeHandler(hdlr)
 
 
-app = Celery('tasks', broker='amqp://guest:guest@localhost:5672//')
+with open('./key/conf.json') as conf_json:
+    conf = json.load(conf_json)
+
+
+app = Celery('tasks', broker='amqp://'+conf['rabbitmq']['user']+':'+conf['rabbitmq']['password']+'@'+conf['rabbitmq']['hostname']+'//', queue='periodicSyncQueue')
+
+
 
 def getHostname(login_platform):
     if login_platform == "naver":
@@ -49,7 +55,7 @@ def accountDistributor():
     accountList = utils.fetch_all_json(
         db_manager.query(
             """
-            SELECT *
+            SELECT * 
             FROM USERACCOUNT
             """
         )
@@ -61,7 +67,7 @@ def accountDistributor():
         syncWorker.delay(account)
         
 
-@app.task
+@app.task()
 def syncWorker(account):
     print("start sync check")
     calendars = utils.fetch_all_json(
@@ -145,7 +151,8 @@ def syncWorker(account):
                 """
                 UPDATE CALENDAR 
                 SET 
-                `caldav_ctag` = %s
+                `caldav_ctag` = %s,
+                `reco_state` = 1
                 WHERE 
                 `calendar_hashkey` = %s
                 """,
@@ -329,7 +336,8 @@ def changeEvent(calendar, newEventList, changedList):
             `end_dt` = %s,
             `created_dt` = %s,
             `updated_dt` = %s,
-            `location` = %s
+            `location` = %s,
+            `reco_state` = 1
             WHERE 
             `event_id` = %s
             """
