@@ -32,10 +32,14 @@ import json
 with open('./key/conf.json') as conf_json:
     conf = json.load(conf_json)
 
-
+#caldav 동기화요청로직.
+#user는 유저계정
+#apikey는 유저 접근 토큰키
+#login_platform은 로그인 플랫폼(ical/naver)
+#time_state 과거/미래를 알려주는 flag
 def caldav(user,apikey,login_platform,time_state):
 	
-	#forward일경우 포워트 싱크시작
+	#forward일경우 미래 일정 싱크시작
 	log_state = time_state == SYNC_TIME_STATE_FORWARD and LIFE_STATE_CALDAV_FORWARD_SYNCING or LIFE_STATE_CALDAV_BACKWARD_SYNCING
 	statee.userLife(apikey,log_state)
 
@@ -44,6 +48,7 @@ def caldav(user,apikey,login_platform,time_state):
 	syncEndRows = syncEndModel.getSyncEnd(user[0]['account_hashkey'],state)
 
 	#한번이라도 동기화했나?
+	#동기화이미됬다고 리턴
 	if len(syncEndRows) != 0 :
 		return utils.syncState(SYNC_CALDAV_ERR_ALREADY_REIGITER,MSG_SYNC_ALREADY)
 	
@@ -53,13 +58,13 @@ def caldav(user,apikey,login_platform,time_state):
 	u_pw = user[0]['access_token']
 	account_hashkey = user[0]['account_hashkey']			
 	
+	#캘데브 로그인
 	calDavclient = caldavWrapper.getCalDavClient(login_platform,u_id,u_pw)
 
 	principal = calDavclient.getPrincipal()
 	homeset = principal.getHomeSet()
 	calendars = homeset.getCalendars()
 		
-	
 	for idx,calendar in enumerate(calendars):
 		#outbox인경우 403에러가 발생함으로 이것은  빼버린다
 		if  '/calendars/outbox/' in calendar.calendarUrl and login_platform == 'ical':
@@ -81,7 +86,7 @@ def caldav(user,apikey,login_platform,time_state):
 		arr_calendar_hashkey.append(calendar_hashkey)
 
 	#최초 forward로 돌때는 캘린더에 해시키를 저장해줘야된다.
-	#아닐경우는 그냥 기존것에 더해주며됨	
+	#아닐경우는 그냥 기존것에 더해주면된다.	
 	if time_state == SYNC_TIME_STATE_FORWARD:
 		logging.debug('SYNC FORWARD')
 		try:
@@ -98,7 +103,7 @@ def caldav(user,apikey,login_platform,time_state):
 		range_end = datetime.now()+ timedelta(hours=MONTH_TO_HOUR * 5)
 		range_end = datetime.strftime(range_end, "%Y%m%dT000000Z") 	
 
-	
+	##RANGE를 현재시간으로부터 과거 3년치
 	elif time_state == SYNC_TIME_STATE_BACKWARD:
 		range_end = time.strftime("%Y%m%dT000000Z")
 		range_start = datetime.now() - timedelta(hours=YEAR_TO_HOUR * 3)
@@ -107,10 +112,12 @@ def caldav(user,apikey,login_platform,time_state):
 		logging.info('range_start ==> '+range_start)
 		logging.info('range_edn ==> '+range_end)	
 
+	#캘린더 안에있는 이벤트들을 예쁘게 발라서 디비에 저장한다.
 	for idx,calendar in enumerate(calendars):
 		
 		logging.debug('calnedarsss=> ' + calendar.calendarName)
 
+		#언제부터 언제까지 일정을 가져올지를 정한다.
 		eventList = calendar.getEventByRange( range_start, range_end)					
 		eventDataList = calendar.getCalendarData(eventList)
 		calendar_hashkey = arr_calendar_hashkey[idx]
@@ -127,12 +134,10 @@ def caldav(user,apikey,login_platform,time_state):
 				elif login_platform == 'ical':
 					pass
 
-			# #uid를 eventId로 쓰면되나
+			# #uid를 eventId로 쓰면된다.
 			event_id = event_set.eventId
 			event_hashkey = utils.makeHashKey(event_id)
-			# eventurl은 무엇을 저장해야되나여
 			caldav_event_url = event_set.eventUrl
-			#etag는 어디서 얻을수 있죠?
 			caldav_etag = event_set.eTag
 			summary = None
 			location = 'noLocation'			
@@ -144,14 +149,11 @@ def caldav(user,apikey,login_platform,time_state):
 			recurrence = None
 
 
-
+			#키값이 없는경우가 있어아 아래와같이 예외처리가들어가야한다.
 			if 'SUMMARY' in event:
-				summary = event['SUMMARY']
-
-			
+				summary = event['SUMMARY']			
 
 			if 'DTSTART' in event:			
-
 				start_dt = event['DTSTART']
 				# datetime일경우만
 				if(isinstance(start_dt,datetime)):
@@ -170,8 +172,6 @@ def caldav(user,apikey,login_platform,time_state):
 				if(isinstance(created_dt,datetime)):
 					created_dt =created_dt.astimezone(timezone('Asia/Seoul'))					  			
 			#문자열을 날짜시간으로 변경해줌. 
-			# created_dt = datetime.strptime(created_dt, "%Y%m%dT%H%M%S") + timedelta(hours=9)		
-
 
 			if 'LAST-MODIFIED' in event:
 				updated_dt = event['LAST-MODIFIED']
@@ -221,6 +221,7 @@ def caldav(user,apikey,login_platform,time_state):
 			return utils.syncState(SYNC_CALDAV_ERR_SET_SYNC_TIME,str(e))
 
 	try:
+		#싱크 끝난상황을 저장해둔다.
 		state = time_state == SYNC_TIME_STATE_FORWARD and SYNC_END_TIME_STATE_FORWARD or SYNC_END_TIME_STATE_BACKWARD
 		syncEndModel.setSyncEnd(account_hashkey,state)
 			
@@ -238,10 +239,16 @@ def caldav(user,apikey,login_platform,time_state):
 		data['user_hashkey'] = user[0]['user_hashkey']
 		data['login_platform'] = login_platform
 		data['apikey'] = apikey
+		#워커에게 작업을 요청한다.
 		sync_worker.worker.delay(data)		
 
 	return utils.syncState(SYNC_CALDAV_SUCCESS,None)
 
+
+#구글 동기화 요청로직
+#user 는 유저계정
+#apikey는 유저토큰
+#time_state 과거/미래를 알려주는 flag
 def google(user,apikey,time_state):	
 	
 	log_state = time_state == SYNC_TIME_STATE_FORWARD and LIFE_STATE_GOOGLE_FORWARD_SYNCING or LIFE_STATE_GOOGLE_BACKWARD_SYNCING
@@ -260,7 +267,8 @@ def google(user,apikey,time_state):
 
 	access_token = user[0]['access_token']
 	account_hashkey = user[0]['account_hashkey']
-
+	
+	#calendarList를 가져오기위한 Google api요
 	calendar_list_URL = 'https://www.googleapis.com/calendar/v3/users/me/calendarList'
 	calendar_list = json.loads(network_manager.reqGET(calendar_list_URL,access_token))
 	
@@ -269,17 +277,15 @@ def google(user,apikey,time_state):
 	calendars = calendar_list['items']
 
 
-	# #디비에 array로 다이렉트로 넣기위한 코드.
+	#디비에 channel_id를 array로 다이렉트로 넣기위한 코드.
 	arr_channel_id = []
 
 	arr_calendar_hashkey = []
 
 	for calendar in calendars:
 		calendar_channelId = utils.makeHashKey(calendar['id'])		
-		# calendar_hashkey = utils.makeHashKeyNoneTime(calendar['id']+user[0]['login_platform']+user[0]['user_id'])
-
-		# arr_calendar_hashkey.append(calendar_hashkey)
 		arr_channel_id.append(calendar_channelId)		
+
 	if time_state == SYNC_TIME_STATE_FORWARD:			
 		try:
 			#최초 googlepushcomplete 가 0
@@ -289,12 +295,10 @@ def google(user,apikey,time_state):
 
 	calendarsInDB = calendarModel.getAllCalendarWithAccountHashkey(account_hashkey)
 
-	#1. 첫째로 캘린더에있는 캘린더들을 돌려서 디비에 이벤트를 저장한다.
+	
 	#TODO
 	#maxResults가 최대 몇개까지인지 확인하고 최대로 가져온다.
 	#RANGE를 현재시간부터 5개월후로!
-	#key가 opqaue인것부터
-
 	if time_state == SYNC_TIME_STATE_FORWARD:
 
 		range_start = time.strftime("%Y-%m-%dT00:00:00-09:00")
@@ -311,6 +315,7 @@ def google(user,apikey,time_state):
 	logging.info('range_start ==> '+range_start)
 	logging.info('range_edn ==> '+range_end)
 
+	#timeMin,Max로 언제까지의 데이터를 가져올건지정한다.
 	for calendar in calendarsInDB:
 		logging.info('[timeTest]calendar ForLoop==> '+str(utils.checkTime(datetime.now(),'ing')))
 		body = {
@@ -331,15 +336,17 @@ def google(user,apikey,time_state):
 	#notification 저장하기.
 	#기존 state가 ==0 이고 이 요청을 보낸상태면 1로 바꿘준다.
 	#watch에서 받았으면 2로 값을바꾸고 push Notification을 보낸다.
-	#모든캘린더에대해서 처음에만 
+	#모든캘린더에대해서 처음에만 진행한다(미래)
 	if time_state == SYNC_TIME_STATE_FORWARD:
 		for idx, calendar in enumerate(calendars):
 			logging.info('[timeTest]watch Request==> '+str(utils.checkTime(datetime.now(),'ing')))			
 			logging.debug('calender id =>'+calendar['id'])		
 			calendar_id = calendar['id']
-			#code review
-			#좀 자세히 정리해서 해결방안을 모색할 수 있도록 준비해온다.
+
+			#안되는 캘린더가의 경우가 존재함으로 현재 검증된것들만 동기화되도록한다.
 			if '@gmail.com' in calendar_id or '@naver.com' in calendar_id or '@ical.com' in calendar_id or '@group.calendar.google.com' in calendar_id:
+				#변경된 정보를 받기위한 push Notification api를 붙이는 과정이다.
+				#캘린더고유값인 channelId와 콜백받을 address를 정해준다.
 				watch_URL = 'https://www.googleapis.com/calendar/v3/calendars/'+calendar['id']+'/events/watch'
 				body = {
 					"id" : arr_channel_id[idx],
@@ -352,7 +359,9 @@ def google(user,apikey,time_state):
 		
 				logging.info('ress=s==> '+str(res))
 		
-		#for loop가 최초 다끝나면 나머지 과거 이벤트들을 받아야한다.
+		#for loop가  다끝나면 나머지 과거 이벤트들을 받아야한다.
+		#싱크가 끝났다는것을 슬랙봇으로 알려주고
+		#워커가 과거일정을 실행하도록한다
 		slackAlarmBot.alertSyncEnd()
 		data = {}
 		data['user'] = user
@@ -368,6 +377,7 @@ def google(user,apikey,time_state):
 
 	return utils.syncState(SYNC_GOOGLE_SUCCES,None)
 
+#구글 이벤트리스트 요청 함
 def reqEventsList(time_state,apikey,calendar,user,body={}):
 
 	channel_id = calendar['google_channel_id']
@@ -376,16 +386,15 @@ def reqEventsList(time_state,apikey,calendar,user,body={}):
 	calendar_hashkey = calendar['calendar_hashkey']
 	calendar_id = calendar['calendar_id']
 
+	#실제 캘린더아이디로 이벤트리스트를 요청한다.
 	URL = 'https://www.googleapis.com/calendar/v3/calendars/'+urllib.request.pathname2url(calendar_id)+'/events?'
 	
 	res = json.loads(network_manager.reqGET(URL,access_token,body))
 
 	logging.info('calendarResponse'+str(res))
-	# logging.info('itemLenth'+str(len(res['items'])))
+	#받아온 아이템들을 예쁘게 발라서 디비에 저장한다.
 	for item in res['items']:
 		
-		# logging.debug('event_id=>'+str(item['id']))
-
 		event_id = item['id']		
 		summary = 'noTitle'
 		start_date = None
@@ -427,14 +436,12 @@ def reqEventsList(time_state,apikey,calendar,user,body={}):
 
 
 	#넥스트 토큰이있을경우 없을때까지 요청을 보낸다.
-
 	range_start = time.strftime("%Y-%m-%dT00:00:00-09:00")
 	range_end = datetime.now()+ timedelta(hours=3600)
 	range_end = datetime.strftime(range_end, "%Y-%m-%dT00:00:00-09:00") 	
 	logging.info('range_start ==> '+range_start)
 	logging.info('range_edn ==> '+range_end)
-	if 'nextPageToken' in res:
-		
+	if 'nextPageToken' in res:		
 		body = {
 					'maxResults': 1000,
 					'timeMin':range_start,

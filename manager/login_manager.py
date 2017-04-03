@@ -156,7 +156,7 @@ def checkLoginState(flask):
 			# 새션키를 하나만들어서 넣어준다.
 
 			elif len(device)!=0 :
-				logging.debug('logout and return')
+				logging.debug('logout and return or new id/pw')
 				apikey = utils.makeHashKey(uuid)
 
 				redis.set(apikey,user_hashkey)
@@ -166,7 +166,7 @@ def checkLoginState(flask):
 				#codeReveiw
 				#updateUserDeviceLogout 명확하지 않은 함수명.
 				try:
-					userDeviceModel.updateUserApikey(apikey,uuid)
+					userDeviceModel.updateUserApikey(apikey,account_hashkey)
 				except Exception as e:
 					return utils.loginState(LOGIN_ERROR,str(e))
 				

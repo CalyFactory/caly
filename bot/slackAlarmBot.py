@@ -10,7 +10,7 @@ slackClient = SlackClient(token)
 
 def alertSyncEnd():
 	text = (":exclamation: 유저의 동기화가 끝났습니다. 이벤트 매칭해주세요 \n" +
-			":clock3: 동기화시간:"+str(datetime.now())	        
+			":clock3: 동기화 시간:"+str(datetime.now())	        
 			)
 
 	slackClient.api_call(
@@ -20,3 +20,16 @@ def alertSyncEnd():
 		username='syncBot',
 		icon_emoji=':crab:'
 		)
+
+def alertEventUpdateEnd(eventType):
+	text = (":part_alternation_mark: 유저의 일정이 " + eventType + " 됬습니다. 이벤트 매칭해주세요 \n" +
+			":clock3: 엄데이트 시간:"+str(datetime.now())	        
+			)
+
+	slackClient.api_call(
+		"chat.postMessage",
+		channel="#admin_sync_alert",
+		text=text,
+		username='syncBot',
+		icon_emoji=':chipmunk:'
+		)	

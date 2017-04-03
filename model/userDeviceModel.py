@@ -26,14 +26,14 @@ def setUserDevice(device_hashkey,account_hashkey,apikey):
 				)
 			)		
 #login_manager			
-def updateUserApikey(apikey,uuid):
+def updateUserApikey(apikey,account_hashkey):
 	return db_manager.query(
 						"UPDATE USERDEVICE " 
 						"SET apikey = %s, " 
 						"is_active = 1 "
-						"WHERE uuid = %s"
+						"WHERE account_hashkey = %s"
 						,
-						(apikey,uuid) 						
+						(apikey,account_hashkey) 						
 				)		
 
 #member

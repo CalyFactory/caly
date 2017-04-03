@@ -15,9 +15,9 @@ from caldavclient import CaldavClient
 
 import logging
 
-sqla_logger = logging.getLogger('sqlalchemy.engine.base.Engine')
-for hdlr in sqla_logger.handlers:
-    sqla_logger.removeHandler(hdlr)
+# sqla_logger = logging.getLogger('sqlalchemy.engine.base.Engine')
+# for hdlr in sqla_logger.handlers:
+#     sqla_logger.removeHandler(hdlr)
 
 
 with open('./key/conf.json') as conf_json:
@@ -48,7 +48,7 @@ def findEventList(eventList, eventIdList):
 
 
 
-@periodic_task(run_every=timedelta(seconds=30))
+@periodic_task(run_every=timedelta(seconds=10))
 def accountDistributor():
     print("hello")
     
