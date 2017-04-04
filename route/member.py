@@ -78,6 +78,12 @@ class Member(MethodView):
 												{'msg':who_am_i['data']}
 											)	
 
+				elif who_am_i['state'] == LOGIN_STATE_CHANGEPW:
+					return utils.resCustom(
+											401,
+											{'msg':who_am_i['data']}
+										)					
+
 				elif who_am_i['state'] == LOGIN_ERROR_INVALID:
 					return utils.resCustom(
 											401,
@@ -87,7 +93,8 @@ class Member(MethodView):
 				elif who_am_i['state'] == LOGIN_ERROR:
 					return utils.resErr(
 											{'msg':who_am_i['data']}
-										)								
+										)	
+
 			else :
 				return utils.resCustom(
 											403,
@@ -535,7 +542,7 @@ class Member(MethodView):
 				# user
 
 				#1. user  isactive 0
-				userModel.updateUserIsActive(user_hashkey,0)
+				userModel.updateUserIsActive(user_hashkey,3)
 				#3 userAccount => userid/accesstoken/caldavHomeset/subject/refreshtoken/ 
 				userAccountModel.withdraw(user_hashkey)
 				userDeviceModel.withdraw(account_hashkey)

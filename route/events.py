@@ -56,7 +56,7 @@ class Events(MethodView):
 					rows = eventModel.getEventsBackward(user_hashkey,current_time,pager,rangee,account_hashkey)
 				
 			except Exception as e:
-				return utils.resErr(str(e))		
+				return utils.resErr({'msg':str(e)})		
 
 			if len(rows) != 0:
 				return utils.resSuccess(

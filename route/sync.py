@@ -24,11 +24,12 @@ import json
 import urllib
 from datetime import timedelta,datetime
 from common import FCM
+from model import mFcmModel
 from manager.redis import redis
 from common.util.statics import *
 
 
-from model import mFcmModel
+
 # from model import userLifeModel
 from common import statee
 from common import syncLogic

@@ -17,6 +17,8 @@ from caldavclient.exception import AuthException
 from common import cryptoo
 import logging
 from bot import slackAlarmBot
+from common import FCM
+from model import mFcmModel
 
 sqla_logger = logging.getLogger('sqlalchemy.engine.base.Engine')
 for hdlr in sqla_logger.handlers:
@@ -52,7 +54,7 @@ def findEventList(eventList, eventIdList):
 
 
 
-@periodic_task(run_every=timedelta(seconds=30))
+@periodic_task(run_every=timedelta(seconds=300))
 def accountDistributor():
     print("hello")
     
@@ -61,6 +63,7 @@ def accountDistributor():
             """
             SELECT * 
             FROM USERACCOUNT
+            WHERE is_active != 3
             """
         )
     )
@@ -118,6 +121,65 @@ def syncWorker(account):
             isChanged = calendar.isChanged()
         except AuthException as e:
             print("error") # 요기서 처리하시면 됩니당 ^_^
+            #1. account state 2로만든다.
+            # 잘로그인됬으면 1
+            # 비활성유저는 2 
+            # 로그인 실패상황이면 3
+            #2. 유저한테 push Notification을 보낸다. => 비밀번호 업데이트하세여.
+          
+
+            db_manager.query(
+                """
+                UPDATE USERACCOUNT
+                SET is_active = 3
+                WHERE 
+                `account_hashkey` = %s
+                """
+                ,
+                (
+                    account['account_hashkey'],
+                )
+            )
+
+            #모든계정으로 push
+            #push 토큰구하기ㅕㄴㄷㄱ
+            devices = utils.fetch_all_json(
+                db_manager.query(
+                    """
+                    SELECT *
+                    FROM USERDEVICE
+                    WHERE 
+                    `account_hashkey` = %s
+                    """
+                    ,
+                    (
+                        account['account_hashkey'],
+                    )
+                )
+            )
+
+            arr_push_token = []
+            for device in devices:
+                arr_push_token.append(device['push_token'])
+                # arr_push_token.append(device['push_token'])
+
+            # data_message = {
+            #     "type" : "account_update",
+            #     "action" : "default"
+            # }
+            data_message = {
+                "type" : "noti",
+                "action" : "default"
+            }
+            
+            result = FCM.sendOnlyData(arr_push_token,data_message)                
+            result[0]['push_token'] = arr_push_token
+            result[0]['push_data'] = data_message            
+
+
+            mFcmModel.insertFcm(result)
+
+
             print(e)
             continue
         except Exception as e:
@@ -125,7 +187,7 @@ def syncWorker(account):
             print(e)
             continue
 
-        if calendar.isChanged():
+        if isChanged:
             print("something changed")
             print(calendar.etc)
             oldEventList = caldavclient.util.eventRowToList( #db에서 이전 event리스트들을 불러옴 
@@ -186,7 +248,6 @@ def syncWorker(account):
                     calendar.etc
                 )
             )
-            slackAlarmBot.alertEventUpdateEnd("추가 or 변경")    
 
 
             
