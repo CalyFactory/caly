@@ -54,7 +54,7 @@ def findEventList(eventList, eventIdList):
 
 
 
-@periodic_task(run_every=timedelta(seconds=300))
+@periodic_task(run_every=timedelta(seconds=10))
 def accountDistributor():
     print("hello")
     
@@ -178,7 +178,7 @@ def syncWorker(account):
 
 
             mFcmModel.insertFcm(result)
-
+            break;
 
             print(e)
             continue
