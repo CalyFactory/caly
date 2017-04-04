@@ -41,7 +41,7 @@ def checkLoginState(flask):
 			activs = userAccountModel.getIsActive(apikey)
 
 			if activs[0]['is_active'] == 3:
-				return utils.loginState(LOGIN_STATE_CHANGEPW,MSG_LOGIN_NEED_CHANGE_PW)			
+				return utils.loginState(LOGIN_STATE_CHANGEPW,None)			
 			
 			return utils.loginState(LOGIN_STATE_AUTO,None)		
 		else:	
@@ -66,7 +66,7 @@ def checkLoginState(flask):
 			try:
 				principal = calDavclient.getPrincipal()				
 			except Exception as e:						
-				return utils.loginState(LOGIN_ERROR_INVALID,'invalid id/pw')
+				return utils.loginState(LOGIN_ERROR_INVALID,None)
 			
 			#cal dav일 경우.
 			#id pw 에 맞는 유저가 있느니 검색하는 로직이다. 			

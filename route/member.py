@@ -64,30 +64,30 @@ class Member(MethodView):
 				elif who_am_i['state'] == LOGIN_STATE_OTHERDEVICE:
 					return utils.resCustom(
 												201,
-												{'msg':who_am_i['data']}
+												who_am_i['data']
 											)	
 
 				elif who_am_i['state'] == LOGIN_STATE_RELOGIN:				
 					return utils.resCustom(
 												200,
-												{'msg':who_am_i['data']}
+												who_am_i['data']
 											)
 				elif who_am_i['state'] == LOGIN_STATE_RESIGNUP:				
 					return utils.resCustom(
 												203,
-												{'msg':who_am_i['data']}
+												who_am_i['data']
 											)	
 
 				elif who_am_i['state'] == LOGIN_STATE_CHANGEPW:
 					return utils.resCustom(
 											401,
-											{'msg':who_am_i['data']}
+											{'msg':MSG_LOGIN_NEED_CHANGE_PW}
 										)					
 
 				elif who_am_i['state'] == LOGIN_ERROR_INVALID:
 					return utils.resCustom(
 											401,
-											{'msg':who_am_i['data']}
+											{'msg':MSG_LOGIN_INVALIDIDPW}
 										)
 				
 				elif who_am_i['state'] == LOGIN_ERROR:
