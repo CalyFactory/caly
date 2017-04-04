@@ -294,6 +294,7 @@ class Sync(MethodView):
 
 							eventModel.setGoogleEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location,recurrence)
 							calendarModel.updateCalendarRecoState(calendar_hashkey,CALENDAR_RECO_STATE_DO)
+							logging.debug('addEnd')							
 							slackAlarmBot.alertEventUpdateEnd("추가")
 						#업데이트 한 경우이다. 
 						#id값을 찾아서 변환된값을 바꿔준다.
@@ -302,7 +303,8 @@ class Sync(MethodView):
 							# update events set calendar_id = 'testid', summary = 'sum' where id = '67'
 							eventModel.updateEvents(summary,start_date,end_date,created,updated,location,event_id)
 							calendarModel.updateCalendarRecoState(calendar_hashkey,CALENDAR_RECO_STATE_DO)
-							slackAlarmBot.alertEventUpdateEnd("업데이트")
+							logging.debug('updateEnd')
+							slackAlarmBot.alertEventUpdateEnd("변경")
 
 						elif status == 'cancelled':
 							logging.debug('cancelled')							

@@ -188,4 +188,17 @@ def deleteUserDeviceAll(user_hashkey):
 						user_hashkey,					
 					)
 				)
-			
+def withdraw(account_hashkey):
+	return 	db_manager.query(
+				"""
+				UPDATE USERDEVICE 
+				SET push_token = NULL,
+				is_active = NULL,
+				uuid = NULL
+				WHERE account_hashkey = %s 
+				"""
+				,
+				(			
+					account_hashkey,
+				)
+			)	

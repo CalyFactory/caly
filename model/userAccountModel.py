@@ -10,6 +10,18 @@ def getCaldavUserAccount(u_id,u_pw,login_platform):
 						(u_id,u_pw,login_platform) 						
 				)
 			)
+def updateCaldavUserAccount(u_id,u_pw,login_platform):
+	return db_manager.query(
+						"""
+						UPDATE USERACCOUNT
+						SET access_token = %s
+						WHERE user_id = %s and login_platform = %s
+						"""
+						,
+						(u_pw,u_id,login_platform) 						
+				)
+
+
 #login_manager	
 def getGoogleUserAccount(subject):
 	return utils.fetch_all_json(
@@ -77,10 +89,12 @@ def getUserAccountWithAccessToken(access_token):
 
 def updateUserAccessToken(access_token,new_access_token,google_expire_time):
 	return db_manager.query(
-						"UPDATE USERACCOUNT " 
-						"SET access_token = %s, " 
-						"google_expire_time = %s "
-						"WHERE access_token = %s "
+						"""
+						UPDATE USERACCOUNT 
+						SET access_token = %s, 
+						google_expire_time = %s 
+						WHERE access_token = %s 
+						"""
 						,
 						(new_access_token,google_expire_time,access_token) 						
 				)				
@@ -94,4 +108,21 @@ def getHasAccountList(user_hashkey):
 						(user_hashkey,) 						
 				)			
 			)	
-
+	#3 userAccount => userid/accesstoken/caldavHomeset/subject/refreshtoken/ 
+def withdraw(user_hashkey):
+	return 	db_manager.query(
+				"""
+				UPDATE USERACCOUNT 
+				SET user_id = "None",
+				access_token = "None",
+				caldav_homeset = NULL,
+				is_active = NULL,
+				subject = NULL,
+				refresh_token = NULL
+				WHERE user_hashkey  = %s 
+				"""
+				,
+				(			
+					user_hashkey,
+				)
+			)
