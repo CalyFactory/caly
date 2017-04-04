@@ -38,6 +38,10 @@ def checkLoginState(flask):
 
 			#유저라이프사이클로그저장.
 			statee.userLife(apikey,LIFE_STATE_SIGNIN_AUTO)									
+			activs = userAccountModel.getIsActive(apikey)
+
+			if activs[0]['is_active'] == 3:
+				return utils.loginState(LOGIN_STATE_CHANGEPW,MSG_LOGIN_NEED_CHANGE_PW)			
 			
 			return utils.loginState(LOGIN_STATE_AUTO,None)		
 		else:	
