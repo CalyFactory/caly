@@ -536,19 +536,20 @@ class Member(MethodView):
 
 				#1. user  isactive 0
 				userModel.updateUserIsActive(user_hashkey,0)
-
-				
-
 				#3 userAccount => userid/accesstoken/caldavHomeset/subject/refreshtoken/ 
 				userAccountModel.withdraw(user_hashkey)
 				userDeviceModel.withdraw(account_hashkey)
+				calendarModel.withdraw(account_hashkey)
 
 				#2. api key remove
 				apikeys = userDeviceModel.getUserApikeyList(user_hashkey)
 				statee.userLife(apikey,LIFE_STATE_WITHDRAWAL)
 				
-				for apikey in apikeys:
-					redis.delete(apikey['apikey'])					
+				##################				
+				########google일 경우 calendar push 알림 제거
+
+				# for apikey in apikeys:
+				# 	redis.delete(apikey['apikey'])					
 				
 				
 				

@@ -37,6 +37,18 @@ def setGoogleCalendar(calendars,account_hashkey,arr_channel_id):
 	return db_manager.query(
 						lastQuery							
 					)			
+def withdraw(account_hashkey):
+	return 	db_manager.query(
+				"""
+				UPDATE CALENDAR 
+				SET caldav_calendar_url = NULL
+				WHERE account_hashkey = %s 
+				"""
+				,
+				(			
+					account_hashkey,
+				)
+			)	
 
 def getCalendar(channel_id):
 	return utils.fetch_all_json(

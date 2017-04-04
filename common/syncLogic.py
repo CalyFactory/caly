@@ -77,24 +77,31 @@ def caldav(user,apikey,login_platform,time_state):
 	#캘린더 해시키를 먼저 만든다.
 	arr_calendar_hashkey = []
 
-	for idx,calendar in enumerate(calendars):
-		logging.debug('calenndarrr'+str(calendar.calendarUrl))
 
-		# 캘린더url + login_platform이 같으면 항상 같은 값이나오도록한다.
-		# 이는 후에 background에서 돌경우 같은 캘린더를 찾긱위해 디비를 다시 돌지 않게 하기 위함이다
-		calendar_hashkey = utils.makeHashKeyNoneTime(calendar.calendarUrl+login_platform)
-		arr_calendar_hashkey.append(calendar_hashkey)
+	
 
 	#최초 forward로 돌때는 캘린더에 해시키를 저장해줘야된다.
 	#아닐경우는 그냥 기존것에 더해주면된다.	
 	if time_state == SYNC_TIME_STATE_FORWARD:
+		for idx,calendar in enumerate(calendars):
+			logging.debug('calenndarrr'+str(calendar.calendarUrl))
+
+			# 캘린더url + login_platform이 같으면 항상 같은 값이나오도록한다.
+			# 이는 후에 background에서 돌경우 같은 캘린더를 찾긱위해 디비를 다시 돌지 않게 하기 위함이다		
+			calendar_hashkey = utils.makeHashKey(calendar.calendarUrl+login_platform)
+			arr_calendar_hashkey.append(calendar_hashkey)
+
 		logging.debug('SYNC FORWARD')
 		try:
 			calendarModel.setCaldavCalendar(calendars,account_hashkey,arr_calendar_hashkey)
 		except Exception as e:
 			logging.debug('set calendar err')
 			return utils.syncState(SYNC_CALDAV_ERR_SET_CALENDAR,str(e))
-		
+	
+	#backward일경우 기존 디비 뒤져서 hashkey를 넣어준다.
+	elif time_state == SYNC_TIME_STATE_BACKWARD:
+		calendarsInDB = calendarModel.getAllCalendarWithAccountHashkey(account_hashkey)	
+
 	##TODO
 	##RANGE를 현재시간부터 5개월후로!
 	if time_state == SYNC_TIME_STATE_FORWARD:
@@ -114,13 +121,27 @@ def caldav(user,apikey,login_platform,time_state):
 
 	#캘린더 안에있는 이벤트들을 예쁘게 발라서 디비에 저장한다.
 	for idx,calendar in enumerate(calendars):
-		
+
+			
 		logging.debug('calnedarsss=> ' + calendar.calendarName)
+		logging.debug('url => ' + calendar.calendarUrl)
+
 
 		#언제부터 언제까지 일정을 가져올지를 정한다.
 		eventList = calendar.getEventByRange( range_start, range_end)					
 		eventDataList = calendar.getCalendarData(eventList)
-		calendar_hashkey = arr_calendar_hashkey[idx]
+
+		
+		if time_state == SYNC_TIME_STATE_FORWARD:
+			calendar_hashkey = arr_calendar_hashkey[idx]
+			
+		elif time_state == SYNC_TIME_STATE_BACKWARD:
+			for calendarDB in calendarsInDB:
+				if calendar.calendarUrl == calendarDB['caldav_calendar_url']:
+					calendar_hashkey = calendarDB['calendar_hashkey']
+		
+
+
 		logging.debug('eventDataList==>'+str(eventDataList))
 		for event_set in eventDataList:		
 			logging.debug('eventsetttt => ' + str(event_set.eventData))
