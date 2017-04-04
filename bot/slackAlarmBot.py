@@ -6,6 +6,7 @@ with open('./key/conf.json') as conf_json:
     conf = json.load(conf_json)
 
 token = conf["slack"]["token_sync"]
+sync_channel = conf["slack"]["sync_channel"]
 slackClient = SlackClient(token)
 
 def alertSyncEnd():
@@ -15,7 +16,7 @@ def alertSyncEnd():
 
 	slackClient.api_call(
 		"chat.postMessage",
-		channel="#admin_sync_alert",
+		channel=sync_channel,
 		text=text,
 		username='syncBot',
 		icon_emoji=':crab:'
@@ -28,7 +29,7 @@ def alertEventUpdateEnd(eventType):
 
 	slackClient.api_call(
 		"chat.postMessage",
-		channel="#admin_sync_alert",
+		channel=sync_channel,
 		text=text,
 		username='syncBot',
 		icon_emoji=':chipmunk:'
