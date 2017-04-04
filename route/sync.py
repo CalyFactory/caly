@@ -15,6 +15,8 @@ from model import calendarModel
 from model import eventModel
 from model import syncModel
 from model import syncEndModel
+from model import recoModel
+
 
 from common import caldavWrapper
 from common import gAPI
@@ -312,3 +314,41 @@ class Sync(MethodView):
 							eventModel.deleteEvents(event_id)				
 			return 'hi'
 			
+		elif action == 'checkSync':
+			
+			apikey = flask.request.form['apikey']			
+			user_hashkey = redis.get(apikey)
+			if not redis.get(apikey):
+				return utils.resErr(
+										{'msg':MSG_INVALID_TOKENKEY}
+									)
+			try:
+				user = userAccountModel.getUserAccount(user_hashkey)
+				syncEndRows = syncEndModel.getSyncEnd(user[0]['account_hashkey'],SYNC_END_TIME_STATE_FORWARD)
+				
+				#동기화를 하지 않았다. 
+				if len(syncEndRows) == 0 :
+					#201은 다시 동기화를 시도해라!
+					return utils.resCustom(
+												202,
+												{'msg':MSG_SYNC_NEED}
+											)	
+				#동기화를 했다. 	
+				#추천이 되어있나 확인한다.
+				else:
+										
+					state = recoModel.checkAllRecoEndState(apikey)									
+					if len(state) == 1 and state[0]['reco_state'] == 2:
+						return utils.resCustom(
+													200,
+													{'msg':MSG_RECO_SUCCESS}
+												)
+
+					else:
+						return utils.resCustom(
+													201,
+													{'msg':MSG_RECO_ING}
+												)							
+
+			except Exception as e:
+				return utils.resErr(str(e))		
