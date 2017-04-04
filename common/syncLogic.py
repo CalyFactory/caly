@@ -316,7 +316,8 @@ def google(user,apikey,time_state):
 
 	calendarsInDB = calendarModel.getAllCalendarWithAccountHashkey(account_hashkey)
 
-	
+
+
 	#TODO
 	#maxResults가 최대 몇개까지인지 확인하고 최대로 가져온다.
 	#RANGE를 현재시간부터 5개월후로!
