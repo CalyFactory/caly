@@ -161,7 +161,7 @@ def caldav(user,apikey,login_platform,time_state):
 			caldav_event_url = event_set.eventUrl
 			caldav_etag = event_set.eTag
 			summary = None
-			location = 'noLocation'			
+			location = None
 			start_dt = None
 			end_dt = None
 			created_dt = None
@@ -206,7 +206,7 @@ def caldav(user,apikey,login_platform,time_state):
 
 			if 'LOCATION' in event:	
 				if event['LOCATION'] == '':
-					location = 'noLocation'
+					location = None
 				else:
 					location = event['LOCATION']
 
@@ -422,7 +422,7 @@ def reqEventsList(time_state,apikey,calendar,user,body={}):
 		end_date = None
 		created = None
 		updated = None
-		location = 'noLocation'
+		location = None
 		recurrence = None
 
 		if 'summary' in item:			

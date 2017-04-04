@@ -298,7 +298,7 @@ def addEvent(calendar, newEventList, addedList):
 
         if 'LOCATION' in item:	
             if item['LOCATION'] == '':
-                location = 'noLocation'
+                location = None
             else:
                 location = item['LOCATION']
         db_manager.query(
@@ -414,7 +414,7 @@ def changeEvent(calendar, newEventList, changedList):
 
         if 'LOCATION' in item:	
             if item['LOCATION'] == '':
-                location = 'noLocation'
+                location = None
             else:
                 location = item['LOCATION']
         db_manager.query(
