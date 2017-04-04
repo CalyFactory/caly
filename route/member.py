@@ -221,7 +221,7 @@ class Member(MethodView):
 				
 				except Exception as e:
 					#그래도 비밀번호가 또 틀렸을경우 401을 리턴한다.
-					if str(e) == 'http code error401':
+					if str(e) == 'user auth error':
 						return utils.resCustom(
 											401,
 											{'msg':str(e)}
