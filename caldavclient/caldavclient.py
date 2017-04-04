@@ -224,7 +224,7 @@ class CaldavClient:
                 xmlTree = util.XmlObject(ret.content)
 
                 for response in xmlTree.iter():
-                    if response.find("href").text == self.calendarUrl:
+                    if response.find("href").text() == self.calendarUrl:
                         continue
                     event = self.client.Event(
                         eventUrl = response.find("href").text(),
@@ -248,8 +248,8 @@ class CaldavClient:
             xmlTree = util.XmlObject(ret.content)
 
             eventList = []
-            for response in xmlTree.iter():
-                if response.find("href").text == self.calendarUrl:
+            for response in xmlTree.iter()[1:]:
+                if response.find("href").text() == self.calendarUrl:
                     continue
                 event = self.client.Event(
                     eventUrl = response.find("href").text(),
@@ -272,8 +272,10 @@ class CaldavClient:
             xmlTree = util.XmlObject(ret.content)
 
             eventList = []
+            print("calendarUrl : " + self.calendarUrl)
             for response in xmlTree.iter():
-                if response.find("href").text == self.calendarUrl:
+                print(response.find("href").text())
+                if response.find("href").text() == self.calendarUrl:
                     continue
                 event = self.client.Event(
                     eventUrl = response.find("href").text(),
