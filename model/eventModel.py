@@ -57,7 +57,7 @@ def getEventsBackward(user_hashkey,standard_date,pager,rangee,account_hashkey):
 				db_manager.query(
 					"SELECT * FROM "
 					"( " 
-					"SELECT CALENDAR.calendar_hashkey,EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.recurrance,EVENT.start_dt,EVENT.summary,EVENT.location,EVENT.reco_state " 
+					"SELECT CALENDAR.calendar_hashkey,EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.recurrence,EVENT.start_dt,EVENT.summary,EVENT.location,EVENT.reco_state " 
 					"FROM USERACCOUNT "
 					"INNER JOIN CALENDAR ON USERACCOUNT.account_hashkey = CALENDAR.account_hashkey " 
 					"INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey " 
@@ -79,7 +79,7 @@ def getEventsForward(user_hashkey,standard_date,pager,rangee):
 
 	return utils.fetch_all_json(				
 				db_manager.query(
-					"SELECT CALENDAR.calendar_hashkey,EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.recurrance,EVENT.start_dt,EVENT.summary,EVENT.location,EVENT.reco_state "
+					"SELECT CALENDAR.calendar_hashkey,EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.recurrence,EVENT.start_dt,EVENT.summary,EVENT.location,EVENT.reco_state "
 					"FROM USERACCOUNT " 							
 					"INNER JOIN CALENDAR ON USERACCOUNT.account_hashkey = CALENDAR.account_hashkey "
 					"INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey " 

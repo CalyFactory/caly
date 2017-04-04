@@ -249,7 +249,7 @@ class Sync(MethodView):
 						# add/update/delete 모든 공통적인부분 id를 가진다.
 						event_id = item['id']
 						status = item['status']
-						location = 'noLocation'
+						location = None
 						recurrence = None
 
 						if('location' in item):
