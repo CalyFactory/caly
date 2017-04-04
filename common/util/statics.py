@@ -122,6 +122,7 @@ MSG_LOGIN_NEED_CHANGE_PW = 'neeed change pw'
 
 #sync
 MSG_SYNC_ALREADY = 'sync already end'
+MSG_SYNC_NEED = 'sync need'
 MSG_LOGIN_INVALIDIDPW = 'MSG_LOGIN_INVALIDIDPW'
 
 MSG_INVALID_TOKENKEY = 'invalid token key'
