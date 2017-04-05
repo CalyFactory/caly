@@ -163,20 +163,14 @@ def syncWorker(account):
                 arr_push_token.append(device['push_token'])
                 # arr_push_token.append(device['push_token'])
 
-            # data_message = {
-            #     "type" : "account_update",
-            #     "action" : "default"
-            # }
             data_message = {
-                "type" : "noti",
+                "type" : "account_update",
                 "action" : "default"
             }
             
             result = FCM.sendOnlyData(arr_push_token,data_message)                
             result[0]['push_token'] = arr_push_token
             result[0]['push_data'] = data_message            
-
-
             mFcmModel.insertFcm(result)
             break;
 
