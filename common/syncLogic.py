@@ -146,14 +146,15 @@ def caldav(user,apikey,login_platform,time_state):
 		for event_set in eventDataList:		
 			logging.debug('eventsetttt => ' + str(event_set.eventData))
 			event = event_set.eventData['VEVENT']	
+			logging.debug('난 바꿨는데?')	
 			#네이버일경우만!		
 		   	#만약 Transparet인 이벤트라면 다음 루프로 넘어간다.
 		   	#ical일경우는 타면안된다.
-			if 'TRANSP' in event:
-				if event['TRANSP'] == 'TRANSPARENT' and login_platform == 'naver':
-					continue
-				elif login_platform == 'ical':
-					pass
+			# if 'TRANSP' in event:
+			# 	if event['TRANSP'] == 'TRANSPARENT' and login_platform == 'naver':
+			# 		continue
+			# 	elif login_platform == 'ical':
+			# 		pass
 
 			# #uid를 eventId로 쓰면된다.
 			event_id = event_set.eventId
