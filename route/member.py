@@ -168,7 +168,7 @@ class Member(MethodView):
 					homeset = principal.getHomeSet()
 					caldav_homeset = homeset.homesetUrl			
 
-					user = userAccountModel.getCaldavUserAccount(u_id,u_pw,login_platform)
+					user = userAccountModel.getCaldavUserAccount(u_id,login_platform)
 					#검색을 했는데 길이가 0이면, 유저가 없는경우임으로 추가를 해준다.
 					if len(user) == 0:
 						
@@ -256,11 +256,11 @@ class Member(MethodView):
 				devices = userDeviceModel.getUserHashkey(apikey)
 
 				if len(devices) != 0:
-					userHashkey = devices[0]['user_hashkey']
+					user_hashkey = devices[0]['user_hashkey']
 					redis.set(apikey,devices[0]['user_hashkey'])
 
 					logging.debug('apikey' + apikey)
-					logging.debug('user_hashkey' + userHashkey)
+					logging.debug('user_hashkey' + user_hashkey)
 
 				userDeviceModel.updateUserDevice(push_token,device_type,app_version,device_info,uuid,sdkLevel,apikey)
 				userModel.updateUserIsActive(user_hashkey,1)
@@ -352,7 +352,7 @@ class Member(MethodView):
 					logging.debug('caldav_hoemse =>' + caldav_homeset)
 					
 
-					user = userAccountModel.getCaldavUserAccount(u_id,u_pw,login_platform)
+					user = userAccountModel.getCaldavUserAccount(u_id,login_platform)
 					#검색을 했는데 길이가 0이면, 유저가 없는경우임으로 추가를 해준다.
 					#그리고 동기화로직을 탄다.
 					logging.debug('user = >'+str(user))
@@ -365,7 +365,7 @@ class Member(MethodView):
 						userAccountModel.setCaldavUserAccount(account_hashkey,user_hashkey,login_platform,u_id,u_pw,caldav_homeset)
 						
 						#다시 유저가생겼음으로 유저를 가져와서 접속한다.
-						user = userAccountModel.getCaldavUserAccount(u_id,u_pw,login_platform)
+						user = userAccountModel.getCaldavUserAccount(u_id,login_platform)
 
 					#유저가 존재하면 이미 등록된 아이디라고 알려준다.
 					else:		
