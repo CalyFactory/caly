@@ -48,8 +48,6 @@ logging.basicConfig(level=logging.DEBUG, filename='log/log_caly.log',
                   format='%(asctime)s %(levelname)s: %(message)s',
                   datefmt='%Y-%m-%d %H:%M:%S')
 
-
-
 @app.route('/')
 def hello_wordl():
 	return 'hello_world_other'
