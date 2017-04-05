@@ -1,13 +1,13 @@
 from common.util import utils
 from manager import db_manager
 #login_manager
-def getCaldavUserAccount(u_id,u_pw,login_platform):
+def getCaldavUserAccount(u_id,login_platform):
 	return utils.fetch_all_json(
 				db_manager.query(
 						"SELECT * FROM USERACCOUNT "
-						"WHERE user_id = %s AND access_token = %s AND login_platform = %s"
+						"WHERE user_id = %s  AND login_platform = %s"
 						,
-						(u_id,u_pw,login_platform) 						
+						(u_id,login_platform) 						
 				)
 			)
 def updateCaldavUserAccount(u_id,u_pw,login_platform):

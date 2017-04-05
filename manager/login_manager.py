@@ -74,7 +74,7 @@ def checkLoginState(flask):
 				#codeReview
 				#id/pw가 
 				#naver,ical이 같을경우 더많은 데이터가나올수있다.
-				account = userAccountModel.getCaldavUserAccount(u_id,u_pw,login_platform)
+				account = userAccountModel.getCaldavUserAccount(u_id,login_platform)
 			except Exception as e:
 				return utils.loginState(LOGIN_ERROR,str(e))
 			#구글일경우
