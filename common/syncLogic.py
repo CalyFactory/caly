@@ -12,6 +12,7 @@ from model import calendarModel
 from model import eventModel
 from model import syncModel
 from model import syncEndModel
+from model import googleWatchInfoModel
 
 from common import caldavWrapper
 from common import gAPI
@@ -375,9 +376,7 @@ def google(user,apikey,time_state):
 		exp_unix_time = int(expp.timestamp()*1000) 
 		
 		logging.debug('google expiration -> '+str(exp_unix_time))
-		
-
-		
+				
 		for idx, calendar in enumerate(calendars):
 			logging.info('[timeTest]watch Request==> '+str(utils.checkTime(datetime.now(),'ing')))			
 			logging.debug('calender id =>'+calendar['id'])		
@@ -408,6 +407,8 @@ def google(user,apikey,time_state):
 					calendarModel.updateGoogleExpiration(res['id'],expp,res['resourceId'])					
 				except Exception as e:
 					logging.debug(str(e)) 
+					
+				googleWatchInfoModel.setGoogleWatchInfo(arr_channel_id[idx],GOOGLE_WATCH_CALL)
 				# resource_id = res['resourceId']
 				# arr_channel_id[] exp,resource_id
 		

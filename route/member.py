@@ -30,6 +30,7 @@ from common import cryptoo
 from common import syncLogic
 from common import statee
 from common import gAPI
+from model import googleWatchInfoModel
 
 # yenos
 # 유저의관한 api 리스트이다.
@@ -536,6 +537,7 @@ class Member(MethodView):
 						
 						if result == "":
 							logging.debug('stop watch Succes')
+							googleWatchInfoModel.setGoogleWatchInfo(google_calendar['google_channel_id'],GOOGLE_WATCH_DETACH)
 						else:
 							logging.debug('faillllll')						
 
@@ -583,7 +585,7 @@ class Member(MethodView):
 										)
 			
 			except Exception as e:
-
+				logging.debug(str(e))
 				return utils.resErr(
 										{'msg':str(e)}
 									)				

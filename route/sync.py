@@ -16,6 +16,7 @@ from model import eventModel
 from model import syncModel
 from model import syncEndModel
 from model import recoModel
+from model import googleWatchInfoModel
 
 
 from common import caldavWrapper
@@ -146,6 +147,8 @@ class Sync(MethodView):
 			
 			#동기화 할 경우.
 			if state == 'sync':
+
+				googleWatchInfoModel.setGoogleWatchInfo(channel_id,GOOGLE_WATCH_ATTACH)
 				account_hashkey = account[0]['account_hashkey']	
 				calendarModel.updateGoogleSyncState(channel_id,GOOGLE_SYNC_STATE_PUSH_END)						
 				calendars = calendarModel.getGoogleSyncState(account_hashkey)
