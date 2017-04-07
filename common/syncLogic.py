@@ -19,16 +19,20 @@ from manager import network_manager
 
 import json
 import urllib
-from datetime import timedelta,datetime
-from pytz import timezone
-
 from manager.redis import redis
 from common.util.statics import *
-import time
+
 import sync_worker
 from common import statee
 from bot import slackAlarmBot
 import json 
+
+#time
+from datetime import timedelta,datetime
+from pytz import timezone
+import time
+
+
 with open('./key/conf.json') as conf_json:
     conf = json.load(conf_json)
 
@@ -361,6 +365,19 @@ def google(user,apikey,time_state):
 	#watch에서 받았으면 2로 값을바꾸고 push Notification을 보낸다.
 	#모든캘린더에대해서 처음에만 진행한다(미래)
 	if time_state == SYNC_TIME_STATE_FORWARD:
+		#10년동한 우린 알람을 받고자한다.
+		logging.debug('his')
+		# logging.debug( datetime.now())
+		expp = datetime.now()+ timedelta(hours=MONTH_TO_HOUR)
+		# exp = datetime.utcnow() + timedelta(hours = 9 )
+		logging.debug('exp =>'+str(expp))
+		logging.debug('exp =>'+str(expp.timestamp()))
+		exp_unix_time = int(expp.timestamp()*1000) 
+		
+		logging.debug('google expiration -> '+str(exp_unix_time))
+		
+
+		
 		for idx, calendar in enumerate(calendars):
 			logging.info('[timeTest]watch Request==> '+str(utils.checkTime(datetime.now(),'ing')))			
 			logging.debug('calender id =>'+calendar['id'])		
@@ -375,12 +392,24 @@ def google(user,apikey,time_state):
 					"id" : arr_channel_id[idx],
 					"type" : "web_hook",
 					"address" : conf['googleWatchAddress'],
-					"token" : apikey
+					"token" : apikey,
+					"expiration" : str(exp_unix_time)+'000'
 				}						
-				res = network_manager.reqPOST(watch_URL,access_token,body)
+				res = json.loads(network_manager.reqPOST(watch_URL,access_token,body))
 				#start push noti
 		
-				logging.info('ress=s==> '+str(res))
+				logging.info('watch res =>'+str(res))
+				try:
+					logging.debug('giood') 
+					logging.debug(res['id']) 
+					logging.debug(expp) 
+					logging.debug(res['resourceId']) 
+
+					calendarModel.updateGoogleExpiration(res['id'],expp,res['resourceId'])					
+				except Exception as e:
+					logging.debug(str(e)) 
+				# resource_id = res['resourceId']
+				# arr_channel_id[] exp,resource_id
 		
 		#for loop가  다끝나면 나머지 과거 이벤트들을 받아야한다.
 		#싱크가 끝났다는것을 슬랙봇으로 알려주고
