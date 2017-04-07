@@ -37,8 +37,6 @@ import logging
 app = flask.Flask(__name__, static_url_path='')
 from common.flaskrun import flaskrun
 
-
-
 initRoute(app)
 # if debugg
 # logSet.init()
@@ -47,6 +45,18 @@ initRoute(app)
 logging.basicConfig(level=logging.DEBUG, filename='log/log_caly.log',
                   format='%(asctime)s %(levelname)s: %(message)s',
                   datefmt='%Y-%m-%d %H:%M:%S')
+# from common import gAPI
+# from datetime import timedelta,datetime
+# from pytz import timezone
+# import time
+# from common.util.statics import *
+
+# exp = datetime.utcnow() + timedelta(hours = 9 + MONTH_TO_HOUR)
+# logging.debug('none')
+# exp_unix_time = int(exp.timestamp()) + 3600*9 
+
+# logging.debug(exp)
+# logging.debug(exp_unix_time)
 
 @app.route('/')
 def hello_wordl():

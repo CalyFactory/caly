@@ -68,6 +68,20 @@ def setGoogleUserAccount(account_hashkey,user_hashkey,login_platform,u_id,access
 					)
 				)			
 					
+def getUserLoginPlatform(apikey):
+	return utils.fetch_all_json(
+				db_manager.query(
+						"""
+						SELECT login_platform FROM USERACCOUNT
+						LEFT JOIN USERDEVICE on USERDEVICE.account_hashkey = USERACCOUNT.account_hashkey
+						WHERE apikey = %s
+
+						"""
+						,
+						(apikey,) 						
+				)			
+			)	
+
 
 #sync						
 def getUserAccount(user_hashkey):

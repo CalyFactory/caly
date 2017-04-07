@@ -95,11 +95,35 @@ def getGoogleSyncState(account_hashkey):
 						(account_hashkey,) 						
 				)
 			)
+def getGoogleCalendarInfo(apikey):
+	return utils.fetch_all_json(
+				db_manager.query(
+					"""
+					SELECT USERACCOUNT.access_token,CALENDAR.google_channel_id,CALENDAR.google_resource_id,CALENDAR.google_expiration FROM USERDEVICE 
+					LEFT JOIN CALENDAR on USERDEVICE.account_hashkey = CALENDAR.account_hashkey
+					LEFT JOIN USERACCOUNT on USERDEVICE.account_hashkey = USERACCOUNT.account_hashkey
+					WHERE apikey = %s AND google_sync_state = 3					
+					"""
+						,
+						(apikey,) 						
+				)
+			)	
 def updateGoogleSyncState(channel_id,state):
 	return db_manager.query(
 				"UPDATE CALENDAR SET google_sync_state = %s WHERE google_channel_id = %s"
 				,(state,channel_id)
 			)
+
+def updateGoogleExpiration(channel_id,google_expiration,resource_id):
+	return db_manager.query(
+				"""
+				UPDATE CALENDAR 
+				SET google_expiration = %s,
+				google_resource_id = %s
+				WHERE google_channel_id = %s
+				"""
+				,(google_expiration,resource_id,channel_id)
+			)	
 def updateCalendarRecoState(calendar_hashkey,reco_state):
 	return db_manager.query(
 				"UPDATE CALENDAR SET reco_state= %s WHERE calendar_hashkey = %s"

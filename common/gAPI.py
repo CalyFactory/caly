@@ -5,6 +5,7 @@ import logging
 import requests
 from common.util import utils
 import datetime
+from manager import network_manager
 
 with open('./key/client_secret.json') as conf_json:
     conf = json.load(conf_json)
@@ -76,5 +77,13 @@ def checkValidAccessToken(access_token):
         return new_access_token
 
 
+def stopWatch(channel_id,resource_id,access_token):    
 
-
+    URL = 'https://www.googleapis.com/calendar/v3/channels/stop'
+    body = {
+        "id" : channel_id,
+        "resourceId": resource_id
+    }
+    result = network_manager.reqPOST(URL,access_token,body)   
+    # print(network_manager.reqPOST(URL,body))
+    return result     

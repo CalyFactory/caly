@@ -29,6 +29,8 @@ from manager.redis import redis
 from common import cryptoo
 from common import syncLogic
 from common import statee
+from common import gAPI
+from model import googleWatchInfoModel
 
 # yenos
 # 유저의관한 api 리스트이다.
@@ -518,12 +520,30 @@ class Member(MethodView):
 
 			apikey = flask.request.form['apikey']
 			contents = flask.request.form['contents']
+			
+
 			user_hashkey = redis.get(apikey)
 			if not user_hashkey:
 				return utils.resErr(
 										{'msg':MSG_INVALID_TOKENKEY}
 									)			
 			try:
+				user = userAccountModel.getUserLoginPlatform(apikey)
+
+				if user[0]['login_platform'] == 'google':
+					google_calendars = calendarModel.getGoogleCalendarInfo(apikey)					
+					for google_calendar in google_calendars:
+						result = gAPI.stopWatch(google_calendar['google_channel_id'],google_calendar['google_resource_id'],google_calendar['access_token'])
+						
+						if result == "":
+							logging.debug('stop watch Succes')
+							googleWatchInfoModel.setGoogleWatchInfo(google_calendar['google_channel_id'],GOOGLE_WATCH_DETACH)
+						else:
+							logging.debug('faillllll')						
+
+						logging.debug('result => '+result)
+
+
 				#일단 사유 받자.
 				user = userAccountModel.getUserAccount(user_hashkey)				
 				account_hashkey = user[0]['account_hashkey']
@@ -552,11 +572,11 @@ class Member(MethodView):
 				apikeys = userDeviceModel.getUserApikeyList(user_hashkey)
 				statee.userLife(apikey,LIFE_STATE_WITHDRAWAL)
 				
-				##################				
-				########google일 경우 calendar push 알림 제거
+				#################				
+				#######google일 경우 calendar push 알림 제거
 
-				# for apikey in apikeys:
-				# 	redis.delete(apikey['apikey'])					
+				for apikey in apikeys:
+					redis.delete(apikey['apikey'])					
 				
 				
 				
@@ -565,7 +585,7 @@ class Member(MethodView):
 										)
 			
 			except Exception as e:
-
+				logging.debug(str(e))
 				return utils.resErr(
 										{'msg':str(e)}
 									)				
