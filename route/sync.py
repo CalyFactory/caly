@@ -51,8 +51,8 @@ class Sync(MethodView):
 										{'msg':MSG_INVALID_TOKENKEY}
 									)			
 			#세션키에대한 해시키를 가져온다.
-			logging.debug('apikey = >'+str(apikey))
-			logging.debug('hashkey = >'+str(user_hashkey))
+			logging.info('apikey = >'+str(apikey))
+			logging.info('hashkey = >'+str(user_hashkey))
 			
 
 			user = userAccountModel.getUserAccount(user_hashkey)
@@ -68,6 +68,7 @@ class Sync(MethodView):
 					syncInfo = syncLogic.caldav(user,apikey,login_platform,SYNC_TIME_STATE_FORWARD)
 
 				except Exception as e:
+					logging.error(str(e))
 					calendarModel.deleteCalendarList(user[0]['account_hashkey'])
 					return utils.resCustom(
 											201,							
@@ -93,7 +94,7 @@ class Sync(MethodView):
 
 			elif login_platform == 'google':
 
-				logging.debug('user==>' + str(user))
+				logging.info('user==>' + str(user))
 				try:
 
 					syncInfo = syncLogic.google(user,apikey,SYNC_TIME_STATE_FORWARD)
@@ -107,6 +108,7 @@ class Sync(MethodView):
 					# 						)	
 
 				except Exception as e:
+					logging.error(str(e))
 					calendarModel.deleteCalendarList(user[0]['account_hashkey'])
 					return utils.resCustom(
 											201,							
@@ -164,15 +166,15 @@ class Sync(MethodView):
 				access_token = account[0]['access_token']		
 				resource_id = flask.request.headers['X-Goog-Resource-Id']
 
-				logging.debug('acess_token->'+access_token)
-				logging.debug('resource_id->'+resource_id)
-				logging.debug('channel_id->'+channel_id)
+				logging.info('acess_token->'+access_token)
+				logging.info('resource_id->'+resource_id)
+				logging.info('channel_id->'+channel_id)
 				# result = gAPI.stopWatch(channel_id,resource_id,access_token)
 				
 				# if result == "":
-				# 	logging.debug('stop watch Succes')
+				# 	logging.info('stop watch Succes')
 				# else:
-				# 	logging.debug('faillllll')
+				# 	logging.info('faillllll')
 
 				
 				# logging.info('stop noti => ' + result)
@@ -200,7 +202,7 @@ class Sync(MethodView):
 
 					#0일경우는 새로운 계정 추가할 경우.					
 					
-					logging.debug('pushtoken =>' + push_token)
+					logging.info('pushtoken =>' + push_token)
 					data_message = {
 					    "type" : "sync",
 					    "action" : "default"
@@ -237,8 +239,8 @@ class Sync(MethodView):
 				calendar_hashkey = row[0]['calendar_hashkey'];
 				calendar_id = row[0]['calendar_id'];
 				access_token = account[0]['access_token']
-				logging.debug('synctoken =>' + sync_token)
-				logging.debug('calendar_id = >'+calendar_id)
+				logging.info('synctoken =>' + sync_token)
+				logging.info('calendar_id = >'+calendar_id)
 				
 				
 				URL = 'https://www.googleapis.com/calendar/v3/calendars/'+urllib.request.pathname2url(calendar_id)+'/events'
@@ -246,7 +248,7 @@ class Sync(MethodView):
 					'syncToken':sync_token
 				}
 				res = json.loads(network_manager.reqGET(URL,access_token,body))				
-				logging.debug('new Res' + str(res))
+				logging.info('new Res' + str(res))
 
 				next_sync_token = res['nextSyncToken']								
 				syncModel.setSync(calendar_hashkey,next_sync_token)			
@@ -266,7 +268,7 @@ class Sync(MethodView):
 							location = item['location']													
 
 						if 'recurrence' in item:
-							logging.debug('rec => '+str(item['recurrence'][0]))			
+							logging.info('rec => '+str(item['recurrence'][0]))			
 							recurrence = item['recurrence'][0]														
 
 						#삭제는 아래와같은 키값들을 제공해주지 않는다.
@@ -281,9 +283,9 @@ class Sync(MethodView):
 							summary = 'noTitle'
 							if('summary' in item):												
 								summary = item['summary']
-							# logging.debug('created => '+ created)
-							# logging.debug('updated => '+ updated)
-							# logging.debug('status => ' + status)									
+							# logging.info('created => '+ created)
+							# logging.info('updated => '+ updated)
+							# logging.info('status => ' + status)									
 							
 						
 						# 만들어진 경우 or 수정일 경우이다.
@@ -298,27 +300,27 @@ class Sync(MethodView):
 								end_date = utils.date_utc_to_current(str(item['end']['dateTime']))					
 
 						if status == 'confirmed' and created == updated:
-							logging.debug('addEvent')
+							logging.info('addEvent')
 
 
 							event_hashkey = utils.makeHashKey(event_id)
 
 							eventModel.setGoogleEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location,recurrence)
 							calendarModel.updateCalendarRecoState(calendar_hashkey,CALENDAR_RECO_STATE_DO)
-							logging.debug('addEnd')							
+							logging.info('addEnd')							
 							slackAlarmBot.alertEventUpdateEnd("추가")
 						#업데이트 한 경우이다. 
 						#id값을 찾아서 변환된값을 바꿔준다.
 						elif status =='confirmed' and created != updated:
-							logging.debug('updated')
+							logging.info('updated')
 							# update events set calendar_id = 'testid', summary = 'sum' where id = '67'
 							eventModel.updateEvents(summary,start_date,end_date,created,updated,location,event_id)
 							calendarModel.updateCalendarRecoState(calendar_hashkey,CALENDAR_RECO_STATE_DO)
-							logging.debug('updateEnd')
+							logging.info('updateEnd')
 							slackAlarmBot.alertEventUpdateEnd("변경")
 
 						elif status == 'cancelled':
-							logging.debug('cancelled')							
+							logging.info('cancelled')							
 							eventModel.deleteEvents(event_id)				
 			return 'hi'
 			
@@ -359,4 +361,5 @@ class Sync(MethodView):
 												)							
 
 			except Exception as e:
+				logging.error(str(e))
 				return utils.resErr(str(e))		

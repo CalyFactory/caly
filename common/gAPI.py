@@ -47,10 +47,10 @@ def checkValidAccessToken(access_token):
     logging.info('checkValidAccesToken')      
 
     userAccount = userAccountModel.getUserAccountWithAccessToken(access_token)      
-    logging.debug(userAccount)
+    logging.info(userAccount)
     expire_time = userAccount[0]['google_expire_time']
     refresh_token = userAccount[0]['refresh_token']
-    logging.debug(expire_time)
+    logging.info(expire_time)
     
     #유효할 경우    
     if utils.subDateWithCurrent(expire_time) < 0:
@@ -68,11 +68,11 @@ def checkValidAccessToken(access_token):
 
         current_date_time = datetime.datetime.now()
         google_expire_time = current_date_time + datetime.timedelta(seconds=expires_in)
-        logging.debug('google expire tiem =>'+str(google_expire_time))
+        logging.info('google expire tiem =>'+str(google_expire_time))
         try:
             userAccountModel.updateUserAccessToken(access_token,new_access_token,google_expire_time)
         except Exception as e:
-            logging.debug(str(e))
+            logging.info(str(e))
 
         return new_access_token
 

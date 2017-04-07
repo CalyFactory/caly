@@ -11,10 +11,10 @@ def reqPOST(URL,access_token,body = {}):
 	#있으면 바꿔줘야되고
 	#없으면 기존것을 사용해야함.
 	new_access_token = gAPI.checkValidAccessToken(access_token)	
-	logging.debug('newacces=>'+ str(new_access_token))
+	logging.info('newacces=>'+ str(new_access_token))
 	
 	if new_access_token:
-		logging.debug('new!')
+		logging.info('new!')
 		access_token = new_access_token
 
 
@@ -28,7 +28,7 @@ def reqPOST(URL,access_token,body = {}):
 def reqGET(URL,access_token,params = {}):
 	
 	new_access_token = gAPI.checkValidAccessToken(access_token)	
-	logging.debug('newacces=>'+ str(new_access_token))
+	logging.info('newacces=>'+ str(new_access_token))
 	if new_access_token:		
 		access_token = new_access_token
 		

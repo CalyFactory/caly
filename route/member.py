@@ -49,7 +49,7 @@ class Member(MethodView):
 			if app_version == app_conf['version'] or app_version == 'null':
 
 				who_am_i = login_manager.checkLoginState(flask)									
-				logging.debug('whoam_i'+ str(who_am_i))
+				logging.info('whoam_i'+ str(who_am_i))
 
 				if who_am_i['state'] == LOGIN_STATE_AUTO:
 					
@@ -122,6 +122,7 @@ class Member(MethodView):
 				try:
 					credentials = gAPI.getOauthCredentials(authCode)
 				except Exception as e:
+					logging.error(str(e))
 					return utils.resErr(	
 											{'msg':str(e)}
 										)
@@ -139,10 +140,8 @@ class Member(MethodView):
 
 				refresh_token = credentials['refresh_token']
 
-				logging.debug('current now => '+str(datetime.datetime.now()))
-				logging.debug('credi'+str(credentials))
-				logging.debug('accessToken'+access_token)
-				logging.debug('extime'+str(google_expire_time))				
+				logging.info('current now => '+str(datetime.datetime.now()))				
+				logging.info('extime'+str(google_expire_time))				
 				
 
 			gender = flask.request.form['gender']			
@@ -194,8 +193,8 @@ class Member(MethodView):
 				#로그아웃시 해당 세션키를 보내서 날린다.
 				
 				redis.set(apikey,user_hashkey)
-				logging.debug('apikey' + apikey)				
-				logging.debug('user_hashkey' + user_hashkey)	
+				logging.info('apikey' + apikey)				
+				logging.info('user_hashkey' + user_hashkey)	
 				
 				#로그인이 끝났다면!
 				#로그인끝난상황을 기록한다.
@@ -205,6 +204,7 @@ class Member(MethodView):
 											{'apikey':apikey}
 										)
 			except Exception as e:
+				logging.error(str(e))
 				return utils.resErr(
 										{'msg':str(e)}
 									)		
@@ -222,6 +222,7 @@ class Member(MethodView):
 					userAccountModel.updateCaldavUserAccount(u_id,u_pw,login_platform)
 				
 				except Exception as e:
+					logging.error(str(e))
 					#그래도 비밀번호가 또 틀렸을경우 401을 리턴한다.
 					if str(e) == 'user auth error':
 						return utils.resCustom(
@@ -261,8 +262,8 @@ class Member(MethodView):
 					user_hashkey = devices[0]['user_hashkey']
 					redis.set(apikey,devices[0]['user_hashkey'])
 
-					logging.debug('apikey' + apikey)
-					logging.debug('user_hashkey' + user_hashkey)
+					logging.info('apikey' + apikey)
+					logging.info('user_hashkey' + user_hashkey)
 
 				userDeviceModel.updateUserDevice(push_token,device_type,app_version,device_info,uuid,sdkLevel,apikey)
 				userModel.updateUserIsActive(user_hashkey,1)
@@ -272,6 +273,7 @@ class Member(MethodView):
 											{'apikey':apikey}
 										)
 			except Exception as e:
+				logging.error(str(e))
 				return utils.resErr(
 										{'msg':str(e)}
 									)		
@@ -293,6 +295,7 @@ class Member(MethodView):
 										)
 
 			except Exception as e:
+				logging.error(str(e))
 				return utils.resErr(
 										{'msg':str(e)}
 									)				
@@ -306,13 +309,14 @@ class Member(MethodView):
 									)
 			try:
 				user_hashkey = redis.get(apikey)
-				logging.debug('hashkey=> '+user_hashkey)
+				logging.info('hashkey=> '+user_hashkey)
 				accounts = userAccountModel.getHasAccountList(user_hashkey)
 				return utils.resSuccess(
 											{'data':accounts}
 										)
 
 			except Exception as e:
+				logging.error(str(e))
 				return utils.resErr(
 										{'msg':str(e)}
 									)								
@@ -322,7 +326,7 @@ class Member(MethodView):
 			login_platform = flask.request.form['login_platform']	
 
 			user_hashkey = redis.get(apikey)
-			logging.debug('user_hashkey = '+ user_hashkey)
+			logging.info('user_hashkey = '+ user_hashkey)
 			if not user_hashkey:
 				return utils.resErr(
 										{'msg':MSG_INVALID_TOKENKEY}
@@ -343,6 +347,7 @@ class Member(MethodView):
 					try:
 						principal = calDavclient.getPrincipal()				
 					except Exception as e:
+						logging.error(str(e))
 						return utils.resCustom(
 													401,
 													{'msg':'invalid id/pw'}
@@ -351,13 +356,13 @@ class Member(MethodView):
 					homeset = principal.getHomeSet()
 					caldav_homeset = homeset.homesetUrl	
 
-					logging.debug('caldav_hoemse =>' + caldav_homeset)
+					logging.info('caldav_hoemse =>' + caldav_homeset)
 					
 
 					user = userAccountModel.getCaldavUserAccount(u_id,login_platform)
 					#검색을 했는데 길이가 0이면, 유저가 없는경우임으로 추가를 해준다.
 					#그리고 동기화로직을 탄다.
-					logging.debug('user = >'+str(user))
+					logging.info('user = >'+str(user))
 
 					if len(user) == 0:
 
@@ -384,6 +389,7 @@ class Member(MethodView):
 					#일단 캘린더리스트를 삭제하고..					
 						syncInfo = syncLogic.caldav(user,user_hashkey,login_platform,SYNC_TIME_STATE_FORWARD)
 					except Exception as e:
+						logging.error(str(e))
 						calendarModel.deleteCalendarList(user[0]['account_hashkey'])
 						return utils.resCustom(
 												201,							
@@ -406,6 +412,7 @@ class Member(MethodView):
 													{'msg':str(syncInfo['data'])}
 												)																
 				except Exception as e:
+					logging.error(str(e))
 					return utils.resErr(
 											{'msg':str(e)}
 										)	
@@ -443,11 +450,9 @@ class Member(MethodView):
 					#리프레시토큰 재발급
 					refresh_token = credentials['refresh_token']
 
-					logging.debug('current now => '+str(datetime.datetime.now()))
-					logging.debug('credi'+str(credentials))
-					logging.debug('accessToken'+access_token)
-					logging.debug('extime'+str(google_expire_time))	
-					logging.debug('refreshTOken'+str(refresh_token))
+					logging.info('current now => '+str(datetime.datetime.now()))
+
+					logging.info('refreshTOken'+str(refresh_token))
 
 					#구글에서 email이 userId로 들어간다
 					u_id = email
@@ -456,18 +461,19 @@ class Member(MethodView):
 					
 					user = userAccountModel.getGoogleUserAccount(subject)
 					
-					logging.debug('user==>'+str(user))
+					logging.info('user==>'+str(user))
 
 					try:
 						syncInfo = syncLogic.google(user,apikey,SYNC_TIME_STATE_FORWARD)
 					except Exception as e:
+						logging.error(str(e))
 						calendarModel.deleteCalendarList(user[0]['account_hashkey'])
 						return utils.resCustom(
 												201,							
 												{'msg':str(e)}
 											)						
 					
-					logging.debug('syncInfo==>'+str(syncInfo))
+					logging.info('syncInfo==>'+str(syncInfo))
 
 					if syncInfo['state'] == SYNC_GOOGLE_SUCCES:
 						statee.userLife(apikey,LIFE_STATE_ADDACCOUNT_END)					
@@ -486,6 +492,7 @@ class Member(MethodView):
 												)							
 
 				except Exception as e:
+					logging.error(str(e))
 					return utils.resErr(	
 											{'msg':str(e)}
 										)	
@@ -503,7 +510,7 @@ class Member(MethodView):
 			
 				userDeviceModel.logout(apikey)
 				redis.delete(apikey)
-				logging.debug('delete apikey => ' + apikey)									
+				logging.info('delete apikey => ' + apikey)									
 				
 				statee.userLife(apikey,LIFE_STATE_LOGOUT)
 				
@@ -512,7 +519,7 @@ class Member(MethodView):
 										)
 			
 			except Exception as e:
-
+				logging.error(str(e))
 				return utils.resErr(
 										{'msg':str(e)}
 									)
@@ -536,12 +543,12 @@ class Member(MethodView):
 						result = gAPI.stopWatch(google_calendar['google_channel_id'],google_calendar['google_resource_id'],google_calendar['access_token'])
 						
 						if result == "":
-							logging.debug('stop watch Succes')
+							logging.info('stop watch Succes')
 							googleWatchInfoModel.setGoogleWatchInfo(google_calendar['google_channel_id'],GOOGLE_WATCH_DETACH)
 						else:
-							logging.debug('faillllll')						
+							logging.info('faillllll')						
 
-						logging.debug('result => '+result)
+						logging.info('result => '+result)
 
 
 				#일단 사유 받자.
@@ -585,7 +592,7 @@ class Member(MethodView):
 										)
 			
 			except Exception as e:
-				logging.debug(str(e))
+				logging.info(str(e))
 				return utils.resErr(
 										{'msg':str(e)}
 									)				
