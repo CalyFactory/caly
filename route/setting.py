@@ -29,7 +29,7 @@ class Setting(MethodView):
 										)
 
 			except Exception as e:
-
+				logging.error(str(e))
 				return utils.resErr(
 										{'msg':str(e)}
 									)				
@@ -51,7 +51,7 @@ class Setting(MethodView):
 										)
 
 			except Exception as e:
-
+				logging.error(str(e))
 				return utils.resErr(
 										{'msg':str(e)}
 									)		

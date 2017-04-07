@@ -54,14 +54,13 @@ class Reco(MethodView):
 									)	
 
 			try:
-				account_hashkey = userDeviceModel.getUserAccountHashkey(apikey)[0]['account_hashkey']
-				# print(account_hashkey[0])
-				# logging.debug(account_hashkey[0]['account_hashkey'])
+				account_hashkey = userDeviceModel.getUserAccountHashkey(apikey)[0]['account_hashkey']				
 				recoModel.trackingReco(apikey,reco_hashkey,event_hashkey,account_hashkey,typee,residense_time)			
 				return utils.resSuccess(
 											{'data':'successInsert'}
 										)
 			except Exception as e:
+				logging.error(str(e))
 				return utils.resErr(
 										{'msg':str(e)}
 									)					
@@ -78,6 +77,7 @@ class Reco(MethodView):
 				state = recoModel.checkAllRecoEndState(apikey)				
 
 			except Exception as e:
+				logging.error(str(e))
 				return utils.resErr(str(e))		
 			
 			if len(state) == 1 and state[0]['reco_state'] == 2:

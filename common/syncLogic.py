@@ -89,18 +89,18 @@ def caldav(user,apikey,login_platform,time_state):
 	#아닐경우는 그냥 기존것에 더해주면된다.	
 	if time_state == SYNC_TIME_STATE_FORWARD:
 		for idx,calendar in enumerate(calendars):
-			logging.debug('calenndarrr'+str(calendar.calendarUrl))
+			logging.info('calenndarrr'+str(calendar.calendarUrl))
 
 			# 캘린더url + login_platform이 같으면 항상 같은 값이나오도록한다.
 			# 이는 후에 background에서 돌경우 같은 캘린더를 찾긱위해 디비를 다시 돌지 않게 하기 위함이다		
 			calendar_hashkey = utils.makeHashKey(calendar.calendarUrl+login_platform)
 			arr_calendar_hashkey.append(calendar_hashkey)
 
-		logging.debug('SYNC FORWARD')
+		logging.info('SYNC FORWARD')
 		try:
 			calendarModel.setCaldavCalendar(calendars,account_hashkey,arr_calendar_hashkey)
 		except Exception as e:
-			logging.debug('set calendar err')
+			logging.error(str(e))
 			return utils.syncState(SYNC_CALDAV_ERR_SET_CALENDAR,str(e))
 	
 	#backward일경우 기존 디비 뒤져서 hashkey를 넣어준다.
@@ -128,8 +128,8 @@ def caldav(user,apikey,login_platform,time_state):
 	for idx,calendar in enumerate(calendars):
 
 			
-		logging.debug('calnedarsss=> ' + calendar.calendarName)
-		logging.debug('url => ' + calendar.calendarUrl)
+		logging.info('calnedarsss=> ' + calendar.calendarName)
+		logging.info('url => ' + calendar.calendarUrl)
 
 
 		#언제부터 언제까지 일정을 가져올지를 정한다.
@@ -147,11 +147,11 @@ def caldav(user,apikey,login_platform,time_state):
 		
 
 
-		logging.debug('eventDataList==>'+str(eventDataList))
+		logging.info('eventDataList==>'+str(eventDataList))
 		for event_set in eventDataList:		
-			logging.debug('eventsetttt => ' + str(event_set.eventData))
+			logging.info('eventsetttt => ' + str(event_set.eventData))
 			event = event_set.eventData['VEVENT']	
-			logging.debug('난 바꿨는데?')	
+			logging.info('난 바꿨는데?')	
 			#네이버일경우만!		
 		   	#만약 Transparet인 이벤트라면 다음 루프로 넘어간다.
 		   	#ical일경우는 타면안된다.
@@ -222,22 +222,23 @@ def caldav(user,apikey,login_platform,time_state):
 				endIndex = recurrence.index("}")
 				recurrence = recurrence[startIndex+1:endIndex]
 
-			logging.debug('hashkey=>' + calendar_hashkey)	
-			logging.debug('event_hashkey=>' + event_hashkey)	
-			logging.debug('event_id=>' + event_id)	
-			logging.debug('caldav_event_url=>' + caldav_event_url)	
-			logging.debug('caldav_etag=>' + caldav_etag)	
-			logging.debug('summary=>' + summary)
-			logging.debug('start_dt=>' + str(start_dt))
-			logging.debug('end_dt=>' + str(end_dt))
-			logging.debug('created_dt=>' + str(created_dt))
-			logging.debug('updated_dt=>' + str(updated_dt))
-			logging.debug('location=>' + str(location))
+			logging.info('hashkey=>' + calendar_hashkey)	
+			logging.info('event_hashkey=>' + event_hashkey)	
+			logging.info('event_id=>' + event_id)	
+			logging.info('caldav_event_url=>' + caldav_event_url)	
+			logging.info('caldav_etag=>' + caldav_etag)	
+			logging.info('summary=>' + summary)
+			logging.info('start_dt=>' + str(start_dt))
+			logging.info('end_dt=>' + str(end_dt))
+			logging.info('created_dt=>' + str(created_dt))
+			logging.info('updated_dt=>' + str(updated_dt))
+			logging.info('location=>' + str(location))
 			
 			try:
 				#이벤트를 저장한다.
 				eventModel.setCaldavEvents(event_hashkey,calendar_hashkey,event_id,summary,start_dt,end_dt,created_dt,updated_dt,location,caldav_event_url,caldav_etag,recurrence)
 			except Exception as e:
+				logging.error(str(e))
 				return utils.syncState(SYNC_CALDAV_ERR_SET_EVENTS,str(e))
 
 		
@@ -245,6 +246,7 @@ def caldav(user,apikey,login_platform,time_state):
 			#캘린더마다 싱크된 타임을 기록해준다. 
 			syncModel.setSync(calendar_hashkey,'null')
 		except Exception as e:
+			logging.error(str(e))
 			return utils.syncState(SYNC_CALDAV_ERR_SET_SYNC_TIME,str(e))
 
 	try:
@@ -253,6 +255,7 @@ def caldav(user,apikey,login_platform,time_state):
 		syncEndModel.setSyncEnd(account_hashkey,state)
 			
 	except Exception as e:
+		logging.error(str(e))
 		return utils.syncState(SYNC_CALDAV_ERR_SET_SYNC_END,str(e))
 
 	log_state = time_state == SYNC_TIME_STATE_FORWARD and LIFE_STATE_CALDAV_FORWARD_SYNC_END or LIFE_STATE_CALDAV_BACKWARD_SYNC_END
@@ -299,7 +302,7 @@ def google(user,apikey,time_state):
 	calendar_list_URL = 'https://www.googleapis.com/calendar/v3/users/me/calendarList'
 	calendar_list = json.loads(network_manager.reqGET(calendar_list_URL,access_token))
 	
-	logging.debug('calendarList=>' + str(calendar_list)	)
+	logging.info('calendarList=>' + str(calendar_list)	)
 	
 	calendars = calendar_list['items']
 
@@ -318,6 +321,7 @@ def google(user,apikey,time_state):
 			#최초 googlepushcomplete 가 0
 			calendarModel.setGoogleCalendar(calendars,account_hashkey,arr_channel_id)
 		except Exception as e:
+			logging.error(str(e))
 			return utils.syncState(SYNC_GOOGLE_ERR_SET_CALENDAR,str(e))		
 
 	calendarsInDB = calendarModel.getAllCalendarWithAccountHashkey(account_hashkey)
@@ -367,19 +371,19 @@ def google(user,apikey,time_state):
 	#모든캘린더에대해서 처음에만 진행한다(미래)
 	if time_state == SYNC_TIME_STATE_FORWARD:
 		#10년동한 우린 알람을 받고자한다.
-		logging.debug('his')
-		# logging.debug( datetime.now())
+		logging.info('his')
+		# logging.info( datetime.now())
 		expp = datetime.now()+ timedelta(hours=MONTH_TO_HOUR)
 		# exp = datetime.utcnow() + timedelta(hours = 9 )
-		logging.debug('exp =>'+str(expp))
-		logging.debug('exp =>'+str(expp.timestamp()))
+		logging.info('exp =>'+str(expp))
+		logging.info('exp =>'+str(expp.timestamp()))
 		exp_unix_time = int(expp.timestamp()*1000) 
 		
-		logging.debug('google expiration -> '+str(exp_unix_time))
+		logging.info('google expiration -> '+str(exp_unix_time))
 				
 		for idx, calendar in enumerate(calendars):
 			logging.info('[timeTest]watch Request==> '+str(utils.checkTime(datetime.now(),'ing')))			
-			logging.debug('calender id =>'+calendar['id'])		
+			logging.info('calender id =>'+calendar['id'])		
 			calendar_id = calendar['id']
 
 			#안되는 캘린더가의 경우가 존재함으로 현재 검증된것들만 동기화되도록한다.
@@ -399,14 +403,14 @@ def google(user,apikey,time_state):
 		
 				logging.info('watch res =>'+str(res))
 				try:
-					logging.debug('giood') 
-					logging.debug(res['id']) 
-					logging.debug(expp) 
-					logging.debug(res['resourceId']) 
+					logging.info('giood') 
+					logging.info(res['id']) 
+					logging.info(expp) 
+					logging.info(res['resourceId']) 
 
 					calendarModel.updateGoogleExpiration(res['id'],expp,res['resourceId'])					
 				except Exception as e:
-					logging.debug(str(e)) 
+					logging.error(str(e)) 
 					
 				googleWatchInfoModel.setGoogleWatchInfo(arr_channel_id[idx],GOOGLE_WATCH_CALL)
 				# resource_id = res['resourceId']
@@ -479,7 +483,7 @@ def reqEventsList(time_state,apikey,calendar,user,body={}):
 			end_date = utils.date_utc_to_current(str(item['end']['dateTime']))
 
 		if 'recurrence' in item:
-			logging.debug('rec => '+str(item['recurrence'][0]))			
+			logging.info('rec => '+str(item['recurrence'][0]))			
 			recurrence = item['recurrence'][0]
 
 		event_hashkey = utils.makeHashKey(event_id)
@@ -508,7 +512,7 @@ def reqEventsList(time_state,apikey,calendar,user,body={}):
 		
 
 		syncToken = res['nextSyncToken']
-		logging.debug('syncToken==>'+syncToken)
+		logging.info('syncToken==>'+syncToken)
 
 		#해당캘린더의 싱크가 끝낫다+> syncToken을 저장해둔다.
 		syncModel.setSync(calendar_hashkey,syncToken)

@@ -31,7 +31,7 @@ def checkLoginState(flask):
 	#세션키가 존재한다면 일반로그인이다.
 	#google / caldav 모두같음.	
 	if apikey != 'null':
-		logging.debug('apikey->'+apikey)
+		logging.info('apikey->'+apikey)
 		
 		
 		if redis.get(apikey):
@@ -55,7 +55,7 @@ def checkLoginState(flask):
 		#회원가입/로그아웃 재로그인/ 다른디바이스 로그인 경우이다.
 		#캘데브일때는 캘데브 서버에서 인증확인을 받아야한다.
 		if login_platform == 'naver' or login_platform == 'ical':
-			logging.debug('naver')
+			logging.info('naver')
 			u_id = flask.request.form['uId']
 			u_pw = flask.request.form['uPw']
 			u_pw = cryptoo.encryptt(u_pw)	
@@ -65,7 +65,8 @@ def checkLoginState(flask):
 			#이를 에러가 아니라 특정 정보를 주어야한다. 400 msg 와 같이말이다.
 			try:
 				principal = calDavclient.getPrincipal()				
-			except Exception as e:						
+			except Exception as e:			
+				logging.error(str(e))			
 				return utils.loginState(LOGIN_ERROR_INVALID,None)
 			
 			#cal dav일 경우.
@@ -76,12 +77,13 @@ def checkLoginState(flask):
 				#naver,ical이 같을경우 더많은 데이터가나올수있다.
 				account = userAccountModel.getCaldavUserAccount(u_id,login_platform)
 			except Exception as e:
+				logging.error(str(e))
 				return utils.loginState(LOGIN_ERROR,str(e))
 			#구글일경우
 			#authCode값이 존재하고 해당 authcode로부터 subject를 추출한다.
 			#
 		elif login_platform == 'google':
-			logging.debug('google')
+			logging.info('google')
 			#id값으로 조회한다. 있는지 없는지.
 			subject = flask.request.form['subject']
 			#subject값이 있는지를 확인한다.
@@ -89,6 +91,7 @@ def checkLoginState(flask):
 			try:
 				account = userAccountModel.getGoogleUserAccount(subject)
 			except Exception as e:
+				logging.error(str(e))
 				return utils.loginState(LOGIN_ERROR,str(e))
 		
 		## 존재하지 않을경우 => 최초로그인
@@ -101,7 +104,7 @@ def checkLoginState(flask):
 			user_is_active = userModel.getUserIsActive(user_hashkey)[0]['is_active']
 			isFirst = False
 		
-		logging.debug('isFirst => '+str(isFirst))
+		logging.info('isFirst => '+str(isFirst))
 
 		#세션키가 없는경우이면 최초 로그인 혹은  로그아웃 이다
 		if apikey == 'null' :
@@ -113,6 +116,7 @@ def checkLoginState(flask):
 				
 
 			except Exception as e:
+				logging.error(str(e))
 				return utils.loginState(LOGIN_ERROR,str(e))
 			#최초 회원가입인경우.
 			#id/pw or subject가 없다면 최초 회원가입인 경우이다.
@@ -133,13 +137,14 @@ def checkLoginState(flask):
 					userDeviceModel.setUserDevice(device_hashkey,account_hashkey,apikey)
 					redis.set(apikey,user_hashkey)
 				except Exception as e:
+					logging.error(str(e))
 					return utils.loginState(LOGIN_ERROR,str(e))
 
 
 				return utils.loginState(LOGIN_STATE_RESIGNUP,{'apikey':apikey})
 
 			elif len(device) == 0 :					
-				logging.debug('other device~!')
+				logging.info('other device~!')
 				device_hashkey = utils.makeHashKey(account_hashkey)
 				apikey = utils.makeHashKey(device_hashkey)
 
@@ -148,6 +153,7 @@ def checkLoginState(flask):
 					userDeviceModel.setUserDevice(device_hashkey,account_hashkey,apikey)
 					redis.set(apikey,user_hashkey)
 				except Exception as e:
+					logging.error(str(e))
 					return utils.loginState(LOGIN_ERROR,str(e))
 				
 				statee.userLife(apikey,LIFE_STATE_SIGNIN_OTEHRDEVICE)														
@@ -160,18 +166,19 @@ def checkLoginState(flask):
 			# 새션키를 하나만들어서 넣어준다.
 
 			elif len(device)!=0 :
-				logging.debug('logout and return or new id/pw')
+				logging.info('logout and return or new id/pw')
 				apikey = utils.makeHashKey(uuid)
 
 				redis.set(apikey,user_hashkey)
 
-				logging.debug('set apikey =>'+ apikey)
-				logging.debug('set userhashkey =>'+ user_hashkey)
+				logging.info('set apikey =>'+ apikey)
+				logging.info('set userhashkey =>'+ user_hashkey)
 				#codeReveiw
 				#updateUserDeviceLogout 명확하지 않은 함수명.
 				try:
 					userDeviceModel.updateUserApikey(apikey,account_hashkey)
 				except Exception as e:
+					logging.error(str(e))
 					return utils.loginState(LOGIN_ERROR,str(e))
 				
 				statee.userLife(apikey,LIFE_STATE_SIGNIN_RELOGIN)																			

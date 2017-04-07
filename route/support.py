@@ -24,6 +24,7 @@ class Support(MethodView):
 			try:
 				notices = supportModel.getNotice()
 			except Exception as e:
+				logging.error(str(e))
 				return utils.resErr(str(e))		
 
 			if len(notices) != 0:
@@ -52,6 +53,7 @@ class Support(MethodView):
 											{'msg':MSG_SUCCESS}
 										)				
 			except Exception as e:
+				logging.error(str(e))
 				return utils.resErr(
 										{'msg':str(e)}
 									)		
