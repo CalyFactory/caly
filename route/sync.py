@@ -20,7 +20,6 @@ from model import googleWatchInfoModel
 
 
 from common import caldavWrapper
-from common import gAPI
 from manager import network_manager
 
 import json
@@ -150,82 +149,94 @@ class Sync(MethodView):
 			#동기화 할 경우.
 			if state == 'sync':
 
-				googleWatchInfoModel.setGoogleWatchInfo(channel_id,GOOGLE_WATCH_ATTACH)
-				account_hashkey = account[0]['account_hashkey']	
-				calendarModel.updateGoogleSyncState(channel_id,GOOGLE_SYNC_STATE_PUSH_END)						
-				calendars = calendarModel.getGoogleSyncState(account_hashkey)
-				apikey = flask.request.headers['X-Goog-Channel-Token']
-
-				
-				###############
-				#####DEBUG#####
-				#pushNoti등록을 해제하는 부분입니다. 
-				#등록 테스트에서 매번등록되면 나중에 변경됬이력이 생겼을때 등록된 수만큼 푸시가 와서 등록하자마 해제하는 로직.
-				###############		
-
-				access_token = account[0]['access_token']		
-				resource_id = flask.request.headers['X-Goog-Resource-Id']
-
-				logging.info('acess_token->'+access_token)
-				logging.info('resource_id->'+resource_id)
-				logging.info('channel_id->'+channel_id)
-				# result = gAPI.stopWatch(channel_id,resource_id,access_token)
-				
-				# if result == "":
-				# 	logging.info('stop watch Succes')
-				# else:
-				# 	logging.info('faillllll')
-
-				
-				# logging.info('stop noti => ' + result)
-				###############
-				#####DEBUG#####
-				###############		
-
-
-
-				is_finished_sync = True
-				for calendar in calendars:
-					logging.info('google state==>'+str(calendar['google_sync_state']))		
-					if calendar['google_sync_state'] != GOOGLE_SYNC_STATE_PUSH_END:
-						is_finished_sync = False
+				try:
+					googleWatchInfoModel.setGoogleWatchInfo(channel_id,GOOGLE_WATCH_ATTACH)
+					account_hashkey = account[0]['account_hashkey']	
+					calendarModel.updateGoogleSyncState(channel_id,GOOGLE_SYNC_STATE_PUSH_END)						
+					calendars = calendarModel.getGoogleSyncState(account_hashkey)
+					apikey = flask.request.headers['X-Goog-Channel-Token']
 
 					
-				if is_finished_sync:
-					logging.info('success Sync')
+					###############
+					#####DEBUG#####
+					#pushNoti등록을 해제하는 부분입니다. 
+					#등록 테스트에서 매번등록되면 나중에 변경됬이력이 생겼을때 등록된 수만큼 푸시가 와서 등록하자마 해제하는 로직.
+					###############		
 
-					user_device = userDeviceModel.getPushToken(apikey)
-					logging.info('device=> ' + str(user_device))
-					#0이 아닐경우는 유저 디바이스가 최초가입으로 제대로 존재할 경우
-					if len(user_device) !=0:
-						push_token = user_device[0]['push_token']
+					access_token = account[0]['access_token']		
+					resource_id = flask.request.headers['X-Goog-Resource-Id']
 
-					#0일경우는 새로운 계정 추가할 경우.					
+					logging.info('acess_token->'+access_token)
+					logging.info('resource_id->'+resource_id)
+					logging.info('channel_id->'+channel_id)
+					# result = gAPI.stopWatch(channel_id,resource_id,access_token)
 					
-					logging.info('pushtoken =>' + push_token)
-					data_message = {
-					    "type" : "sync",
-					    "action" : "default"
-					}
-					
-					result = FCM.sendOnlyData(push_token,data_message)
+					# if result == "":
+					# 	logging.info('stop watch Succes')
+					# else:
+					# 	logging.info('faillllll')
 
-					#푸시보낸후 결과를 몽고디비에 저장.
-					#푸시결과,
-					#푸시토큰,
-					#세션키,
-					#데이터메세지
-					result['push_token'] = push_token
-					result['apikey'] = apikey
-					result['push_data'] = data_message
-					mFcmModel.insertFcm(result)								
-					logging.info(str(result))
 					
-					statee.userLife(apikey,LIFE_STATE_GOOGLE_PUSH_END)									
-					
+					# logging.info('stop noti => ' + result)
+					###############
+					#####DEBUG#####
+					###############		
 
-				else:
-					logging.info('fail all sync')
+
+
+					is_finished_sync = True
+					for calendar in calendars:
+						logging.info('google state==>'+str(calendar['google_sync_state']))		
+						if calendar['google_sync_state'] != GOOGLE_SYNC_STATE_PUSH_END:
+							is_finished_sync = False
+
+						
+					if is_finished_sync:
+						logging.info('success Sync')
+
+						user_device = userDeviceModel.getPushToken(apikey)
+						logging.info('device=> ' + str(user_device))
+						#0이 아닐경우는 유저 디바이스가 최초가입으로 제대로 존재할 경우
+						if len(user_device) !=0:
+							push_token = user_device[0]['push_token']
+
+						#0일경우는 새로운 계정 추가할 경우.					
+						
+						logging.info('pushtoken =>' + push_token)
+						data_message = {
+						    "type" : "sync",
+						    "action" : "default"
+						}
+						
+						result = FCM.sendOnlyData(push_token,data_message)
+
+						#푸시보낸후 결과를 몽고디비에 저장.
+						#푸시결과,
+						#푸시토큰,
+						#세션키,
+						#데이터메세지
+						result['push_token'] = push_token
+						result['apikey'] = apikey
+						result['push_data'] = data_message
+						mFcmModel.insertFcm(result)								
+						logging.info(str(result))
+						
+						statee.userLife(apikey,LIFE_STATE_GOOGLE_PUSH_END)									
+						
+
+					else:
+						logging.info('fail all sync')
+				except Exception as e:
+					logging.error(str(e))
+					result = gAPI.stopWatch(channel_id,resource_id,access_token)
+					if result == "":
+						logging.info('stop watch Succes')
+						googleWatchInfoModel.setGoogleWatchInfo(channel_id,GOOGLE_WATCH_DETACH)
+					else:
+						logging.info('faillllll')						
+
+					logging.info('result => '+result)					
+
 			else:
 				rows = calendarModel.getCalendar(channel_id)				
 				calendar_hashkey = str(rows[0]['calendar_hashkey'])
