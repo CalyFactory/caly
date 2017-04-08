@@ -54,7 +54,7 @@ def findEventList(eventList, eventIdList):
 
 
 
-@periodic_task(run_every=timedelta(seconds=10))
+@periodic_task(run_every=timedelta(seconds=300))
 def accountDistributor():
     print("hello")
     
