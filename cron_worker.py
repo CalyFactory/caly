@@ -253,6 +253,14 @@ def addEvent(calendar, newEventList, addedList):
         
         item = event.eventData['VEVENT']
         print(item)
+        summary = None
+        location = None
+        start_dt = None
+        end_dt = None
+        created_dt = None
+        updated_dt = None
+        #반복 설정.
+        recurrence = None
 
         if 'SUMMARY' in item:
             summary = item['SUMMARY']
@@ -295,6 +303,13 @@ def addEvent(calendar, newEventList, addedList):
                 location = None
             else:
                 location = item['LOCATION']
+
+        if 'RRULE' in item:
+            recurrence = event['RRULE']
+            startIndex = recurrence.index("{")
+            endIndex = recurrence.index("}")
+            recurrence = recurrence[startIndex+1:endIndex]       
+                         
         db_manager.query(
             """
             INSERT INTO EVENT
@@ -309,10 +324,12 @@ def addEvent(calendar, newEventList, addedList):
                 `end_dt`,
                 `created_dt`,
                 `updated_dt`,
-                `location`
+                `location`,
+                `recurrence`
             )
             VALUES 
             (
+                %s,
                 %s,
                 %s,
                 %s,
@@ -338,7 +355,8 @@ def addEvent(calendar, newEventList, addedList):
                 end_dt,
                 created_dt,
                 updated_dt,
-                location
+                location,
+                recurrence
 
             )
         )
@@ -369,6 +387,14 @@ def changeEvent(calendar, newEventList, changedList):
         
         item = event.eventData['VEVENT']
         print(item)
+        summary = None
+        location = None
+        start_dt = None
+        end_dt = None
+        created_dt = None
+        updated_dt = None
+        #반복 설정.
+        recurrence = None        
 
         if 'SUMMARY' in item:
             summary = item['SUMMARY']
@@ -411,6 +437,14 @@ def changeEvent(calendar, newEventList, changedList):
                 location = None
             else:
                 location = item['LOCATION']
+
+        if 'RRULE' in item:
+            recurrence = event['RRULE']
+            startIndex = recurrence.index("{")
+            endIndex = recurrence.index("}")
+            recurrence = recurrence[startIndex+1:endIndex]  
+
+
         db_manager.query(
             """
             UPDATE EVENT
@@ -422,7 +456,8 @@ def changeEvent(calendar, newEventList, changedList):
             `created_dt` = %s,
             `updated_dt` = %s,
             `location` = %s,
-            `reco_state` = 1
+            `reco_state` = 1,
+            `recurrence` = %s
             WHERE 
             `event_id` = %s
             """
@@ -435,7 +470,9 @@ def changeEvent(calendar, newEventList, changedList):
                 created_dt,
                 updated_dt,
                 location,
+                recurrence,
                 event.eventId
+
 
             )
         )

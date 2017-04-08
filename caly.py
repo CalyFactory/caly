@@ -109,7 +109,8 @@ def fireFcm():
 	    "title" : "공지사항입니다 ",
 	    "body" : "콩! 콩 콩진호가간다!"
 	}
-	FCM.sendOnlyData(token,data_message)
+	result = FCM.sendOnlyData(token,data_message)
+	logging.info(str(result))
 	return 'FCM.sendOnlyData(token,data_message)'
 
 if __name__ == '__main__':
