@@ -305,7 +305,7 @@ def addEvent(calendar, newEventList, addedList):
                 location = item['LOCATION']
 
         if 'RRULE' in item:
-            recurrence = event['RRULE']
+            recurrence = item['RRULE']
             startIndex = recurrence.index("{")
             endIndex = recurrence.index("}")
             recurrence = recurrence[startIndex+1:endIndex]       
@@ -439,7 +439,7 @@ def changeEvent(calendar, newEventList, changedList):
                 location = item['LOCATION']
 
         if 'RRULE' in item:
-            recurrence = event['RRULE']
+            recurrence = item['RRULE']
             startIndex = recurrence.index("{")
             endIndex = recurrence.index("}")
             recurrence = recurrence[startIndex+1:endIndex]  
