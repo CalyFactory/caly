@@ -34,6 +34,7 @@ class Events(MethodView):
 
 					logging.info('call first Events')
 					rows = eventModel.getEventsFirst(account_hashkey,user_hashkey,current_time,EVENTS_FORWARD_CNT,EVENTS_BACKWARD_CNT)
+					logging.info('events ===> '+str(rows))
 
 				elif int(pageNum) > 0 :
 					logging.info('call forward')

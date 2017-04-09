@@ -115,7 +115,7 @@ def getEventsFirst(account_hashkey,user_hashkey,standard_date,start_range,end_ra
 					"SELECT ctime FROM SYNC_END WHERE account_hashkey = %s and sync_time_state = 1"
 					") " 
 					"AND user_hashkey = %s AND start_dt >= %s ORDER BY start_dt limit %s ) "
-					"ORDER BY start_dt "
+					"ORDER BY start_dt,event_hashkey"
 					  ,
 					(			
 						account_hashkey,user_hashkey,standard_date,start_range,account_hashkey,user_hashkey,standard_date,end_range
