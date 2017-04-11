@@ -110,10 +110,21 @@ def checkLoginState(flask):
 		if apikey == 'null' :
 
 			try:
+
 				#codereview
-				#ros라 여러개나올것같다.
-				device = userDeviceModel.getUserDeviceWithUuid(uuid)
-				
+				#디바이스가 존재하는지확인.
+				device = userDeviceModel.getUserDeviceWithUuid(uuid,login_platform)
+				##통합로그인
+				#해당 어카운트해시키를 가지는지 확인
+				deviceHasAccount = userDeviceModel.getUserDeviceWithAccountHashkey(account_hashkey)
+				logging.info('device has account = '+str(user_hashkey))
+				hasAccountInDevices = True
+				#해당 유저 어카운트가 존재하는지 확인
+				logging.info('device has account = '+str(deviceHasAccount))
+				#0일경우
+				if len(deviceHasAccount) == 0:					
+					hasAccountInDevices = False
+
 
 			except Exception as e:
 				logging.error(str(e))
@@ -166,7 +177,7 @@ def checkLoginState(flask):
 			# 새션키를 하나만들어서 넣어준다.
 
 			elif len(device)!=0 :
-				logging.info('logout and return or new id/pw')
+				logging.info('logout and return ')
 				apikey = utils.makeHashKey(uuid)
 
 				redis.set(apikey,user_hashkey)
@@ -176,12 +187,29 @@ def checkLoginState(flask):
 				#codeReveiw
 				#updateUserDeviceLogout 명확하지 않은 함수명.
 				try:
-					userDeviceModel.updateUserApikey(apikey,account_hashkey)
+
+					#최초 로그인계정과 다른 연동된계정으로 로그인
+					#최초 kkk 추가 vudrkd
+					#로그아웃후 vudrkd으로 로그인할 경우
+					#만약 userAccount가 존재하지않는다면
+					#현재 hashAccount로 바꿔줘야한다. 기존uuid있는것을
+					if hasAccountInDevices == False:
+						logging.info('!!!login another ACCOUNT !!!!')
+						userDeviceModel.updateAccountHashkey(account_hashkey,uuid,login_platform,apikey)
+						statee.userLife(apikey,LIFE_STATE_SIGNIN_RELOGIN_OTHERACCOUNT)
+					#일반 로그인
+					#kkk로 로그인 했을경우
+					#userAccount가 존재한다면 기존것에 그냥 업데이트시켜주면됨
+					else:
+						logging.info('!!!login exsiting ACCOUNT !!!!')
+						userDeviceModel.updateUserApikey(apikey,account_hashkey)
+						statee.userLife(apikey,LIFE_STATE_SIGNIN_RELOGIN)
+					
 				except Exception as e:
 					logging.error(str(e))
 					return utils.loginState(LOGIN_ERROR,str(e))
 				
-				statee.userLife(apikey,LIFE_STATE_SIGNIN_RELOGIN)																			
+																							
 			
 				return utils.loginState(LOGIN_STATE_RELOGIN,{'apikey':apikey})
 

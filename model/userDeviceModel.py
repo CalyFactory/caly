@@ -3,12 +3,16 @@ from common.util import utils
 from manager import db_manager
 
 #login_manager
-def getUserDeviceWithUuid(uuid):
+def getUserDeviceWithUuid(uuid,login_platform):
 	return utils.fetch_all_json(
 				db_manager.query(
-						"SELECT * FROM USERDEVICE WHERE uuid = %s "
+					"""
+					SELECT *FROM USERDEVICE
+					LEFT JOIN USERACCOUNT on USERDEVICE.account_hashkey = USERACCOUNT.account_hashkey
+					where uuid = %s and login_platform = %s					
+					"""	
 						,
-						(uuid,) 						
+						(uuid,login_platform) 						
 				)
 			)	
 	
@@ -67,7 +71,34 @@ def getUserHashkey(apikey):
 						apikey,
 					)
 				)		
+			)
+#login_manager
+def getUserDeviceWithAccountHashkey(account_hashkey):
+	return utils.fetch_all_json(
+				db_manager.query(
+					"""
+					SELECT * FROM USERDEVICE
+					WHERE account_hashkey = %s
+					"""
+					,
+					(account_hashkey,)
+				)
 			)	
+#login_manager
+def updateAccountHashkey(account_hashkey,uuid,login_platform,apikey):
+	return 	db_manager.query(
+					"""
+					UPDATE USERDEVICE 
+					INNER JOIN USERACCOUNT on USERDEVICE.account_hashkey = USERACCOUNT.account_hashkey
+					SET USERDEVICE.account_hashkey = %s,
+					USERDEVICE.apikey = %s,
+					USERDEVICE.is_active =1 
+					WHERE USERDEVICE.uuid = %s and USERACCOUNT.login_platform = %s					
+					"""
+					,
+					(account_hashkey,apikey, uuid,login_platform)
+				)
+
 #registerDevice
 def updateUserDevice(push_token,device_type,app_version,device_info,uuid,sdkLevel,apikey,):
 	return db_manager.query(
@@ -164,6 +195,24 @@ def getUserAccountHashkey(apikey):
 					)
 				)
 			)
+def getUserSyncOlderTime(user_hashkey):
+	return 	utils.fetch_all_json(
+				db_manager.query(
+					"""
+					SELECT USERACCOUNT.account_hashkey,ctime FROM USERACCOUNT
+					INNER JOIN (
+					SELECT account_hashkey,ctime FROM SYNC_END WHERE sync_time_state = 2
+					) as synEnd
+					on synEnd.account_hashkey = USERACCOUNT.account_hashkey
+					WHERE user_hashkey = %s
+
+					"""
+					,
+					(									
+						user_hashkey,					
+					)
+				)
+			)	
 def getUserApikeyList(user_hashkey):
 	return 	utils.fetch_all_json(
 				db_manager.query(
