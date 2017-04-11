@@ -390,17 +390,18 @@ def google(user,apikey,time_state):
 			if '@gmail.com' in calendar_id or '@naver.com' in calendar_id or '@ical.com' in calendar_id or '@group.calendar.google.com' in calendar_id:
 				#변경된 정보를 받기위한 push Notification api를 붙이는 과정이다.
 				#캘린더고유값인 channelId와 콜백받을 address를 정해준다.
-				watch_URL = 'https://www.googleapis.com/calendar/v3/calendars/'+calendar['id']+'/events/watch'
-				body = {
-					"id" : arr_channel_id[idx],
-					"type" : "web_hook",
-					"address" : conf['googleWatchAddress'],
-					"token" : apikey,
-					"expiration" : str(exp_unix_time)+'000'
-				}						
-				res = json.loads(network_manager.reqPOST(watch_URL,access_token,body))
+				# watch_URL = 'https://www.googleapis.com/calendar/v3/calendars/'+calendar['id']+'/events/watch'
+				# body = {
+				# 	"id" : arr_channel_id[idx],
+				# 	"type" : "web_hook",
+				# 	"address" : conf['googleWatchAddress'],
+				# 	"token" : apikey,
+				# 	"expiration" : str(exp_unix_time)+'000'
+				# }						
+				# res = json.loads(network_manager.reqPOST(watch_URL,access_token,body))
+
 				#start push noti
-		
+				res = gAPI.attachWatch(calendar['id'],arr_channel_id[idx],apikey,str(exp_unix_time)+'000',access_token)
 				logging.info('watch res =>'+str(res))
 				try:
 					logging.info('giood') 

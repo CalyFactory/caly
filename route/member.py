@@ -46,7 +46,7 @@ class Member(MethodView):
 			app_version = flask.request.form['appVersion']
 			
 			#app_version이 null이거나. 버전이 현재최신이랑 같을경우 는 로그인 로직을탄다.
-			if app_version == app_conf['version'] or app_version == 'null':
+			if app_version == app_conf['version']  or app_version == 'null':
 
 				who_am_i = login_manager.checkLoginState(flask)									
 				logging.info('whoam_i'+ str(who_am_i))

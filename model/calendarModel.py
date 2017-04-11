@@ -136,3 +136,20 @@ def deleteCalendarList(account_hashkey):
 			,
 			(account_hashkey,)
 		)
+
+
+def getRetachGoogleWatchList():
+	return utils.fetch_all_json(
+				db_manager.query(
+						"""
+						SELECT * FROM CALENDAR 
+						LEFT JOIN USERACCOUNT on USERACCOUNT.account_hashkey = CALENDAR.account_hashkey
+						WHERE google_expiration <= date(adddate(now(),INTERVAL 1 DAY)) 
+						AND google_expiration >= now()
+						AND google_sync_state = 3
+						AND USERACCOUNT.is_active = 1						
+						"""
+						,
+						() 						
+				)
+			)				
