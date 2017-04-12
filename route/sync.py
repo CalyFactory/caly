@@ -74,11 +74,11 @@ class Sync(MethodView):
 											{'msg':str(e)}
 										)					
 
-				if syncInfo['state'] == SYNC_CALDAV_SUCCESS:
-					
+				if syncInfo['state'] == SYNC_CALDAV_SUCCESS:					
 					return utils.resSuccess(
 												{'msg':MSG_SUCCESS_CALDAV_SYNC}
 											)
+
 				elif syncInfo['state'] == SYNC_CALDAV_ERR_ALREADY_REIGITER:
 					return utils.resCustom(
 											201,
@@ -250,6 +250,10 @@ class Sync(MethodView):
 					logging.info('result => '+result)					
 
 			else:
+
+				#무언가 변경이일어나 스스로 동기화되었을경우
+				syncEndModel.setSyncEnd(account_hashkey,SYNC_END_TIME_STATE_PERIOD)  
+
 				rows = calendarModel.getCalendar(channel_id)				
 				calendar_hashkey = str(rows[0]['calendar_hashkey'])
 				calendar_id = str(rows[0]['calendar_id'])

@@ -19,6 +19,10 @@ import logging
 from bot import slackAlarmBot
 from common import FCM
 from model import mFcmModel
+from model import syncEndModel
+from common.util.statics import *
+
+
 
 sqla_logger = logging.getLogger('sqlalchemy.engine.base.Engine')
 for hdlr in sqla_logger.handlers:
@@ -71,6 +75,7 @@ def accountDistributor():
     for account in accountList:
         if account['login_platform'] == "google":
             continue
+        syncEndModel.setSyncEnd(account['account_hashkey'],SYNC_END_TIME_STATE_PERIOD)          
         syncWorker.delay(account)
         
 

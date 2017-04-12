@@ -31,6 +31,7 @@ from common import syncLogic
 from common import statee
 from common import gAPI
 from model import googleWatchInfoModel
+from model import syncEndModel
 
 # yenos
 # 유저의관한 api 리스트이다.
@@ -299,28 +300,7 @@ class Member(MethodView):
 				logging.error(str(e))
 				return utils.resErr(
 										{'msg':str(e)}
-									)				
-		
-		elif action == 'accountList':
-			apikey = flask.request.form['apikey']
-
-			if not redis.get(apikey):
-				return utils.resErr(
-										{'msg':MSG_INVALID_TOKENKEY}
-									)
-			try:
-				user_hashkey = redis.get(apikey)
-				logging.info('hashkey=> '+user_hashkey)
-				accounts = userAccountModel.getHasAccountList(user_hashkey)
-				return utils.resSuccess(
-											{'data':accounts}
-										)
-
-			except Exception as e:
-				logging.error(str(e))
-				return utils.resErr(
-										{'msg':str(e)}
-									)								
+									)											
 
 		elif action == 'addAccount':
 			apikey = flask.request.form['apikey']			
@@ -594,3 +574,22 @@ class Member(MethodView):
 				return utils.resErr(
 										{'msg':str(e)}
 									)				
+		elif action == 'accountList':
+			apikey = flask.request.form['apikey']
+			user_hashkey = redis.get(apikey)
+			
+			if not user_hashkey:			
+				return utils.resErr(
+										{'msg':MSG_INVALID_TOKENKEY}
+									)			
+			try:
+				syncAccountList = syncEndModel.getAccountLatestSyncTime(apikey)
+				return utils.resSuccess(
+											{'data':syncAccountList}
+										)
+
+			except Exception as e:
+				return utils.resCustom(
+										400,							
+										{'msg':str(e)}
+									)			
