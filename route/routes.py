@@ -83,6 +83,12 @@ def initRoute(app):
 						view_func = sync, 
 						methods = ['POST', ]
 					)
+	app.add_url_rule(
+						'/v1.0/sync/caldavManualSync',
+						defaults = {'action':'caldavManualSync'},
+						view_func = sync, 
+						methods = ['POST', ]
+					)
 
 # withdrawal
 	member = Member.as_view('member')

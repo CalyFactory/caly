@@ -34,7 +34,10 @@ from common import gAPI
 # from model import userLifeModel
 from common import statee
 from common import syncLogic
+from common import caldavPeriodicSync
 from bot import slackAlarmBot
+from common import FCM
+from model import mFcmModel
 
 class Sync(MethodView):
 #sync는 캘린더 리스트 가져오기 => 이벤트리스트 저장하기.(최신기록 먼저)
@@ -97,14 +100,6 @@ class Sync(MethodView):
 				try:
 
 					syncInfo = syncLogic.google(user,apikey,SYNC_TIME_STATE_FORWARD)
-					# syncEndRows = syncEndModel.getSyncEnd(user[0]['account_hashkey'],SYNC_END_TIME_STATE_FORWARD)
-					# #기존에 동기화 완료된경우이면 패스.
-					# if len(syncEndRows) == 0 :
-						
-					# else:
-					# 	return utils.resErr(
-					# 							{'msg':MSG_SYNC_ALREADY}
-					# 						)	
 
 				except Exception as e:
 					logging.error(str(e))
@@ -133,14 +128,63 @@ class Sync(MethodView):
 												{'msg':syncInfo['data']}
 											)											
 
+		elif action == 'caldavManualSync':	
+			apikey = flask.request.form['apikey']
+			user_id = flask.request.form['user_id']
+			
+			if not redis.get(apikey):
+				return utils.resErr(
+										{'msg':MSG_INVALID_TOKENKEY}
+									)
 
+			account = userAccountModel.getUserAccountForSync(apikey,user_id)			
+			result = caldavPeriodicSync.sync(account[0])			
+			
+			if(result['state'] == 200):		
+
+				data_message = {
+	 				"type" : "caldavManualSync",
+					"action" : "default"
+	 			}
+				# data_message = {
+				# 	"type" : "noti",
+				# 	"title" : "공지사항입니다 ",
+				# 	"body" : "콩! 콩 콩진호가간다!"
+				# }	
+
+				push_token = userDeviceModel.getPushToken(apikey)[0]['push_token']
+
+				push_result = FCM.sendOnlyData(push_token,data_message)
+
+				push_result['push_token'] = push_token
+				push_result['account_hashkey'] = account[0]['account_hashkey']
+				push_result['apikey'] = apikey
+				push_result['push_data'] = data_message
+				logging.info('result==>'+str(push_result))
+
+				mFcmModel.insertFcm(push_result)					
+
+				return utils.resSuccess(
+											{'msg':result['data']}
+										)
+
+			elif(result['state'] == 400):
+				return utils.resErr(
+										{'msg':result['data']}
+									)
+			
+			elif(result['state'] == 401):
+				return utils.resCustom(		
+											401,
+											{'msg':result['data']}
+										)														
+
+						
 		#watchReciver를 테스트해봐야됨.
 		elif action == 'watchReciver':
 			
 			logging.info('watch')
 			logging.info(str(flask.request.headers))				
-
-
 			
 			channel_id = flask.request.headers['X-Goog-Channel-Id']							
 			state = flask.request.headers['X-Goog-Resource-State']

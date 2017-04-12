@@ -101,6 +101,23 @@ def getUserAccountWithAccessToken(access_token):
 						(access_token,) 						
 				)			
 			)	
+def getUserAccountForSync(apikey,user_id):	
+	return utils.fetch_all_json(
+				db_manager.query(
+						"""
+						SELECT * FROM USERACCOUNT
+						WHERE user_hashkey IN(
+						SELECT user_hashkey FROM USERACCOUNT
+						INNER JOIN USERDEVICE on USERACCOUNT.account_hashkey = USERDEVICE.account_hashkey
+						WHERE apikey  = %s
+						)
+						and user_id = %s and login_platform = 'naver'
+
+						"""
+						,
+						(apikey,user_id) 						
+				)			
+			)		
 
 def updateUserAccessToken(access_token,new_access_token,google_expire_time):
 	return db_manager.query(

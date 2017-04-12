@@ -167,9 +167,11 @@ def setSdkLevel(apikey,sdkLevel):
 def getPushToken(apikey):
 	return utils.fetch_all_json(
 				db_manager.query(
-						"SELECT push_token "
-						+ "FROM USERDEVICE "
-						+ "WHERE apikey = %s "
+						"""
+						SELECT push_token 
+						FROM USERDEVICE 
+						WHERE apikey = %s 
+						"""
 						,
 						(apikey,) 						
 				)

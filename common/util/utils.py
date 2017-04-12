@@ -11,6 +11,7 @@ loginState = lambda state,data : {'state':state,'data':data}
 syncState = lambda state,data : {'state':state,'data':data}
 
 
+
 def resSuccess(payload):
 	return json.dumps(
 						{'payload':payload}
