@@ -302,6 +302,20 @@ class Member(MethodView):
 										{'msg':str(e)}
 									)											
 
+		# elif action == 'removeAccount':	
+
+		# 	apikey = flask.request.form['apikey']			
+		# 	login_platform = flask.request.form['login_platform']	
+		# 	user_hashkey = redis.get(apikey)
+		# 	logging.info('user_hashkey = '+ user_hashkey)
+		# 	if not user_hashkey:
+		# 		return utils.resErr(
+		# 								{'msg':MSG_INVALID_TOKENKEY}
+		# 							)
+		# 	if login_platform == 'naver' or login_platform == 'ical':	
+		# 		u_id = flask.request.form['uId']	
+
+
 		elif action == 'addAccount':
 			apikey = flask.request.form['apikey']			
 			login_platform = flask.request.form['login_platform']	
@@ -528,31 +542,24 @@ class Member(MethodView):
 
 						logging.info('result => '+result)
 
-
-				#일단 사유 받자.
-				user = userAccountModel.getUserAccount(user_hashkey)				
-				account_hashkey = user[0]['account_hashkey']
-				rows = supportModel.setRequests(apikey,account_hashkey,contents,REQUESTS_TYPE_WITHDRAWAL)
 				
-				# 1. 유저 iactive 0 으로 설정
-				# 2. 유저 디바이스 '모두' 날리고
-				# 2.5 레디스도 날리고.
-				# 3. 다시 들어올경우.
-				# 4. isacitve 체크, 0 인경우. api키를주고, 유저에게 회원가입로직을 다시 받고, (훼이더웨이)
-				# 5. registeruserdeivce 등록해줌.
-				# 6. user 1로 바꿔줌
-
-				
-				
-				# user
-
-				#1. user  isactive 0
+				users = userAccountModel.getUserAccount(user_hashkey)	
+				#사유는 한번만 받을수 있도록한다.
+				supportModel.setRequests(apikey,users[0]['account_hashkey'],contents,REQUESTS_TYPE_WITHDRAWAL)
+				#유저해시키에 여러개가있을 수있다.
+				for user in users:			
+					account_hashkey = user['account_hashkey']
+					#3. 해당유저의 모든디바이스 정보에서 개인정보값을 날린다
+					userDeviceModel.withdraw(account_hashkey)
+					#캘린더에서 필요없는것들 제검ㅊ
+					calendarModel.withdraw(account_hashkey)
+							
+				#공통적으로 날려야 할것들
+				#1. 해당유저의 모든계저의 isactive값을 3으로한다.
 				userModel.updateUserIsActive(user_hashkey,3)
-				#3 userAccount => userid/accesstoken/caldavHomeset/subject/refreshtoken/ 
+				#2. 해당유저의 모든계정의 개인정보 값을 날린다.
 				userAccountModel.withdraw(user_hashkey)
-				userDeviceModel.withdraw(account_hashkey)
-				calendarModel.withdraw(account_hashkey)
-
+				
 				#2. api key remove
 				apikeys = userDeviceModel.getUserApikeyList(user_hashkey)
 				statee.userLife(apikey,LIFE_STATE_WITHDRAWAL)

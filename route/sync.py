@@ -296,7 +296,7 @@ class Sync(MethodView):
 			else:
 
 				#무언가 변경이일어나 스스로 동기화되었을경우
-				syncEndModel.setSyncEnd(account_hashkey,SYNC_END_TIME_STATE_PERIOD)  
+				syncEndModel.setSyncEnd(account[0]['account_hashkey'],SYNC_END_TIME_STATE_PERIOD)  
 
 				rows = calendarModel.getCalendar(channel_id)				
 				calendar_hashkey = str(rows[0]['calendar_hashkey'])

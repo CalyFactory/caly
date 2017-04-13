@@ -109,26 +109,31 @@ def checkLoginState(flask):
 		#세션키가 없는경우이면 최초 로그인 혹은  로그아웃 이다
 		if apikey == 'null' :
 
-			try:
+			#앱내부에서 계정추가를 하여 데이터가 이미 개인개정이 존재할경우 아래로직을 타게된다
+			if  isFirst == False:
 
-				#codereview
-				#디바이스가 존재하는지확인.
-				device = userDeviceModel.getUserDeviceWithUuid(uuid,login_platform)
-				##통합로그인
-				#해당 어카운트해시키를 가지는지 확인
-				deviceHasAccount = userDeviceModel.getUserDeviceWithAccountHashkey(account_hashkey)
-				logging.info('device has account = '+str(user_hashkey))
-				hasAccountInDevices = True
-				#해당 유저 어카운트가 존재하는지 확인
-				logging.info('device has account = '+str(deviceHasAccount))
-				#0일경우
-				if len(deviceHasAccount) == 0:					
-					hasAccountInDevices = False
+				try:
+
+					#codereview
+					#디바이스가 존재하는지확인.
+					device = userDeviceModel.getUserDeviceWithUuid(uuid,login_platform)
+					##통합로그인
+					#해당 어카운트해시키를 가지는지 확인
+					deviceHasAccount = userDeviceModel.getUserDeviceWithAccountHashkey(account_hashkey)
+					logging.info('device has account = '+str(user_hashkey))
+					hasAccountInDevices = True
+					#해당 유저 어카운트가 존재하는지 확인
+					logging.info('device has account = '+str(deviceHasAccount))
+					#0일경우
+					if len(deviceHasAccount) == 0:					
+						hasAccountInDevices = False
 
 
-			except Exception as e:
-				logging.error(str(e))
-				return utils.loginState(LOGIN_ERROR,str(e))
+				except Exception as e:
+					logging.error(str(e))
+					return utils.loginState(LOGIN_ERROR,str(e))				
+
+
 			#최초 회원가입인경우.
 			#id/pw or subject가 없다면 최초 회원가입인 경우이다.
 			if  isFirst == True:
@@ -138,7 +143,7 @@ def checkLoginState(flask):
 					# return LOGIN_STATE_FIRST
 				
 				#uuid가 db에 없고	id/pw가 있다면 새로운 기기에서의 등록이다.
-			
+
 			#user is_active 가 0 일경우 탈퇴한 유저가 다시 가입하는 경우다.
 			elif user_is_active == 0 :
 				apikey = utils.makeHashKey(user_hashkey)
