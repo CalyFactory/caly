@@ -29,9 +29,10 @@ class Events(MethodView):
 									)
 			try:
 				# account_hashkey = userDeviceModel.getUserAccountHashkey(apikey)[0]['account_hashkey']
-
+				print('syncolderTIme => '+str(userDeviceModel.getUserSyncOlderTime(user_hashkey)))
 				#전체 계정중에 가장 오래된일자를 기준으로 이벤트리스트에서 보여주어야한다
 				account_hashkey = userDeviceModel.getUserSyncOlderTime(user_hashkey)[0]['account_hashkey']
+				
 
 				if int(pageNum) == 0 :
 

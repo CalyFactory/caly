@@ -203,7 +203,7 @@ def getUserSyncOlderTime(user_hashkey):
 					"""
 					SELECT USERACCOUNT.account_hashkey,ctime FROM USERACCOUNT
 					INNER JOIN (
-					SELECT account_hashkey,ctime FROM SYNC_END WHERE sync_time_state = 2
+					SELECT account_hashkey,ctime FROM SYNC_END WHERE sync_time_state = 1
 					) as synEnd
 					on synEnd.account_hashkey = USERACCOUNT.account_hashkey
 					WHERE user_hashkey = %s
