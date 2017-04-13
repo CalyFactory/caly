@@ -47,7 +47,7 @@ def getAccountLatestSyncTime(apikey):
 					)
 					) AS accounts
 					ON accounts.account_hashkey = SYNC_END.account_hashkey
-					WHERE SYNC_END.sync_time_state = 3
+					WHERE SYNC_END.sync_time_state = 3 or SYNC_END.sync_time_state = 2
 					GROUP BY account_hashkey
 					) as synAccount on synAccount.account_hashkey = USERACCOUNT.account_hashkey
 					"""

@@ -277,9 +277,8 @@ class Sync(MethodView):
 							mFcmModel.insertFcm(result)								
 							logging.info(str(result))
 							
-							statee.userLife(apikey,LIFE_STATE_GOOGLE_PUSH_END)									
-						
-
+							statee.userLife(apikey,LIFE_STATE_GOOGLE_PUSH_END)								
+							#sync 최종적으로 성공했을경우 3을 넣어준다. 							
 						else:
 							logging.info('fail all sync')
 				except Exception as e:
