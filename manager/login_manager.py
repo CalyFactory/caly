@@ -116,7 +116,7 @@ def checkLoginState(flask):
 
 					#codereview
 					#디바이스가 존재하는지확인.
-					device = userDeviceModel.getUserDeviceWithUuid(uuid,login_platform)
+					device = userDeviceModel.getUserDeviceWithUuid(uuid)
 					##통합로그인
 					#해당 어카운트해시키를 가지는지 확인
 					deviceHasAccount = userDeviceModel.getUserDeviceWithAccountHashkey(account_hashkey)
@@ -189,6 +189,7 @@ def checkLoginState(flask):
 
 				logging.info('set apikey =>'+ apikey)
 				logging.info('set userhashkey =>'+ user_hashkey)
+				logging.info('set account_hashkey =>'+ account_hashkey)
 				#codeReveiw
 				#updateUserDeviceLogout 명확하지 않은 함수명.
 				try:
@@ -200,7 +201,7 @@ def checkLoginState(flask):
 					#현재 hashAccount로 바꿔줘야한다. 기존uuid있는것을
 					if hasAccountInDevices == False:
 						logging.info('!!!login another ACCOUNT !!!!')
-						userDeviceModel.updateAccountHashkey(account_hashkey,uuid,login_platform,apikey)
+						userDeviceModel.updateAccountHashkey(account_hashkey,uuid,apikey)
 						statee.userLife(apikey,LIFE_STATE_SIGNIN_RELOGIN_OTHERACCOUNT)
 					#일반 로그인
 					#kkk로 로그인 했을경우

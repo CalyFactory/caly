@@ -3,16 +3,16 @@ from common.util import utils
 from manager import db_manager
 
 #login_manager
-def getUserDeviceWithUuid(uuid,login_platform):
+def getUserDeviceWithUuid(uuid):
 	return utils.fetch_all_json(
 				db_manager.query(
 					"""
 					SELECT *FROM USERDEVICE
 					LEFT JOIN USERACCOUNT on USERDEVICE.account_hashkey = USERACCOUNT.account_hashkey
-					where uuid = %s and login_platform = %s					
+					where uuid = %s 
 					"""	
 						,
-						(uuid,login_platform) 						
+						(uuid,) 						
 				)
 			)	
 	
@@ -85,7 +85,7 @@ def getUserDeviceWithAccountHashkey(account_hashkey):
 				)
 			)	
 #login_manager
-def updateAccountHashkey(account_hashkey,uuid,login_platform,apikey):
+def updateAccountHashkey(account_hashkey,uuid,apikey):
 	return 	db_manager.query(
 					"""
 					UPDATE USERDEVICE 
@@ -93,10 +93,10 @@ def updateAccountHashkey(account_hashkey,uuid,login_platform,apikey):
 					SET USERDEVICE.account_hashkey = %s,
 					USERDEVICE.apikey = %s,
 					USERDEVICE.is_active =1 
-					WHERE USERDEVICE.uuid = %s and USERACCOUNT.login_platform = %s					
+					WHERE USERDEVICE.uuid = %s 				
 					"""
 					,
-					(account_hashkey,apikey, uuid,login_platform)
+					(account_hashkey,apikey, uuid)
 				)
 
 #registerDevice

@@ -318,7 +318,7 @@ class Member(MethodView):
 
 		elif action == 'addAccount':
 			apikey = flask.request.form['apikey']			
-			login_platform = flask.request.form['login_platform']	
+			login_platform = flask.request.form['loginPlatform']	
 
 			user_hashkey = redis.get(apikey)
 			logging.info('user_hashkey = '+ user_hashkey)
