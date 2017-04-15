@@ -197,6 +197,20 @@ def getUserAccountHashkey(apikey):
 					)
 				)
 			)
+def getUserWithApikey(apikey):
+	return 	utils.fetch_all_json(
+				db_manager.query(
+					"""
+					SELECT *FROM USERDEVICE
+					INNER JOIN USERACCOUNT on USERACCOUNT.account_hashkey = USERDEVICE.account_hashkey
+					WHERE apikey = %s					
+					"""
+					,
+					(									
+						apikey,					
+					)
+				)
+			)	
 def getUserSyncOlderTime(user_hashkey):
 	return 	utils.fetch_all_json(
 				db_manager.query(
@@ -239,6 +253,19 @@ def deleteUserDeviceAll(user_hashkey):
 						user_hashkey,					
 					)
 				)
+def setAnotherConnectionUser(account_hashkey,apikey):
+	return 	db_manager.query(
+					"""
+					UPDATE USERDEVICE
+					SET account_hashkey = %s
+					WHERE apikey = %s
+					"""
+					,
+					(									
+						account_hashkey,apikey	
+					)
+				)
+
 def withdraw(account_hashkey):
 	return 	db_manager.query(
 				"""

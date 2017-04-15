@@ -117,7 +117,8 @@ def getEventsFirst(account_hashkey,user_hashkey,standard_date,start_range,end_ra
 				db_manager.query(
 					"""
 					( 
-					SELECT CALENDAR.calendar_hashkey,EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.start_dt,EVENT.summary,EVENT.location,EVENT.reco_state,recoInfo.totalRecoCnt FROM USERACCOUNT 
+					SELECT CALENDAR.is_active,CALENDAR.calendar_hashkey,EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.start_dt,EVENT.summary,EVENT.location,EVENT.reco_state,recoInfo.totalRecoCnt 
+					FROM USERACCOUNT 
 					INNER JOIN CALENDAR ON USERACCOUNT.account_hashkey = CALENDAR.account_hashkey 
 					INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey 
 					
@@ -132,10 +133,16 @@ def getEventsFirst(account_hashkey,user_hashkey,standard_date,start_range,end_ra
 					WHERE start_dt > (
 					SELECT ctime FROM SYNC_END WHERE account_hashkey = %s and sync_time_state = 1
 					) 
-					AND user_hashkey = %s AND start_dt < %s ORDER BY start_dt DESC LIMIT %s ) 
+					AND user_hashkey = %s AND start_dt < %s AND CALENDAR.is_active is not NULL 					
+					ORDER BY start_dt DESC LIMIT %s 
+
+					) 
+
+					
 					UNION 
 					( 
-					SELECT CALENDAR.calendar_hashkey,EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.start_dt,EVENT.summary,EVENT.location,EVENT.reco_state,recoInfo.totalRecoCnt FROM USERACCOUNT 
+					SELECT CALENDAR.is_active,CALENDAR.calendar_hashkey,EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.start_dt,EVENT.summary,EVENT.location,EVENT.reco_state,recoInfo.totalRecoCnt 
+					FROM USERACCOUNT 
 					INNER JOIN CALENDAR ON USERACCOUNT.account_hashkey = CALENDAR.account_hashkey 
 					INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey 
 					
@@ -150,7 +157,10 @@ def getEventsFirst(account_hashkey,user_hashkey,standard_date,start_range,end_ra
 					WHERE start_dt > (
 					SELECT ctime FROM SYNC_END WHERE account_hashkey = %s and sync_time_state = 1
 					) 
-					AND user_hashkey = %s AND start_dt >= %s ORDER BY start_dt limit %s ) 
+					AND user_hashkey = %s AND start_dt >= %s 
+					AND CALENDAR.is_active is not NULL
+					
+					ORDER BY start_dt limit %s ) 
 					ORDER BY start_dt,event_hashkey
 					"""
 					  ,

@@ -301,20 +301,79 @@ class Member(MethodView):
 				return utils.resErr(
 										{'msg':str(e)}
 									)											
+		elif action == 'removeAccount':	
 
-		# elif action == 'removeAccount':	
+			try:
+				apikey = flask.request.form['apikey']			
+				login_platform = flask.request.form['login_platform']	
+				user_hashkey = redis.get(apikey)
+				logging.info('user_hashkey = '+ user_hashkey)
+				if not user_hashkey:
+					return utils.resErr(
+											{'msg':MSG_INVALID_TOKENKEY}
+										)
 
-		# 	apikey = flask.request.form['apikey']			
-		# 	login_platform = flask.request.form['login_platform']	
-		# 	user_hashkey = redis.get(apikey)
-		# 	logging.info('user_hashkey = '+ user_hashkey)
-		# 	if not user_hashkey:
-		# 		return utils.resErr(
-		# 								{'msg':MSG_INVALID_TOKENKEY}
-		# 							)
-		# 	if login_platform == 'naver' or login_platform == 'ical':	
-		# 		u_id = flask.request.form['uId']	
+				#현재 로그인한 계정인지를 확인. 
+				u_id = flask.request.form['uId']
+				#세션에 잡혀있는 유저
+				api_user = userDeviceModel.getUserWithApikey(apikey)
+				real_user = userAccountModel.getUserAccountPlatform(u_id,login_platform)
+				
+				logging.info('remove User => '+str(api_user))
+				logging.info('remove User => '+str(api_user[0]['user_id']))
 
+				# user_iduser[0]['user_id']
+				#현재 apikey로 id와 플랫폼이 같다면 ==> 현재 로그인되어있는 계정을 지우려한다 			
+				#다른 남아있는 account로 연결시켜줘야한다. 
+				#만약 로그인 플랫폼이 구글이면 와치를 떼어내야한다. 
+				if login_platform == 'google':
+					
+					logging.info('realuser =>'+real_user[0])
+					google_calendars = calendarModel.getGoogleCalendarInfoWithAccountHashkey(real_user[0]['account_hashkey'])
+					for google_calendar in google_calendars:
+						result = gAPI.stopWatch(google_calendar['google_channel_id'],google_calendar['google_resource_id'],google_calendar['access_token'])
+						
+						if result == "":
+							logging.info('stop watch Succes')
+							googleWatchInfoModel.setGoogleWatchInfo(google_calendar['google_channel_id'],GOOGLE_WATCH_DETACH)
+						else:
+							logging.info('faillllll')						
+
+				#api에 있는 유저와 실제 넘겨저온 데이터가 같다면 api를 바꿔줘야함. 나머지는 실유저로 작업해야함. 
+				if u_id == api_user[0]['user_id'] and login_platform == api_user[0]['login_platform']:
+
+					logging.info('current connection user')
+
+					anotherUsers = userAccountModel.getAnotherConnectionUser(user_hashkey,u_id)
+					#연결된 다른 해시키로 업데이트 시켜준다.
+					userDeviceModel.setAnotherConnectionUser(anotherUsers[0]['account_hashkey'],apikey)
+
+				
+					
+
+				#현재유저의 어카운트 해시키를 가지고
+				account_hashkey = real_user[0]['account_hashkey']
+				#디바이스 정보를 날리진 않는다.남아있는계정이 있기떄문에
+				
+				# #캘린더에서 필요없는것들을 날린다. 
+				#그냥 해시키를 다 날려버림..
+				calendarModel.withdraw(account_hashkey)		
+				#유저를 3으로 바꾸지도않는다 계정만 삭제함으로
+				
+				#유저의 개인정보는 날려야한다.
+				userAccountModel.withdrawWithAccountHashkey(account_hashkey)
+				statee.userLife(apikey,LIFE_STATE_REMOVE_ACCOUNT)
+				
+				return utils.resSuccess(
+											{'msg':MSG_WITHDRAWL_SUCCESS}
+										)
+			
+			except Exception as e:
+				logging.info(str(e))
+				return utils.resErr(
+										{'msg':str(e)}
+									)				
+		
 
 		elif action == 'addAccount':
 			apikey = flask.request.form['apikey']			

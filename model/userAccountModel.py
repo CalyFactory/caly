@@ -10,6 +10,16 @@ def getCaldavUserAccount(u_id,login_platform):
 						(u_id,login_platform) 						
 				)
 			)
+
+def getUserAccountPlatform(u_id,login_platform):
+	return utils.fetch_all_json(
+				db_manager.query(
+						"SELECT * FROM USERACCOUNT "
+						"WHERE user_id = %s  AND login_platform = %s"
+						,
+						(u_id,login_platform) 						
+				)
+			)
 def updateCaldavUserAccount(u_id,u_pw,login_platform):
 	return db_manager.query(
 						"""
@@ -152,7 +162,35 @@ def getIsActive(apikey):
 					(apikey,)
 				)
 			)	
-	#3 userAccount => userid/accesstoken/caldavHomeset/subject/refreshtoken/ 
+def getAnotherConnectionUser(user_hashkey,u_id):
+	return utils.fetch_all_json(
+				db_manager.query(
+					"""
+					SELECT * FROM USERACCOUNT 
+					WHERE user_hashkey = %s AND user_id != %s
+					"""
+					,
+					(user_hashkey,u_id)
+				)
+			)	
+def withdrawWithAccountHashkey(account_hashkey):
+	return 	db_manager.query(
+				"""
+				UPDATE USERACCOUNT 
+				SET user_id = "None",
+				access_token = "None",
+				caldav_homeset = NULL,
+				is_active = NULL,
+				subject = NULL,
+				refresh_token = NULL
+				WHERE account_hashkey  = %s 
+				"""
+				,
+				(			
+					account_hashkey,
+				)
+			)
+
 def withdraw(user_hashkey):
 	return 	db_manager.query(
 				"""
