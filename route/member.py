@@ -328,7 +328,7 @@ class Member(MethodView):
 				#만약 로그인 플랫폼이 구글이면 와치를 떼어내야한다. 
 				if login_platform == 'google':
 					
-					logging.info('realuser =>'+real_user[0])
+					logging.info('realuser =>'+str(real_user[0]))
 					google_calendars = calendarModel.getGoogleCalendarInfoWithAccountHashkey(real_user[0]['account_hashkey'])
 					for google_calendar in google_calendars:
 						result = gAPI.stopWatch(google_calendar['google_channel_id'],google_calendar['google_resource_id'],google_calendar['access_token'])
