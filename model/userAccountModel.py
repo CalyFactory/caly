@@ -111,7 +111,7 @@ def getUserAccountWithAccessToken(access_token):
 						(access_token,) 						
 				)			
 			)	
-def getUserAccountForSync(apikey,user_id):	
+def getUserAccountForSync(apikey,user_id,login_platform):	
 	return utils.fetch_all_json(
 				db_manager.query(
 						"""
@@ -121,11 +121,11 @@ def getUserAccountForSync(apikey,user_id):
 						INNER JOIN USERDEVICE on USERACCOUNT.account_hashkey = USERDEVICE.account_hashkey
 						WHERE apikey  = %s
 						)
-						and user_id = %s and login_platform = 'naver'
+						and user_id = %s and login_platform = %s
 
 						"""
 						,
-						(apikey,user_id) 						
+						(apikey,user_id,login_platform) 						
 				)			
 			)		
 

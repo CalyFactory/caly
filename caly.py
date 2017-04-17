@@ -38,10 +38,12 @@ initRoute(app)
 # if debugg
 # logSet.init()
 
+
 # if production
 logging.basicConfig(level=logging.INFO, filename='log/log_caly.log',
                   format='%(asctime)s %(levelname)s: %(message)s',
                   datefmt='%Y-%m-%d %H:%M:%S')
+
 
 @app.route('/')
 def hello_wordl():

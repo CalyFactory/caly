@@ -38,6 +38,7 @@ from common import caldavPeriodicSync
 from bot import slackAlarmBot
 from common import FCM
 from model import mFcmModel
+from time import gmtime, strftime
 
 class Sync(MethodView):
 #sync는 캘린더 리스트 가져오기 => 이벤트리스트 저장하기.(최신기록 먼저)
@@ -129,15 +130,17 @@ class Sync(MethodView):
 											)											
 
 		elif action == 'caldavManualSync':	
+
 			apikey = flask.request.form['apikey']
-			user_id = flask.request.form['user_id']
+			user_id = flask.request.form['userId']
+			login_platform = flask.request.form['loginPlatform']
 			
 			if not redis.get(apikey):
 				return utils.resErr(
 										{'msg':MSG_INVALID_TOKENKEY}
 									)
 
-			account = userAccountModel.getUserAccountForSync(apikey,user_id)			
+			account = userAccountModel.getUserAccountForSync(apikey,user_id,login_platform)			
 			result = caldavPeriodicSync.sync(account[0])			
 			
 			if(result['state'] == 200):		
@@ -146,14 +149,8 @@ class Sync(MethodView):
 	 				"type" : "caldavManualSync",
 					"action" : "default"
 	 			}
-				# data_message = {
-				# 	"type" : "noti",
-				# 	"title" : "공지사항입니다 ",
-				# 	"body" : "콩! 콩 콩진호가간다!"
-				# }	
 
 				push_token = userDeviceModel.getPushToken(apikey)[0]['push_token']
-
 				push_result = FCM.sendOnlyData(push_token,data_message)
 
 				push_result['push_token'] = push_token
@@ -162,10 +159,13 @@ class Sync(MethodView):
 				push_result['push_data'] = data_message
 				logging.info('result==>'+str(push_result))
 
-				mFcmModel.insertFcm(push_result)					
+				mFcmModel.insertFcm(push_result)				
+
 
 				return utils.resSuccess(
-											{'msg':result['data']}
+											{'data':
+												{'latestSyncTime':format(datetime.now() , "%Y-%m-%d %H:%M:%S")}
+											}
 										)
 
 			elif(result['state'] == 400):
