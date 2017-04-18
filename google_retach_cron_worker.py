@@ -56,7 +56,7 @@ def retachWorker():
     for calendar in calendars:
         #채널에 해당하는 캘린더계정을 가져온다.
         account = calendarModel.getAccountHashkey(calendar['google_channel_id'])   
-        access_token = account[0]['access_token']
+
         print(account)
         
         #현재 날자로부터 한달시간 설정.
@@ -69,15 +69,15 @@ def retachWorker():
 
         print(calendar['google_channel_id'])
         print(calendar['google_resource_id'])
-        print(access_token)
+
         #해당 모든계정을 stop시키고
-        result = gAPI.stopWatch(calendar['google_channel_id'],calendar['google_resource_id'],access_token)
+        result = gAPI.stopWatch(calendar['google_channel_id'],calendar['google_resource_id'],account[0]['account_hashkey'])
         print('reuslt => ' + result)
         if result == "":
             logging.info('stop watch Succes')
             googleWatchInfoModel.setGoogleWatchInfo(calendar['google_channel_id'],GOOGLE_WATCH_DETACH)
 
-            res = gAPI.attachWatch(calendar['calendar_id'],calendar['google_channel_id'],'None',str(exp_unix_time)+'000',access_token)
+            res = gAPI.attachWatch(calendar['calendar_id'],calendar['google_channel_id'],'None',str(exp_unix_time)+'000',account[0]['account_hashkey'])
             logging.info('watch res =>'+str(res))
 
             try:

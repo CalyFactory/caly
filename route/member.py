@@ -305,7 +305,7 @@ class Member(MethodView):
 
 			try:
 				apikey = flask.request.form['apikey']			
-				login_platform = flask.request.form['login_platform']	
+				login_platform = flask.request.form['loginPlatform']	
 				user_hashkey = redis.get(apikey)
 				logging.info('user_hashkey = '+ user_hashkey)
 				if not user_hashkey:
@@ -331,7 +331,12 @@ class Member(MethodView):
 					logging.info('realuser =>'+str(real_user[0]))
 					google_calendars = calendarModel.getGoogleCalendarInfoWithAccountHashkey(real_user[0]['account_hashkey'])
 					for google_calendar in google_calendars:
-						result = gAPI.stopWatch(google_calendar['google_channel_id'],google_calendar['google_resource_id'],google_calendar['access_token'])
+						#액세스토큰이 만료되어 다시받게되는경우!!!
+						#최초 1회때 액세스토큰을 이용하면안되고
+						#새로 발급받은 accessToken을 이용하여야한다.
+						#매번 새로운 accessToken을 요청한다. 						
+						
+						result = gAPI.stopWatch(google_calendar['google_channel_id'],google_calendar['google_resource_id'],real_user[0]['account_hashkey'])
 						
 						if result == "":
 							logging.info('stop watch Succes')
@@ -589,9 +594,12 @@ class Member(MethodView):
 				user = userAccountModel.getUserLoginPlatform(apikey)
 
 				if user[0]['login_platform'] == 'google':
+					#!!!! TODO
+					#account_hashkey!!!가 apikey에만 종속되어있다.
+					#회원탈퇴시 모든 계정에서 watch가 떼어져야한다.
 					google_calendars = calendarModel.getGoogleCalendarInfo(apikey)					
 					for google_calendar in google_calendars:
-						result = gAPI.stopWatch(google_calendar['google_channel_id'],google_calendar['google_resource_id'],google_calendar['access_token'])
+						result = gAPI.stopWatch(google_calendar['google_channel_id'],google_calendar['google_resource_id'],google_calendar['account_hashkey'])
 						
 						if result == "":
 							logging.info('stop watch Succes')
@@ -649,7 +657,7 @@ class Member(MethodView):
 										{'msg':MSG_INVALID_TOKENKEY}
 									)			
 			try:
-				syncAccountList = syncEndModel.getAccountLatestSyncTime(apikey)
+				syncAccountList = syncEndModel.getAccountLatestSyncTime(apikey,user_hashkey)
 				return utils.resSuccess(
 											{'data':syncAccountList}
 										)

@@ -190,7 +190,7 @@ class Sync(MethodView):
 			state = flask.request.headers['X-Goog-Resource-State']
 			resource_id = flask.request.headers['X-Goog-Resource-Id']
 			account = calendarModel.getAccountHashkey(channel_id)			
-			access_token = account[0]['access_token']		
+				
 
 			#동기화 할 경우.
 			if state == 'sync':
@@ -222,7 +222,7 @@ class Sync(MethodView):
 						
 						
 
-						logging.info('acess_token->'+access_token)
+						
 						logging.info('resource_id->'+resource_id)
 						logging.info('channel_id->'+channel_id)
 						# result = gAPI.stopWatch(channel_id,resource_id,access_token)
@@ -283,7 +283,7 @@ class Sync(MethodView):
 							logging.info('fail all sync')
 				except Exception as e:
 					logging.error(str(e))
-					result = gAPI.stopWatch(channel_id,resource_id,access_token)
+					result = gAPI.stopWatch(channel_id,resource_id,account[0]['account_hashkey'])
 					if result == "":
 						logging.info('stop watch Succes')
 						googleWatchInfoModel.setGoogleWatchInfo(channel_id,GOOGLE_WATCH_DETACH)
@@ -308,7 +308,7 @@ class Sync(MethodView):
 				sync_token = row[0]['sync_token'];
 				calendar_hashkey = row[0]['calendar_hashkey'];
 				calendar_id = row[0]['calendar_id'];
-				access_token = account[0]['access_token']
+				
 				logging.info('synctoken =>' + sync_token)
 				logging.info('calendar_id = >'+calendar_id)
 				
@@ -317,7 +317,7 @@ class Sync(MethodView):
 				body = {
 					'syncToken':sync_token
 				}
-				res = json.loads(network_manager.reqGET(URL,access_token,body))				
+				res = json.loads(network_manager.reqGET(URL,account[0]['account_hashkey'],body))				
 				logging.info('new Res' + str(res))
 
 				next_sync_token = res['nextSyncToken']								

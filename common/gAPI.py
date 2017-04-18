@@ -80,18 +80,18 @@ def checkValidAccessToken(access_token):
         return new_access_token
 
 
-def stopWatch(channel_id,resource_id,access_token):    
+def stopWatch(channel_id,resource_id,account_hashkey):    
 
     URL = 'https://www.googleapis.com/calendar/v3/channels/stop'
     body = {
         "id" : channel_id,
         "resourceId": resource_id
     }
-    result = network_manager.reqPOST(URL,access_token,body)   
+    result = network_manager.reqPOST(URL,account_hashkey,body)   
     # print(network_manager.reqPOST(URL,body))
     return result     
 
-def attachWatch(calendar_id,channel_id,apikey,expiration,access_token):
+def attachWatch(calendar_id,channel_id,apikey,expiration,account_hashkey):
 
     watch_URL = 'https://www.googleapis.com/calendar/v3/calendars/'+calendar_id+'/events/watch'
     body = {
@@ -101,4 +101,4 @@ def attachWatch(calendar_id,channel_id,apikey,expiration,access_token):
         "token" : apikey,
         "expiration" : expiration
     }                       
-    return json.loads(network_manager.reqPOST(watch_URL,access_token,body))    
+    return json.loads(network_manager.reqPOST(watch_URL,account_hashkey,body))    

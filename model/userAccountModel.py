@@ -208,3 +208,14 @@ def withdraw(user_hashkey):
 					user_hashkey,
 				)
 			)
+def getAccessToken(account_hashkey):
+	return utils.fetch_all_json(
+				db_manager.query(
+					"""
+					SELECT access_token FROM USERACCOUNT 
+					WHERE account_hashkey = %s 
+					"""
+					,
+					(account_hashkey,)
+				)
+			)		
