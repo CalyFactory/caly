@@ -42,13 +42,20 @@ class Member(MethodView):
 				
 			with open('./APP_CONFIGURE.json') as conf_json:
 				app_conf = json.load(conf_json)			
+			
+			with open('./key/conf.json') as conf_json:
+				conf = json.load(conf_json)							
+			
+			current_version = app_conf['version']
+			next_version = utils.getNextVersion(current_version)			
+
 			#TODO
 			#앱 버전을 꾸준히 체크해줘야한다.
 			app_version = flask.request.form['appVersion']
-			logging.info(app_version)
+
 			# logging.info(app_conf['version'][0:4])
 			#app_version이 null이거나. 버전이 현재최신이랑 같을경우 는 로그인 로직을탄다.
-			if app_version == app_conf['version'] or app_version == app_conf['version'][0:4]+'1_dev' or app_version == 'null':
+			if app_version == current_version or app_version == next_version + '_' + conf['versionOpt'] or app_version == 'null':
 
 				who_am_i = login_manager.checkLoginState(flask)									
 				logging.info('whoam_i'+ str(who_am_i))

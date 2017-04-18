@@ -92,4 +92,9 @@ def checkTime(date,state):
 		return date-datetime_object
 
 
-
+def getNextVersion(current_version):
+		
+		next_version = current_version.replace(".","")
+		next_version = int(next_version) + 1
+		next_version = str(next_version)[0] + "." +str(next_version)[1]+ "." + str(next_version)[2] 	
+		return next_version
