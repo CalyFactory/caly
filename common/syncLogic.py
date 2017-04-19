@@ -66,7 +66,7 @@ def caldav(user,apikey,login_platform,time_state):
 	u_id = user[0]['user_id']
 	u_pw = user[0]['access_token']
 	account_hashkey = user[0]['account_hashkey']			
-	logging.info('caldavSync => '+user)
+	logging.info('caldavSync => '+str(user))
 	
 	#캘데브 로그인
 	calDavclient = caldavWrapper.getCalDavClient(login_platform,u_id,u_pw)

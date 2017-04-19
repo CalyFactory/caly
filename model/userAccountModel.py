@@ -167,8 +167,8 @@ def getAnotherConnectionUser(user_hashkey,u_id):
 				db_manager.query(
 					"""
 					SELECT * FROM USERACCOUNT 
-					WHERE user_hashkey = %s AND user_id != %s
-					"""
+					WHERE user_hashkey = %s AND user_id != %s AND is_active is not null
+					""" 
 					,
 					(user_hashkey,u_id)
 				)
