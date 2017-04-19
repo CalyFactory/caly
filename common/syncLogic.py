@@ -28,6 +28,10 @@ from common import statee
 from bot import slackAlarmBot
 import json 
 
+from common import FCM
+from model import mFcmModel
+
+
 #time
 from datetime import timedelta,datetime
 from pytz import timezone
@@ -50,6 +54,8 @@ def caldav(user,apikey,login_platform,time_state):
 
 	
 	state = time_state == SYNC_TIME_STATE_FORWARD and SYNC_END_TIME_STATE_FORWARD or SYNC_END_TIME_STATE_BACKWARD
+	logging.info(str(user))
+	logging.info(str(user[0]['account_hashkey']))
 	syncEndRows = syncEndModel.getSyncEnd(user[0]['account_hashkey'],state)
 
 	#한번이라도 동기화했나?
@@ -62,6 +68,7 @@ def caldav(user,apikey,login_platform,time_state):
 	u_id = user[0]['user_id']
 	u_pw = user[0]['access_token']
 	account_hashkey = user[0]['account_hashkey']			
+	logging.info('caldavSync => '+str(user))
 	
 	#캘데브 로그인
 	calDavclient = caldavWrapper.getCalDavClient(login_platform,u_id,u_pw)
@@ -263,6 +270,20 @@ def caldav(user,apikey,login_platform,time_state):
 	# 미래것이 끝났고 에러없이 마무리됬다면, 과거꺼를 돌려야한다. 
 	# 미래것일 상태에서만 요청을 하도록 한다.	
 	if time_state == SYNC_TIME_STATE_FORWARD:
+		logging.info('[synclogic] FORWARD')
+		data_message = {
+				"type" : "caldavForwardSyncEnd",
+				"action" : "default"
+			}
+		push_token = userDeviceModel.getPushToken(apikey)[0]['push_token']
+		push_result = FCM.sendOnlyData(push_token,data_message)
+		push_result['push_token'] = push_token
+		push_result['account_hashkey'] = account_hashkey
+		push_result['apikey'] = apikey
+		push_result['push_data'] = data_message
+		logging.info('result==>'+str(push_result))
+		mFcmModel.insertFcm(push_result)	
+
 		slackAlarmBot.alertSyncEnd()
 		data = {}
 		data['user'] = user
@@ -295,12 +316,11 @@ def google(user,apikey,time_state):
 		return utils.syncState(SYNC_CALDAV_ERR_ALREADY_REIGITER,MSG_SYNC_ALREADY)
 	
 
-	access_token = user[0]['access_token']
 	account_hashkey = user[0]['account_hashkey']
 	
 	#calendarList를 가져오기위한 Google api요
 	calendar_list_URL = 'https://www.googleapis.com/calendar/v3/users/me/calendarList'
-	calendar_list = json.loads(network_manager.reqGET(calendar_list_URL,access_token))
+	calendar_list = json.loads(network_manager.reqGET(calendar_list_URL,account_hashkey))
 	
 	logging.info('calendarList=>' + str(calendar_list)	)
 	
@@ -390,17 +410,9 @@ def google(user,apikey,time_state):
 			if '@gmail.com' in calendar_id or '@naver.com' in calendar_id or '@ical.com' in calendar_id or '@group.calendar.google.com' in calendar_id:
 				#변경된 정보를 받기위한 push Notification api를 붙이는 과정이다.
 				#캘린더고유값인 channelId와 콜백받을 address를 정해준다.
-				watch_URL = 'https://www.googleapis.com/calendar/v3/calendars/'+calendar['id']+'/events/watch'
-				body = {
-					"id" : arr_channel_id[idx],
-					"type" : "web_hook",
-					"address" : conf['googleWatchAddress'],
-					"token" : apikey,
-					"expiration" : str(exp_unix_time)+'000'
-				}						
-				res = json.loads(network_manager.reqPOST(watch_URL,access_token,body))
+
 				#start push noti
-		
+				res = gAPI.attachWatch(calendar['id'],arr_channel_id[idx],apikey,str(exp_unix_time)+'000',account_hashkey)
 				logging.info('watch res =>'+str(res))
 				try:
 					logging.info('giood') 
@@ -419,6 +431,20 @@ def google(user,apikey,time_state):
 		#for loop가  다끝나면 나머지 과거 이벤트들을 받아야한다.
 		#싱크가 끝났다는것을 슬랙봇으로 알려주고
 		#워커가 과거일정을 실행하도록한다
+		data_message = {
+				"type" : "googleForwardSyncEnd",
+				"action" : "default"
+			}
+		push_token = userDeviceModel.getPushToken(apikey)[0]['push_token']
+		push_result = FCM.sendOnlyData(push_token,data_message)
+		push_result['push_token'] = push_token
+		push_result['account_hashkey'] = account_hashkey
+		push_result['apikey'] = apikey
+		push_result['push_data'] = data_message
+		logging.info('result==>'+str(push_result))
+		mFcmModel.insertFcm(push_result)	
+
+
 		slackAlarmBot.alertSyncEnd()
 		data = {}
 		data['user'] = user
@@ -439,14 +465,13 @@ def reqEventsList(time_state,apikey,calendar,user,body={}):
 
 	channel_id = calendar['google_channel_id']
 	account_hashkey = calendar['account_hashkey']
-	access_token = user[0]['access_token']
 	calendar_hashkey = calendar['calendar_hashkey']
 	calendar_id = calendar['calendar_id']
 
 	#실제 캘린더아이디로 이벤트리스트를 요청한다.
 	URL = 'https://www.googleapis.com/calendar/v3/calendars/'+urllib.request.pathname2url(calendar_id)+'/events?'
 	
-	res = json.loads(network_manager.reqGET(URL,access_token,body))
+	res = json.loads(network_manager.reqGET(URL,account_hashkey,body))
 
 	logging.info('calendarResponse'+str(res))
 	#받아온 아이템들을 예쁘게 발라서 디비에 저장한다.

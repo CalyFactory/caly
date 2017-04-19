@@ -8,7 +8,10 @@ import datetime
 from manager import network_manager
 
 with open('./key/client_secret.json') as conf_json:
-    conf = json.load(conf_json)
+    client_secret = json.load(conf_json)
+
+with open('./key/conf.json') as conf_json2:
+    conf = json.load(conf_json2)    
 
 def getOauthCredentials(authCode):
     flow = client.flow_from_clientsecrets(                  
@@ -32,8 +35,8 @@ def getRefreshAccessToken(refresh_token):
     }
 
     body = {
-        'client_id' :conf['web']['client_id'],
-        'client_secret': conf['web']['client_secret'],
+        'client_id' :client_secret['web']['client_id'],
+        'client_secret': client_secret['web']['client_secret'],
         'grant_type' : 'refresh_token',
         'refresh_token': refresh_token
         
@@ -77,13 +80,25 @@ def checkValidAccessToken(access_token):
         return new_access_token
 
 
-def stopWatch(channel_id,resource_id,access_token):    
+def stopWatch(channel_id,resource_id,account_hashkey):    
 
     URL = 'https://www.googleapis.com/calendar/v3/channels/stop'
     body = {
         "id" : channel_id,
         "resourceId": resource_id
     }
-    result = network_manager.reqPOST(URL,access_token,body)   
+    result = network_manager.reqPOST(URL,account_hashkey,body)   
     # print(network_manager.reqPOST(URL,body))
     return result     
+
+def attachWatch(calendar_id,channel_id,apikey,expiration,account_hashkey):
+
+    watch_URL = 'https://www.googleapis.com/calendar/v3/calendars/'+calendar_id+'/events/watch'
+    body = {
+        "id" : channel_id,
+        "type" : "web_hook",
+        "address" : conf['googleWatchAddress'],
+        "token" : apikey,
+        "expiration" : expiration
+    }                       
+    return json.loads(network_manager.reqPOST(watch_URL,account_hashkey,body))    

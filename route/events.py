@@ -28,7 +28,11 @@ class Events(MethodView):
 										{'msg':MSG_INVALID_TOKENKEY}
 									)
 			try:
-				account_hashkey = userDeviceModel.getUserAccountHashkey(apikey)[0]['account_hashkey']
+				# account_hashkey = userDeviceModel.getUserAccountHashkey(apikey)[0]['account_hashkey']
+				logging.info('syncolderTIme => '+str(userDeviceModel.getUserSyncOlderTime(user_hashkey)))
+				#전체 계정중에 가장 오래된일자를 기준으로 이벤트리스트에서 보여주어야한다
+				account_hashkey = userDeviceModel.getUserSyncOlderTime(user_hashkey)[0]['account_hashkey']
+				
 
 				if int(pageNum) == 0 :
 
@@ -54,6 +58,8 @@ class Events(MethodView):
 					
 					pager = (int(pageNum)-1) * int(rangee) + EVENTS_BACKWARD_CNT				
 
+					logging.info('pageNum => '+ str(pageNum))
+					logging.info('pager => '+ str(pager))
 					rows = eventModel.getEventsBackward(user_hashkey,current_time,pager,rangee,account_hashkey)
 				
 			except Exception as e:

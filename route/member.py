@@ -31,6 +31,7 @@ from common import syncLogic
 from common import statee
 from common import gAPI
 from model import googleWatchInfoModel
+from model import syncEndModel
 
 # yenos
 # 유저의관한 api 리스트이다.
@@ -41,12 +42,20 @@ class Member(MethodView):
 				
 			with open('./APP_CONFIGURE.json') as conf_json:
 				app_conf = json.load(conf_json)			
+			
+			with open('./key/conf.json') as conf_json:
+				conf = json.load(conf_json)							
+			
+			current_version = app_conf['version']
+			next_version = utils.getNextVersion(current_version)			
+
 			#TODO
 			#앱 버전을 꾸준히 체크해줘야한다.
 			app_version = flask.request.form['appVersion']
-			
+
+			# logging.info(app_conf['version'][0:4])
 			#app_version이 null이거나. 버전이 현재최신이랑 같을경우 는 로그인 로직을탄다.
-			if app_version == app_conf['version'] or app_version == 'null':
+			if app_version == current_version or app_version == next_version + '_' + conf['versionOpt'] or app_version == 'null':
 
 				who_am_i = login_manager.checkLoginState(flask)									
 				logging.info('whoam_i'+ str(who_am_i))
@@ -298,32 +307,91 @@ class Member(MethodView):
 				logging.error(str(e))
 				return utils.resErr(
 										{'msg':str(e)}
-									)				
-		
-		elif action == 'accountList':
-			apikey = flask.request.form['apikey']
+									)											
+		elif action == 'removeAccount':	
 
-			if not redis.get(apikey):
-				return utils.resErr(
-										{'msg':MSG_INVALID_TOKENKEY}
-									)
 			try:
+				apikey = flask.request.form['apikey']			
+				login_platform = flask.request.form['loginPlatform']	
 				user_hashkey = redis.get(apikey)
-				logging.info('hashkey=> '+user_hashkey)
-				accounts = userAccountModel.getHasAccountList(user_hashkey)
-				return utils.resSuccess(
-											{'data':accounts}
+				logging.info('user_hashkey = '+ user_hashkey)
+				if not user_hashkey:
+					return utils.resErr(
+											{'msg':MSG_INVALID_TOKENKEY}
 										)
 
+				#현재 로그인한 계정인지를 확인. 
+				u_id = flask.request.form['uId']
+				#세션에 잡혀있는 유저
+				api_user = userDeviceModel.getUserWithApikey(apikey)
+				real_user = userAccountModel.getUserAccountPlatform(u_id,login_platform)
+				
+				logging.info('remove User => '+str(api_user))
+				logging.info('remove User => '+str(api_user[0]['user_id']))
+
+				# user_iduser[0]['user_id']
+				#현재 apikey로 id와 플랫폼이 같다면 ==> 현재 로그인되어있는 계정을 지우려한다 			
+				#다른 남아있는 account로 연결시켜줘야한다. 
+				#만약 로그인 플랫폼이 구글이면 와치를 떼어내야한다. 
+				if login_platform == 'google':
+					
+					logging.info('realuser =>'+str(real_user[0]))
+					google_calendars = calendarModel.getGoogleCalendarInfoWithAccountHashkey(real_user[0]['account_hashkey'])
+					logging.info('stop calendar => '+ str(google_calendars))
+					
+					for google_calendar in google_calendars:
+						#액세스토큰이 만료되어 다시받게되는경우!!!
+						#최초 1회때 액세스토큰을 이용하면안되고
+						#새로 발급받은 accessToken을 이용하여야한다.
+						#매번 새로운 accessToken을 요청한다. 						
+						
+						result = gAPI.stopWatch(google_calendar['google_channel_id'],google_calendar['google_resource_id'],real_user[0]['account_hashkey'])
+						
+						if result == "":
+							logging.info('stop watch Succes')
+							googleWatchInfoModel.setGoogleWatchInfo(google_calendar['google_channel_id'],GOOGLE_WATCH_DETACH)
+						else:
+							logging.info('faillllll')						
+
+				#api에 있는 유저와 실제 넘겨저온 데이터가 같다면 api를 바꿔줘야함. 나머지는 실유저로 작업해야함. 
+				if u_id == api_user[0]['user_id'] and login_platform == api_user[0]['login_platform']:
+
+					logging.info('current connection user')
+
+					anotherUsers = userAccountModel.getAnotherConnectionUser(user_hashkey,u_id)
+					#연결된 다른 해시키로 업데이트 시켜준다.
+					userDeviceModel.setAnotherConnectionUser(anotherUsers[0]['account_hashkey'],apikey)
+
+				
+					
+
+				#현재유저의 어카운트 해시키를 가지고
+				account_hashkey = real_user[0]['account_hashkey']
+				#디바이스 정보를 날리진 않는다.남아있는계정이 있기떄문에
+				
+				# #캘린더에서 필요없는것들을 날린다. 
+				#그냥 해시키를 다 날려버림..
+				calendarModel.withdraw(account_hashkey)		
+				#유저를 3으로 바꾸지도않는다 계정만 삭제함으로
+				
+				#유저의 개인정보는 날려야한다.
+				userAccountModel.withdrawWithAccountHashkey(account_hashkey)
+				statee.userLife(apikey,LIFE_STATE_REMOVE_ACCOUNT)
+				
+				return utils.resSuccess(
+											{'msg':MSG_WITHDRAWL_SUCCESS}
+										)
+			
 			except Exception as e:
-				logging.error(str(e))
+				logging.info(str(e))
 				return utils.resErr(
 										{'msg':str(e)}
-									)								
+									)				
+		
 
 		elif action == 'addAccount':
 			apikey = flask.request.form['apikey']			
-			login_platform = flask.request.form['login_platform']	
+			login_platform = flask.request.form['loginPlatform']	
 
 			user_hashkey = redis.get(apikey)
 			logging.info('user_hashkey = '+ user_hashkey)
@@ -366,9 +434,6 @@ class Member(MethodView):
 
 					if len(user) == 0:
 
-						
-						
-						
 						userAccountModel.setCaldavUserAccount(account_hashkey,user_hashkey,login_platform,u_id,u_pw,caldav_homeset)
 						
 						#다시 유저가생겼음으로 유저를 가져와서 접속한다.
@@ -387,12 +452,12 @@ class Member(MethodView):
 					# sync 기본 요청에서는 user로 값을 넣어줘야함으로 맞춰줘야함.
 					try:
 					#일단 캘린더리스트를 삭제하고..					
-						syncInfo = syncLogic.caldav(user,user_hashkey,login_platform,SYNC_TIME_STATE_FORWARD)
+						syncInfo = syncLogic.caldav(user,apikey,login_platform,SYNC_TIME_STATE_FORWARD)
 					except Exception as e:
 						logging.error(str(e))
 						calendarModel.deleteCalendarList(user[0]['account_hashkey'])
 						return utils.resCustom(
-												201,							
+												401,							
 												{'msg':str(e)}
 											)							
 
@@ -408,7 +473,7 @@ class Member(MethodView):
 						#codeReview
 						#최소 에러라인을 알려주면 서로편할것이다.
 						return utils.resCustom(		
-													201,
+													401,
 													{'msg':str(syncInfo['data'])}
 												)																
 				except Exception as e:
@@ -468,8 +533,8 @@ class Member(MethodView):
 					except Exception as e:
 						logging.error(str(e))
 						calendarModel.deleteCalendarList(user[0]['account_hashkey'])
-						return utils.resCustom(
-												201,							
+						return utils.resErr(
+												400,							
 												{'msg':str(e)}
 											)						
 					
@@ -538,9 +603,12 @@ class Member(MethodView):
 				user = userAccountModel.getUserLoginPlatform(apikey)
 
 				if user[0]['login_platform'] == 'google':
+					#!!!! TODO
+					#account_hashkey!!!가 apikey에만 종속되어있다.
+					#회원탈퇴시 모든 계정에서 watch가 떼어져야한다.
 					google_calendars = calendarModel.getGoogleCalendarInfo(apikey)					
 					for google_calendar in google_calendars:
-						result = gAPI.stopWatch(google_calendar['google_channel_id'],google_calendar['google_resource_id'],google_calendar['access_token'])
+						result = gAPI.stopWatch(google_calendar['google_channel_id'],google_calendar['google_resource_id'],google_calendar['account_hashkey'])
 						
 						if result == "":
 							logging.info('stop watch Succes')
@@ -550,31 +618,24 @@ class Member(MethodView):
 
 						logging.info('result => '+result)
 
-
-				#일단 사유 받자.
-				user = userAccountModel.getUserAccount(user_hashkey)				
-				account_hashkey = user[0]['account_hashkey']
-				rows = supportModel.setRequests(apikey,account_hashkey,contents,REQUESTS_TYPE_WITHDRAWAL)
 				
-				# 1. 유저 iactive 0 으로 설정
-				# 2. 유저 디바이스 '모두' 날리고
-				# 2.5 레디스도 날리고.
-				# 3. 다시 들어올경우.
-				# 4. isacitve 체크, 0 인경우. api키를주고, 유저에게 회원가입로직을 다시 받고, (훼이더웨이)
-				# 5. registeruserdeivce 등록해줌.
-				# 6. user 1로 바꿔줌
-
-				
-				
-				# user
-
-				#1. user  isactive 0
+				users = userAccountModel.getUserAccount(user_hashkey)	
+				#사유는 한번만 받을수 있도록한다.
+				supportModel.setRequests(apikey,users[0]['account_hashkey'],contents,REQUESTS_TYPE_WITHDRAWAL)
+				#유저해시키에 여러개가있을 수있다.
+				for user in users:			
+					account_hashkey = user['account_hashkey']
+					#3. 해당유저의 모든디바이스 정보에서 개인정보값을 날린다
+					userDeviceModel.withdraw(account_hashkey)
+					#캘린더에서 필요없는것들 제검ㅊ
+					calendarModel.withdraw(account_hashkey)
+							
+				#공통적으로 날려야 할것들
+				#1. 해당유저의 모든계저의 isactive값을 3으로한다.
 				userModel.updateUserIsActive(user_hashkey,3)
-				#3 userAccount => userid/accesstoken/caldavHomeset/subject/refreshtoken/ 
+				#2. 해당유저의 모든계정의 개인정보 값을 날린다.
 				userAccountModel.withdraw(user_hashkey)
-				userDeviceModel.withdraw(account_hashkey)
-				calendarModel.withdraw(account_hashkey)
-
+				
 				#2. api key remove
 				apikeys = userDeviceModel.getUserApikeyList(user_hashkey)
 				statee.userLife(apikey,LIFE_STATE_WITHDRAWAL)
@@ -596,3 +657,21 @@ class Member(MethodView):
 				return utils.resErr(
 										{'msg':str(e)}
 									)				
+		elif action == 'accountList':
+			apikey = flask.request.form['apikey']
+			user_hashkey = redis.get(apikey)
+			
+			if not user_hashkey:			
+				return utils.resErr(
+										{'msg':MSG_INVALID_TOKENKEY}
+									)			
+			try:
+				syncAccountList = syncEndModel.getAccountLatestSyncTime(apikey,user_hashkey)
+				return utils.resSuccess(
+											{'data':syncAccountList}
+										)
+
+			except Exception as e:
+				return utils.resErr(									
+										{'msg':str(e)}
+									)			
