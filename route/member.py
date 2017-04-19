@@ -450,7 +450,7 @@ class Member(MethodView):
 					# sync 기본 요청에서는 user로 값을 넣어줘야함으로 맞춰줘야함.
 					try:
 					#일단 캘린더리스트를 삭제하고..					
-						syncInfo = syncLogic.caldav(user,user_hashkey,login_platform,SYNC_TIME_STATE_FORWARD)
+						syncInfo = syncLogic.caldav(user,apikey,login_platform,SYNC_TIME_STATE_FORWARD)
 					except Exception as e:
 						logging.error(str(e))
 						calendarModel.deleteCalendarList(user[0]['account_hashkey'])

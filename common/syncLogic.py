@@ -66,6 +66,7 @@ def caldav(user,apikey,login_platform,time_state):
 	u_id = user[0]['user_id']
 	u_pw = user[0]['access_token']
 	account_hashkey = user[0]['account_hashkey']			
+	logging.info('caldavSync => '+user)
 	
 	#캘데브 로그인
 	calDavclient = caldavWrapper.getCalDavClient(login_platform,u_id,u_pw)
@@ -267,7 +268,7 @@ def caldav(user,apikey,login_platform,time_state):
 	# 미래것이 끝났고 에러없이 마무리됬다면, 과거꺼를 돌려야한다. 
 	# 미래것일 상태에서만 요청을 하도록 한다.	
 	if time_state == SYNC_TIME_STATE_FORWARD:
-		
+		logging.info('[synclogic] FORWARD')
 		data_message = {
 				"type" : "caldavForwardSyncEnd",
 				"action" : "default"

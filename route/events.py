@@ -58,6 +58,8 @@ class Events(MethodView):
 					
 					pager = (int(pageNum)-1) * int(rangee) + EVENTS_BACKWARD_CNT				
 
+					logging.info('pageNum => '+ str(pageNum))
+					logging.info('pager => '+ str(pager))
 					rows = eventModel.getEventsBackward(user_hashkey,current_time,pager,rangee,account_hashkey)
 				
 			except Exception as e:
