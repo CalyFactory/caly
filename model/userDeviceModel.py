@@ -39,7 +39,21 @@ def updateUserApikey(apikey,account_hashkey):
 						,
 						(apikey,account_hashkey) 						
 				)		
-
+#login_manager			
+#login_manager
+def updateUserApikeyWihtUuid(account_hashkey,uuid,apikey):
+	return 	db_manager.query(
+					"""
+					UPDATE USERDEVICE 
+					INNER JOIN USERACCOUNT on USERDEVICE.account_hashkey = USERACCOUNT.account_hashkey
+					SET USERDEVICE.account_hashkey = %s,
+					USERDEVICE.apikey = %s,
+					USERDEVICE.is_active = 1 
+					WHERE USERDEVICE.uuid = %s 				
+					"""
+					,
+					(account_hashkey,apikey, uuid)
+				)
 #member
 def setGoogleUserDevice(device_hashkey,account_hashkey,apikey,push_token,device_type,app_version,device_info,uuid,sdkLevel):
 	return 	db_manager.query(

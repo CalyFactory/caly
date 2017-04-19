@@ -455,7 +455,7 @@ class Member(MethodView):
 						logging.error(str(e))
 						calendarModel.deleteCalendarList(user[0]['account_hashkey'])
 						return utils.resCustom(
-												201,							
+												401,							
 												{'msg':str(e)}
 											)							
 
@@ -471,7 +471,7 @@ class Member(MethodView):
 						#codeReview
 						#최소 에러라인을 알려주면 서로편할것이다.
 						return utils.resCustom(		
-													201,
+													401,
 													{'msg':str(syncInfo['data'])}
 												)																
 				except Exception as e:
@@ -531,8 +531,8 @@ class Member(MethodView):
 					except Exception as e:
 						logging.error(str(e))
 						calendarModel.deleteCalendarList(user[0]['account_hashkey'])
-						return utils.resCustom(
-												201,							
+						return utils.resErr(
+												400,							
 												{'msg':str(e)}
 											)						
 					
@@ -670,7 +670,6 @@ class Member(MethodView):
 										)
 
 			except Exception as e:
-				return utils.resCustom(
-										400,							
+				return utils.resErr(									
 										{'msg':str(e)}
 									)			

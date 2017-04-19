@@ -54,6 +54,8 @@ def caldav(user,apikey,login_platform,time_state):
 
 	
 	state = time_state == SYNC_TIME_STATE_FORWARD and SYNC_END_TIME_STATE_FORWARD or SYNC_END_TIME_STATE_BACKWARD
+	logging.info(str(user))
+	logging.info(str(user[0]['account_hashkey']))
 	syncEndRows = syncEndModel.getSyncEnd(user[0]['account_hashkey'],state)
 
 	#한번이라도 동기화했나?

@@ -159,6 +159,7 @@ def checkLoginState(flask):
 
 				return utils.loginState(LOGIN_STATE_RESIGNUP,{'apikey':apikey})
 
+#디바이스가 없으면 완전 새로운 디바이스 로그인
 			elif len(device) == 0 :					
 				logging.info('other device~!')
 				device_hashkey = utils.makeHashKey(account_hashkey)
@@ -180,7 +181,7 @@ def checkLoginState(flask):
 			#로그아웃인 경우.
 			#uuid가 존재하고, id/;pw가 있다면 로그아웃 했던경우이다.
 			# 새션키를 하나만들어서 넣어준다.
-
+			# 디바이스가 존재하면 다른 유저가 가입했거나, 로그아웃 해서 다시들어옴
 			elif len(device)!=0 :
 				logging.info('logout and return ')
 				apikey = utils.makeHashKey(uuid)
@@ -208,7 +209,7 @@ def checkLoginState(flask):
 					#userAccount가 존재한다면 기존것에 그냥 업데이트시켜주면됨
 					else:
 						logging.info('!!!login exsiting ACCOUNT !!!!')
-						userDeviceModel.updateUserApikey(apikey,account_hashkey)
+						userDeviceModel.updateUserApikeyWihtUuid(account_hashkey,uuid,apikey)
 						statee.userLife(apikey,LIFE_STATE_SIGNIN_RELOGIN)
 					
 				except Exception as e:
