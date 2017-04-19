@@ -70,16 +70,16 @@ def getEventsBackward(user_hashkey,standard_date,pager,rangee,account_hashkey):
 					ON 
 					recoInfo.event_hashkey = EVENT.event_hashkey					
 					WHERE user_hashkey = %s  AND start_dt < %s 
-					ORDER BY start_dt DESC LIMIT %s,%s 
+					ORDER BY start_dt 
 					) 
 					AS source 
 					where start_dt > (select cTime from SYNC_END where account_hashkey  = %s and sync_time_state = 1)
 					AND is_active is not NULL
-					ORDER BY start_dt 
+					ORDER BY start_dt DESC LIMIT %s,%s 
 					"""
 					,
 					(			
-						user_hashkey,standard_date,pager,rangee,account_hashkey
+						user_hashkey,standard_date,account_hashkey,pager,rangee
 					)
 				)
 
@@ -100,7 +100,7 @@ def getEventsForward(user_hashkey,standard_date,pager,rangee):
 					) recoInfo 
 					ON 
 					recoInfo.event_hashkey = EVENT.event_hashkey					
-					WHERE user_hashkey = %s AND start_dt >= %s AND CALENDAR.is_active is not NULL
+					WHERE user_hashkey = %s AND start_dt >= %s and CALENDAR.is_active is not NULL
 					ORDER BY start_dt 
 					limit %s,%s
 					"""
