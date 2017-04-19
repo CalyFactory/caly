@@ -92,14 +92,20 @@ def test_fetchFire():
 def stopNoti():
 	channel_id = flask.request.args.get('channel_id')		
 	resource_id = flask.request.args.get('resource_id')		
-	account_hashkey = flask.request.args.get('account_hashkey')		
+	# account_hashkey = flask.request.args.get('account_hashkey')		
+	# ya29.GlsyBLU17MXx5UoOZAsbG3i2XDPSzQTaJKtPvQQ0w55C9EGEWV2Msk9zL45Wmcu5xHCON7fFdKNp6KsxaTUwPR6GVyCfvpEBsvR0bBD-eiyyjpKkIAySurthCXmh
+	access_token = flask.request.args.get('access_token')		
 
 	URL = 'https://www.googleapis.com/calendar/v3/channels/stop'
 	body = {
 		"id" : channel_id,
   		"resourceId": resource_id
 	}	
-	return network_manager.reqPOST(URL,account_hashkey,body) 
+	headers = {
+		'content-Type': 'application/json',
+		'Authorization' : 'Bearer ' + access_token
+	}
+	return requests.post(URL,data = json.dumps(body),headers = headers).text
 	
 @app.route('/fireFcm')
 def fireFcm():

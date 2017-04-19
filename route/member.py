@@ -337,6 +337,8 @@ class Member(MethodView):
 					
 					logging.info('realuser =>'+str(real_user[0]))
 					google_calendars = calendarModel.getGoogleCalendarInfoWithAccountHashkey(real_user[0]['account_hashkey'])
+					logging.info('stop calendar => '+ str(google_calendars))
+					
 					for google_calendar in google_calendars:
 						#액세스토큰이 만료되어 다시받게되는경우!!!
 						#최초 1회때 액세스토큰을 이용하면안되고

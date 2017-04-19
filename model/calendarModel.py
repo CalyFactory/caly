@@ -115,9 +115,8 @@ def getGoogleCalendarInfoWithAccountHashkey(account_hashkey):
 				db_manager.query(
 					"""
 					SELECT USERACCOUNT.access_token,CALENDAR.google_channel_id,CALENDAR.google_resource_id,CALENDAR.google_expiration 
-					FROM USERDEVICE 
-					LEFT JOIN CALENDAR on USERDEVICE.account_hashkey = CALENDAR.account_hashkey
-					LEFT JOIN USERACCOUNT on USERDEVICE.account_hashkey = USERACCOUNT.account_hashkey
+					FROM CALENDAR
+					LEFT JOIN USERACCOUNT on USERACCOUNT.account_hashkey = CALENDAR.account_hashkey
 					WHERE CALENDAR.account_hashkey = %s AND CALENDAR.google_sync_state = 3					
 					"""
 						,
