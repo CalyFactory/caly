@@ -6,7 +6,11 @@ from manager import db_manager
 def getUserDeviceWithUuid(uuid):
 	return utils.fetch_all_json(
 				db_manager.query(
-						"SELECT * FROM USERDEVICE WHERE uuid = %s "
+					"""
+					SELECT *FROM USERDEVICE
+					LEFT JOIN USERACCOUNT on USERDEVICE.account_hashkey = USERACCOUNT.account_hashkey
+					where uuid = %s 
+					"""	
 						,
 						(uuid,) 						
 				)
@@ -35,7 +39,21 @@ def updateUserApikey(apikey,account_hashkey):
 						,
 						(apikey,account_hashkey) 						
 				)		
-
+#login_manager			
+#login_manager
+def updateUserApikeyWihtUuid(account_hashkey,uuid,apikey):
+	return 	db_manager.query(
+					"""
+					UPDATE USERDEVICE 
+					INNER JOIN USERACCOUNT on USERDEVICE.account_hashkey = USERACCOUNT.account_hashkey
+					SET USERDEVICE.account_hashkey = %s,
+					USERDEVICE.apikey = %s,
+					USERDEVICE.is_active = 1 
+					WHERE USERDEVICE.uuid = %s 				
+					"""
+					,
+					(account_hashkey,apikey, uuid)
+				)
 #member
 def setGoogleUserDevice(device_hashkey,account_hashkey,apikey,push_token,device_type,app_version,device_info,uuid,sdkLevel):
 	return 	db_manager.query(
@@ -67,7 +85,34 @@ def getUserHashkey(apikey):
 						apikey,
 					)
 				)		
+			)
+#login_manager
+def getUserDeviceWithAccountHashkey(account_hashkey):
+	return utils.fetch_all_json(
+				db_manager.query(
+					"""
+					SELECT * FROM USERDEVICE
+					WHERE account_hashkey = %s
+					"""
+					,
+					(account_hashkey,)
+				)
 			)	
+#login_manager
+def updateAccountHashkey(account_hashkey,uuid,apikey):
+	return 	db_manager.query(
+					"""
+					UPDATE USERDEVICE 
+					INNER JOIN USERACCOUNT on USERDEVICE.account_hashkey = USERACCOUNT.account_hashkey
+					SET USERDEVICE.account_hashkey = %s,
+					USERDEVICE.apikey = %s,
+					USERDEVICE.is_active =1 
+					WHERE USERDEVICE.uuid = %s 				
+					"""
+					,
+					(account_hashkey,apikey, uuid)
+				)
+
 #registerDevice
 def updateUserDevice(push_token,device_type,app_version,device_info,uuid,sdkLevel,apikey,):
 	return db_manager.query(
@@ -136,9 +181,11 @@ def setSdkLevel(apikey,sdkLevel):
 def getPushToken(apikey):
 	return utils.fetch_all_json(
 				db_manager.query(
-						"SELECT push_token "
-						+ "FROM USERDEVICE "
-						+ "WHERE apikey = %s "
+						"""
+						SELECT push_token 
+						FROM USERDEVICE 
+						WHERE apikey = %s 
+						"""
 						,
 						(apikey,) 						
 				)
@@ -164,6 +211,38 @@ def getUserAccountHashkey(apikey):
 					)
 				)
 			)
+def getUserWithApikey(apikey):
+	return 	utils.fetch_all_json(
+				db_manager.query(
+					"""
+					SELECT *FROM USERDEVICE
+					INNER JOIN USERACCOUNT on USERACCOUNT.account_hashkey = USERDEVICE.account_hashkey
+					WHERE apikey = %s					
+					"""
+					,
+					(									
+						apikey,					
+					)
+				)
+			)	
+def getUserSyncOlderTime(user_hashkey):
+	return 	utils.fetch_all_json(
+				db_manager.query(
+					"""
+					SELECT USERACCOUNT.account_hashkey,ctime FROM USERACCOUNT
+					INNER JOIN (
+					SELECT account_hashkey,ctime FROM SYNC_END WHERE sync_time_state = 1
+					) as synEnd
+					on synEnd.account_hashkey = USERACCOUNT.account_hashkey
+					WHERE user_hashkey = %s
+
+					"""
+					,
+					(									
+						user_hashkey,					
+					)
+				)
+			)	
 def getUserApikeyList(user_hashkey):
 	return 	utils.fetch_all_json(
 				db_manager.query(
@@ -188,6 +267,19 @@ def deleteUserDeviceAll(user_hashkey):
 						user_hashkey,					
 					)
 				)
+def setAnotherConnectionUser(account_hashkey,apikey):
+	return 	db_manager.query(
+					"""
+					UPDATE USERDEVICE
+					SET account_hashkey = %s
+					WHERE apikey = %s
+					"""
+					,
+					(									
+						account_hashkey,apikey	
+					)
+				)
+
 def withdraw(account_hashkey):
 	return 	db_manager.query(
 				"""

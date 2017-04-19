@@ -55,22 +55,31 @@ def getEventsBackward(user_hashkey,standard_date,pager,rangee,account_hashkey):
 
 	return utils.fetch_all_json(				
 				db_manager.query(
-					"SELECT * FROM "
-					"( " 
-					"SELECT CALENDAR.calendar_hashkey,EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.recurrence,EVENT.start_dt,EVENT.summary,EVENT.location,EVENT.reco_state " 
-					"FROM USERACCOUNT "
-					"INNER JOIN CALENDAR ON USERACCOUNT.account_hashkey = CALENDAR.account_hashkey " 
-					"INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey " 
-					"WHERE user_hashkey = %s  AND start_dt < %s " 
-					"ORDER BY start_dt DESC LIMIT %s,%s "
-					") "
-					"AS source "
-					"where start_dt > (select cTime from SYNC_END where account_hashkey  = %s and sync_time_state = 1)"
-					
-					"ORDER BY start_dt "
+					"""
+					SELECT * FROM 
+					(  
+					SELECT CALENDAR.is_active,CALENDAR.calendar_hashkey,EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.recurrence,EVENT.start_dt,EVENT.summary,EVENT.location,EVENT.reco_state,recoInfo.totalRecoCnt
+					FROM USERACCOUNT 
+					INNER JOIN CALENDAR ON USERACCOUNT.account_hashkey = CALENDAR.account_hashkey 
+					INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey 
+					LEFT JOIN(
+					SELECT EVENT_RECO.event_hashkey ,count(*) as totalRecoCnt FROM EVENT
+					INNER JOIN EVENT_RECO on EVENT_RECO.event_hashkey = EVENT.event_hashkey 
+					group by EVENT_RECO.event_hashkey
+					) recoInfo 
+					ON 
+					recoInfo.event_hashkey = EVENT.event_hashkey					
+					WHERE user_hashkey = %s  AND start_dt < %s 
+					ORDER BY start_dt 
+					) 
+					AS source 
+					where start_dt > (select cTime from SYNC_END where account_hashkey  = %s and sync_time_state = 1)
+					AND is_active is not NULL
+					ORDER BY start_dt DESC LIMIT %s,%s 
+					"""
 					,
 					(			
-						user_hashkey,standard_date,pager,rangee,account_hashkey
+						user_hashkey,standard_date,account_hashkey,pager,rangee
 					)
 				)
 
@@ -79,13 +88,22 @@ def getEventsForward(user_hashkey,standard_date,pager,rangee):
 
 	return utils.fetch_all_json(				
 				db_manager.query(
-					"SELECT CALENDAR.calendar_hashkey,EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.recurrence,EVENT.start_dt,EVENT.summary,EVENT.location,EVENT.reco_state "
-					"FROM USERACCOUNT " 							
-					"INNER JOIN CALENDAR ON USERACCOUNT.account_hashkey = CALENDAR.account_hashkey "
-					"INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey " 
-					"WHERE user_hashkey = %s AND start_dt >= %s " 					
-					"ORDER BY start_dt "
-					"limit %s,%s"
+					"""
+					SELECT CALENDAR.is_active,CALENDAR.calendar_hashkey,EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.recurrence,EVENT.start_dt,EVENT.summary,EVENT.location,EVENT.reco_state,recoInfo.totalRecoCnt
+					FROM USERACCOUNT 
+					INNER JOIN CALENDAR ON USERACCOUNT.account_hashkey = CALENDAR.account_hashkey 
+					INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey 
+					LEFT JOIN(
+					SELECT EVENT_RECO.event_hashkey ,count(*) as totalRecoCnt FROM EVENT
+					INNER JOIN EVENT_RECO on EVENT_RECO.event_hashkey = EVENT.event_hashkey 
+					group by EVENT_RECO.event_hashkey
+					) recoInfo 
+					ON 
+					recoInfo.event_hashkey = EVENT.event_hashkey					
+					WHERE user_hashkey = %s AND start_dt >= %s and CALENDAR.is_active is not NULL
+					ORDER BY start_dt 
+					limit %s,%s
+					"""
 					,
 					(			
 						user_hashkey,standard_date,pager,rangee
@@ -98,24 +116,54 @@ def getEventsFirst(account_hashkey,user_hashkey,standard_date,start_range,end_ra
 
 	return utils.fetch_all_json(				
 				db_manager.query(
-					"( "
-					"SELECT CALENDAR.calendar_hashkey,EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.start_dt,EVENT.summary,EVENT.location,EVENT.reco_state FROM USERACCOUNT "
-					"INNER JOIN CALENDAR ON USERACCOUNT.account_hashkey = CALENDAR.account_hashkey " 							
-					"INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey "+
-					"WHERE start_dt > (" 
-					"SELECT ctime FROM SYNC_END WHERE account_hashkey = %s and sync_time_state = 1" +
-					") "
-					"AND user_hashkey = %s AND start_dt < %s ORDER BY start_dt DESC LIMIT %s ) "
-					"UNION "
-					"( "
-					"SELECT CALENDAR.calendar_hashkey,EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.start_dt,EVENT.summary,EVENT.location,EVENT.reco_state FROM USERACCOUNT "
-					"INNER JOIN CALENDAR ON USERACCOUNT.account_hashkey = CALENDAR.account_hashkey "
-					"INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey "
-					"WHERE start_dt > ("
-					"SELECT ctime FROM SYNC_END WHERE account_hashkey = %s and sync_time_state = 1"
-					") " 
-					"AND user_hashkey = %s AND start_dt >= %s ORDER BY start_dt limit %s ) "
-					"ORDER BY start_dt,event_hashkey"
+					"""
+					( 
+					SELECT CALENDAR.is_active,CALENDAR.calendar_hashkey,EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.start_dt,EVENT.summary,EVENT.location,EVENT.reco_state,recoInfo.totalRecoCnt
+					FROM USERACCOUNT 
+					INNER JOIN CALENDAR ON USERACCOUNT.account_hashkey = CALENDAR.account_hashkey 
+					INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey 
+					
+					LEFT JOIN(
+					SELECT EVENT_RECO.event_hashkey ,count(*) as totalRecoCnt FROM EVENT
+					INNER JOIN EVENT_RECO on EVENT_RECO.event_hashkey = EVENT.event_hashkey 
+					group by EVENT_RECO.event_hashkey
+					) recoInfo 
+					ON 
+					recoInfo.event_hashkey = EVENT.event_hashkey	
+
+					WHERE start_dt > (
+					SELECT ctime FROM SYNC_END WHERE account_hashkey = %s and sync_time_state = 1 
+					) 
+					AND user_hashkey = %s AND start_dt < %s AND CALENDAR.is_active is not NULL 					
+					ORDER BY start_dt DESC LIMIT %s 
+
+					) 
+
+					
+					UNION 
+					( 
+					SELECT CALENDAR.is_active,CALENDAR.calendar_hashkey,EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.start_dt,EVENT.summary,EVENT.location,EVENT.reco_state,recoInfo.totalRecoCnt
+					FROM USERACCOUNT 
+					INNER JOIN CALENDAR ON USERACCOUNT.account_hashkey = CALENDAR.account_hashkey 
+					INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey 
+					
+					LEFT JOIN(
+					SELECT EVENT_RECO.event_hashkey ,count(*) as totalRecoCnt FROM EVENT
+					INNER JOIN EVENT_RECO on EVENT_RECO.event_hashkey = EVENT.event_hashkey 
+					group by EVENT_RECO.event_hashkey
+					) recoInfo 
+					ON 
+					recoInfo.event_hashkey = EVENT.event_hashkey	
+
+					WHERE start_dt > (
+					SELECT ctime FROM SYNC_END WHERE account_hashkey = %s and sync_time_state = 1
+					) 
+					AND user_hashkey = %s AND start_dt >= %s 
+					AND CALENDAR.is_active is not NULL
+					
+					ORDER BY start_dt limit %s ) 
+					ORDER BY start_dt,event_hashkey
+					"""
 					  ,
 					(			
 						account_hashkey,user_hashkey,standard_date,start_range,account_hashkey,user_hashkey,standard_date,end_range

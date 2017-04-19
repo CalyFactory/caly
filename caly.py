@@ -38,6 +38,7 @@ initRoute(app)
 # if debugg
 # logSet.init()
 
+
 # if production
 logging.basicConfig(level=logging.INFO, filename='log/log_caly.log',
                   format='%(asctime)s %(levelname)s: %(message)s',
@@ -91,6 +92,8 @@ def test_fetchFire():
 def stopNoti():
 	channel_id = flask.request.args.get('channel_id')		
 	resource_id = flask.request.args.get('resource_id')		
+	# account_hashkey = flask.request.args.get('account_hashkey')		
+	# ya29.GlsyBLU17MXx5UoOZAsbG3i2XDPSzQTaJKtPvQQ0w55C9EGEWV2Msk9zL45Wmcu5xHCON7fFdKNp6KsxaTUwPR6GVyCfvpEBsvR0bBD-eiyyjpKkIAySurthCXmh
 	access_token = flask.request.args.get('access_token')		
 
 	URL = 'https://www.googleapis.com/calendar/v3/channels/stop'
@@ -98,7 +101,11 @@ def stopNoti():
 		"id" : channel_id,
   		"resourceId": resource_id
 	}	
-	return network_manager.reqPOST(URL,access_token,body) 
+	headers = {
+		'content-Type': 'application/json',
+		'Authorization' : 'Bearer ' + access_token
+	}
+	return requests.post(URL,data = json.dumps(body),headers = headers).text
 	
 @app.route('/fireFcm')
 def fireFcm():

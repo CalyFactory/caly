@@ -10,6 +10,16 @@ def getCaldavUserAccount(u_id,login_platform):
 						(u_id,login_platform) 						
 				)
 			)
+
+def getUserAccountPlatform(u_id,login_platform):
+	return utils.fetch_all_json(
+				db_manager.query(
+						"SELECT * FROM USERACCOUNT "
+						"WHERE user_id = %s  AND login_platform = %s"
+						,
+						(u_id,login_platform) 						
+				)
+			)
 def updateCaldavUserAccount(u_id,u_pw,login_platform):
 	return db_manager.query(
 						"""
@@ -101,6 +111,23 @@ def getUserAccountWithAccessToken(access_token):
 						(access_token,) 						
 				)			
 			)	
+def getUserAccountForSync(apikey,user_id,login_platform):	
+	return utils.fetch_all_json(
+				db_manager.query(
+						"""
+						SELECT * FROM USERACCOUNT
+						WHERE user_hashkey IN(
+						SELECT user_hashkey FROM USERACCOUNT
+						INNER JOIN USERDEVICE on USERACCOUNT.account_hashkey = USERDEVICE.account_hashkey
+						WHERE apikey  = %s
+						)
+						and user_id = %s and login_platform = %s
+
+						"""
+						,
+						(apikey,user_id,login_platform) 						
+				)			
+			)		
 
 def updateUserAccessToken(access_token,new_access_token,google_expire_time):
 	return db_manager.query(
@@ -135,7 +162,35 @@ def getIsActive(apikey):
 					(apikey,)
 				)
 			)	
-	#3 userAccount => userid/accesstoken/caldavHomeset/subject/refreshtoken/ 
+def getAnotherConnectionUser(user_hashkey,u_id):
+	return utils.fetch_all_json(
+				db_manager.query(
+					"""
+					SELECT * FROM USERACCOUNT 
+					WHERE user_hashkey = %s AND user_id != %s AND is_active is not null
+					""" 
+					,
+					(user_hashkey,u_id)
+				)
+			)	
+def withdrawWithAccountHashkey(account_hashkey):
+	return 	db_manager.query(
+				"""
+				UPDATE USERACCOUNT 
+				SET user_id = "None",
+				access_token = "None",
+				caldav_homeset = NULL,
+				is_active = NULL,
+				subject = NULL,
+				refresh_token = NULL
+				WHERE account_hashkey  = %s 
+				"""
+				,
+				(			
+					account_hashkey,
+				)
+			)
+
 def withdraw(user_hashkey):
 	return 	db_manager.query(
 				"""
@@ -153,3 +208,14 @@ def withdraw(user_hashkey):
 					user_hashkey,
 				)
 			)
+def getAccessToken(account_hashkey):
+	return utils.fetch_all_json(
+				db_manager.query(
+					"""
+					SELECT access_token FROM USERACCOUNT 
+					WHERE account_hashkey = %s 
+					"""
+					,
+					(account_hashkey,)
+				)
+			)		

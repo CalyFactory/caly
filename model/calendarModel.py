@@ -41,7 +41,8 @@ def withdraw(account_hashkey):
 	return 	db_manager.query(
 				"""
 				UPDATE CALENDAR 
-				SET caldav_calendar_url = NULL
+				SET caldav_calendar_url = NULL,
+				is_active = NULL
 				WHERE account_hashkey = %s 
 				"""
 				,
@@ -99,7 +100,8 @@ def getGoogleCalendarInfo(apikey):
 	return utils.fetch_all_json(
 				db_manager.query(
 					"""
-					SELECT USERACCOUNT.access_token,CALENDAR.google_channel_id,CALENDAR.google_resource_id,CALENDAR.google_expiration FROM USERDEVICE 
+					SELECT USERACCOUNT.account_hashkey,USERACCOUNT.access_token,CALENDAR.google_channel_id,CALENDAR.google_resource_id,CALENDAR.google_expiration 
+					FROM USERDEVICE 
 					LEFT JOIN CALENDAR on USERDEVICE.account_hashkey = CALENDAR.account_hashkey
 					LEFT JOIN USERACCOUNT on USERDEVICE.account_hashkey = USERACCOUNT.account_hashkey
 					WHERE apikey = %s AND google_sync_state = 3					
@@ -108,6 +110,19 @@ def getGoogleCalendarInfo(apikey):
 						(apikey,) 						
 				)
 			)	
+def getGoogleCalendarInfoWithAccountHashkey(account_hashkey):
+	return utils.fetch_all_json(
+				db_manager.query(
+					"""
+					SELECT USERACCOUNT.access_token,CALENDAR.google_channel_id,CALENDAR.google_resource_id,CALENDAR.google_expiration 
+					FROM CALENDAR
+					LEFT JOIN USERACCOUNT on USERACCOUNT.account_hashkey = CALENDAR.account_hashkey
+					WHERE CALENDAR.account_hashkey = %s AND CALENDAR.google_sync_state = 3					
+					"""
+						,
+						(account_hashkey,) 						
+				)
+			)		
 def updateGoogleSyncState(channel_id,state):
 	return db_manager.query(
 				"UPDATE CALENDAR SET google_sync_state = %s WHERE google_channel_id = %s"
@@ -136,3 +151,20 @@ def deleteCalendarList(account_hashkey):
 			,
 			(account_hashkey,)
 		)
+
+
+def getRetachGoogleWatchList():
+	return utils.fetch_all_json(
+				db_manager.query(
+						"""
+						SELECT * FROM CALENDAR 
+						LEFT JOIN USERACCOUNT on USERACCOUNT.account_hashkey = CALENDAR.account_hashkey
+						WHERE google_expiration <= date(adddate(now(),INTERVAL 1 DAY)) 
+						AND google_expiration >= now()
+						AND google_sync_state = 3
+						AND USERACCOUNT.is_active = 1						
+						"""
+						,
+						() 						
+				)
+			)				
