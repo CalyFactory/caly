@@ -56,6 +56,13 @@ def caldav(user,apikey,login_platform,time_state):
 	state = time_state == SYNC_TIME_STATE_FORWARD and SYNC_END_TIME_STATE_FORWARD or SYNC_END_TIME_STATE_BACKWARD
 	logging.info(str(user))
 	logging.info(str(user[0]['account_hashkey']))
+	
+	#최초 동기화일경우
+	#syncEnd에 첫번째동기화일경우 동기화 시작! 이라는 상태를 저장한다.
+	if time_state == SYNC_TIME_STATE_FORWARD:
+		syncEndModel.setSyncEnd(account_hashkey,SYNC_END_TIME_STATE_FORWARD_START)
+
+
 	syncEndRows = syncEndModel.getSyncEnd(user[0]['account_hashkey'],state)
 
 	#한번이라도 동기화했나?

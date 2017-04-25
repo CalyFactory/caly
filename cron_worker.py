@@ -45,7 +45,6 @@ app.conf.task_default_queue = 'periodicSyncQueue'
 @periodic_task(run_every=timedelta(seconds=300))
 def accountDistributor():
     print("hello")
-    
     accountList = utils.fetch_all_json(
         db_manager.query(
             """

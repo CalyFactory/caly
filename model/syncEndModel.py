@@ -15,6 +15,18 @@ def setSyncEnd(account_hashkey,sync_time_state):
 					account_hashkey,sync_time_state
 				)
 			)
+def delSyncEnd(account_hashkey,sync_time_state):
+	return db_manager.query(
+				"""
+				DELETE FROM SYNC_END 
+				WHERE account_hashkey = %s AND sync_time_state = %s
+				ORDER BY ctime DESC LIMIT 1
+				"""
+				,
+				(			
+					account_hashkey,sync_time_state
+				)
+			)
 
 def getSyncEnd(account_hashkey,sync_time_state):
 	return utils.fetch_all_json(
@@ -26,6 +38,22 @@ def getSyncEnd(account_hashkey,sync_time_state):
 					,
 					(			
 						account_hashkey,sync_time_state
+					)
+				)
+			)
+
+def getSynEndLatestState(account_hashkey):
+	return utils.fetch_all_json(
+				db_manager.query(
+					"""
+					SELECT * FROM SYNC_END  
+					WHERE account_hashkey = %s
+					ORDER BY ctime 
+					DESC LIMIT 1
+					"""
+					,
+					(			
+						account_hashkey,
 					)
 				)
 			)
