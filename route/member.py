@@ -39,7 +39,9 @@ class Member(MethodView):
 
 	def post(self,action):
 		if action == 'loginCheck':
-				
+			
+			logging.info('call loginCheck!!!')
+
 			with open('./APP_CONFIGURE.json') as conf_json:
 				app_conf = json.load(conf_json)			
 			
