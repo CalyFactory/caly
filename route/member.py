@@ -57,7 +57,7 @@ class Member(MethodView):
 
 			# logging.info(app_conf['version'][0:4])
 			#app_version이 null이거나. 버전이 현재최신이랑 같을경우 는 로그인 로직을탄다.
-			if app_version == current_version or app_version == next_version + '_' + conf['versionOpt'] or app_version == 'null':
+			if app_version == current_version or app_version == next_version or app_version == next_version + '_' + conf['versionOpt'] or app_version == 'null':
 
 				who_am_i = login_manager.checkLoginState(flask)									
 				logging.info('whoam_i'+ str(who_am_i))
