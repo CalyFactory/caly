@@ -395,46 +395,6 @@ class Sync(MethodView):
 							logging.info('cancelled')							
 							eventModel.deleteEvents(event_id)				
 			return 'bye';
-		elif action == 'checkSync':
-			
-			apikey = flask.request.form['apikey']			
-			user_hashkey = redis.get(apikey)
-			if not redis.get(apikey):
-				return utils.resErr(
-										{'msg':MSG_INVALID_TOKENKEY}
-									)
-			try:
-				user = userAccountModel.getUserAccount(user_hashkey)
-				syncEndRows = syncEndModel.getSyncEnd(user[0]['account_hashkey'],SYNC_END_TIME_STATE_FORWARD)
-				
-				#동기화를 하지 않았다. 
-				if len(syncEndRows) == 0 :
-					#201은 다시 동기화를 시도해라!
-					return utils.resCustom(
-												202,
-												{'msg':MSG_SYNC_NEED}
-											)	
-				#동기화를 했다. 	
-				#추천이 되어있나 확인한다.
-				else:
-										
-					state = recoModel.checkAllRecoEndState(apikey)									
-					if len(state) == 1 and state[0]['reco_state'] == 2:
-						return utils.resCustom(
-													200,
-													{'msg':MSG_RECO_SUCCESS}
-												)
-
-					else:
-						return utils.resCustom(
-													201,
-													{'msg':MSG_RECO_ING}
-												)							
-
-			except Exception as e:
-				logging.error(str(e))
-				return utils.resErr(str(e))	
-								
 		# elif action == 'checkSync':
 			
 		# 	apikey = flask.request.form['apikey']			
@@ -445,16 +405,9 @@ class Sync(MethodView):
 		# 							)
 		# 	try:
 		# 		user = userAccountModel.getUserAccount(user_hashkey)
-
-
-
-		# 		# syncEndRows = syncEndModel.getSyncEnd(user[0]['account_hashkey'],SYNC_END_TIME_STATE_FORWARD)
-
-		# 		#가장 최근 동기화 값을 가져온다.
-		# 		syncEndRows = syncEndModel.getSynEndLatestState(user[0]['account_hashkey'])				
+		# 		syncEndRows = syncEndModel.getSyncEnd(user[0]['account_hashkey'],SYNC_END_TIME_STATE_FORWARD)
 				
-		# 		#만약 최신값이 없다면 동기화 하지 않았다.
-		# 		# 다시 동기화해라.
+		# 		#동기화를 하지 않았다. 
 		# 		if len(syncEndRows) == 0 :
 		# 			#201은 다시 동기화를 시도해라!
 		# 			return utils.resCustom(
@@ -462,37 +415,89 @@ class Sync(MethodView):
 		# 										{'msg':MSG_SYNC_NEED}
 		# 									)	
 		# 		#동기화를 했다. 	
-		# 		#최신값이있다
-		# 		#동기화시작상태나
-		# 		#포워드끝
-		# 		#백워드끝
-		# 		#주기적 동기화 끝
+		# 		#추천이 되어있나 확인한다.
 		# 		else:
 										
 		# 			state = recoModel.checkAllRecoEndState(apikey)									
-		# 			sync_state = syncEndRows[0]['sync_time_state']
-
-		# 			#값이 있는데 상태가 최초동기화중이면 기다리라는 값을 준다.
-		# 			if sync_state == SYNC_END_TIME_STATE_FORWARD_START:
+		# 			if len(state) == 1 and state[0]['reco_state'] == 2:
 		# 				return utils.resCustom(
-		# 											203,
-		# 											{'msg':MSG_SYNC_ING}
+		# 											200,
+		# 											{'msg':MSG_RECO_SUCCESS}
 		# 										)
-		# 			#뒤까지동기화가 끝나 포워드나, 백워드나, 주기적 동기화까지 이루어지고 있다면
-		# 			#아래와같이 추천상태에대한 정보를 넘겨준다.
-		# 			elif sync_state == SYNC_END_TIME_STATE_FORWARD or sync_state == SYNC_END_TIME_STATE_BACKWARD or sync_state == SYNC_END_TIME_STATE_PERIOD:
-		# 				if len(state) == 1 and state[0]['reco_state'] == 2:
-		# 					return utils.resCustom(
-		# 												200,
-		# 												{'msg':MSG_RECO_SUCCESS}
-		# 											)
 
-		# 				else:
-		# 					return utils.resCustom(
-		# 												201,
-		# 												{'msg':MSG_RECO_ING}
-		# 											)							
+		# 			else:
+		# 				return utils.resCustom(
+		# 											201,
+		# 											{'msg':MSG_RECO_ING}
+		# 										)							
 
 		# 	except Exception as e:
 		# 		logging.error(str(e))
-		# 		return utils.resErr(str(e))		
+		# 		return utils.resErr(str(e))	
+								
+		elif action == 'checkSync':
+			
+			apikey = flask.request.form['apikey']			
+			user_hashkey = redis.get(apikey)
+			logging.info('call checkSyn!!!')
+			if not redis.get(apikey):
+				return utils.resErr(
+										{'msg':MSG_INVALID_TOKENKEY}
+									)
+			try:
+				user = userAccountModel.getUserAccount(user_hashkey)
+
+
+
+				# syncEndRows = syncEndModel.getSyncEnd(user[0]['account_hashkey'],SYNC_END_TIME_STATE_FORWARD)
+
+				#가장 최근 동기화 값을 가져온다.
+				syncEndRows = syncEndModel.getSynEndLatestState(user[0]['account_hashkey'])				
+				logging.info('syncEndROwsss==> '+ str(syncEndRows))
+				#만약 최신값이 없다면 동기화 하지 않았다.
+				# 다시 동기화해라.
+				if len(syncEndRows) == 0 :
+					logging.info('checkSync Status ===> 202')
+					#201은 다시 동기화를 시도해라!
+					return utils.resCustom(
+												202,
+												{'msg':MSG_SYNC_NEED}
+											)	
+				#동기화를 했다. 	
+				#최신값이있다
+				#동기화시작상태나
+				#포워드끝
+				#백워드끝
+				#주기적 동기화 끝
+				else:
+										
+					state = recoModel.checkAllRecoEndState(apikey)									
+					sync_state = syncEndRows[0]['sync_time_state']
+
+					#값이 있는데 상태가 최초동기화중이면 기다리라는 값을 준다.
+					if sync_state == SYNC_END_TIME_STATE_FORWARD_START:
+						logging.info('checkSync Status ===> 20333333')
+						return utils.resCustom(
+													203,
+													{'msg':MSG_SYNC_ING}
+												)
+					#뒤까지동기화가 끝나 포워드나, 백워드나, 주기적 동기화까지 이루어지고 있다면
+					#아래와같이 추천상태에대한 정보를 넘겨준다.
+					elif sync_state == SYNC_END_TIME_STATE_FORWARD or sync_state == SYNC_END_TIME_STATE_BACKWARD or sync_state == SYNC_END_TIME_STATE_PERIOD:
+						if len(state) == 1 and state[0]['reco_state'] == 2:
+							logging.info('checkSync Status ===> 200000')
+							return utils.resCustom(
+														200,
+														{'msg':MSG_RECO_SUCCESS}
+													)
+
+						else:
+							logging.info('checkSync Status ===> 200001')
+							return utils.resCustom(
+														201,
+														{'msg':MSG_RECO_ING}
+													)							
+
+			except Exception as e:
+				logging.error(str(e))
+				return utils.resErr(str(e))		
