@@ -56,6 +56,13 @@ def caldav(user,apikey,login_platform,time_state):
 	state = time_state == SYNC_TIME_STATE_FORWARD and SYNC_END_TIME_STATE_FORWARD or SYNC_END_TIME_STATE_BACKWARD
 	logging.info(str(user))
 	logging.info(str(user[0]['account_hashkey']))
+	
+	#최초 동기화일경우
+	#syncEnd에 첫번째동기화일경우 동기화 시작! 이라는 상태를 저장한다.
+	if time_state == SYNC_TIME_STATE_FORWARD:		
+		syncEndModel.setSyncEnd(user[0]['account_hashkey'],SYNC_END_TIME_STATE_FORWARD_START)
+
+
 	syncEndRows = syncEndModel.getSyncEnd(user[0]['account_hashkey'],state)
 
 	#한번이라도 동기화했나?
@@ -309,7 +316,13 @@ def google(user,apikey,time_state):
 	utils.checkTime(datetime.now(),'start')
 	
 	state = time_state == SYNC_TIME_STATE_FORWARD and SYNC_END_TIME_STATE_FORWARD or SYNC_END_TIME_STATE_BACKWARD
+
+	#forward
+	if time_state == SYNC_TIME_STATE_FORWARD:		
+		syncEndModel.setSyncEnd(user[0]['account_hashkey'],SYNC_END_TIME_STATE_FORWARD_START)
+
 	syncEndRows = syncEndModel.getSyncEnd(user[0]['account_hashkey'],state)
+
 
 	#한번이라도 동기화했나?
 	if len(syncEndRows) != 0 :
@@ -431,6 +444,15 @@ def google(user,apikey,time_state):
 		#for loop가  다끝나면 나머지 과거 이벤트들을 받아야한다.
 		#싱크가 끝났다는것을 슬랙봇으로 알려주고
 		#워커가 과거일정을 실행하도록한다
+
+
+	state = time_state == SYNC_TIME_STATE_FORWARD and SYNC_END_TIME_STATE_FORWARD or SYNC_END_TIME_STATE_BACKWARD
+	syncEndModel.setSyncEnd(account_hashkey,state)					 
+
+	log_state = time_state == SYNC_TIME_STATE_FORWARD and LIFE_STATE_GOOGLE_FORWARD_SYNC_END or LIFE_STATE_GOOGLE_BACKWARD_SYNC_END
+	statee.userLife(apikey,log_state)	
+	
+	if time_state == SYNC_TIME_STATE_FORWARD:
 		data_message = {
 				"type" : "googleForwardSyncEnd",
 				"action" : "default"
@@ -450,13 +472,8 @@ def google(user,apikey,time_state):
 		data['user'] = user
 		data['login_platform'] = 'google'
 		data['apikey'] = apikey
-		sync_worker.worker.delay(data)	
+		sync_worker.worker.delay(data)			
 
-	state = time_state == SYNC_TIME_STATE_FORWARD and SYNC_END_TIME_STATE_FORWARD or SYNC_END_TIME_STATE_BACKWARD
-	syncEndModel.setSyncEnd(account_hashkey,state)					 
-
-	log_state = time_state == SYNC_TIME_STATE_FORWARD and LIFE_STATE_GOOGLE_FORWARD_SYNC_END or LIFE_STATE_GOOGLE_BACKWARD_SYNC_END
-	statee.userLife(apikey,log_state)	
 
 	return utils.syncState(SYNC_GOOGLE_SUCCES,None)
 
