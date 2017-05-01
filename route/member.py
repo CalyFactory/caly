@@ -32,6 +32,7 @@ from common import statee
 from common import gAPI
 from model import googleWatchInfoModel
 from model import syncEndModel
+from model import mLog
 
 # yenos
 # 유저의관한 api 리스트이다.
@@ -321,9 +322,20 @@ class Member(MethodView):
 					return utils.resErr(
 											{'msg':MSG_INVALID_TOKENKEY}
 										)
+				
+
 
 				#현재 로그인한 계정인지를 확인. 
 				u_id = flask.request.form['uId']
+
+				log_result = {}
+				log_result = mLog.getUserInfo(apikey)
+				log_result['action'] = 'click'
+				log_result['label'] = 'removeAccount'
+				log_result['selected_login_platform'] = login_platform
+				log_result['selected_login_uId'] = u_id
+				mLog.insertLog(MONGO_COLLECTION_ACCOUNT_LIST_LOG,log_result)
+
 				#세션에 잡혀있는 유저
 				api_user = userDeviceModel.getUserWithApikey(apikey)
 				real_user = userAccountModel.getUserAccountPlatform(u_id,login_platform)
@@ -392,6 +404,8 @@ class Member(MethodView):
 		
 
 		elif action == 'addAccount':
+			
+
 			apikey = flask.request.form['apikey']			
 			login_platform = flask.request.form['loginPlatform']	
 
@@ -406,11 +420,25 @@ class Member(MethodView):
 			
 			statee.userLife(apikey,LIFE_STATE_ADDACCOUNT)
 			
+			log_result = {}
+			log_result = mLog.getUserInfo(apikey)
+			log_result['action'] = 'click'
+			log_result['label'] = 'addAccount'
+			log_result['selected_login_platform'] = login_platform
+
+			
 			if login_platform == 'naver' or login_platform == 'ical':	
 				#caldav일경우.
 				u_id = flask.request.form['uId']
 				u_pw = flask.request.form['uPw']
 				u_pw = cryptoo.encryptt(u_pw)
+
+				######logging#################
+				#로그인하면 해당 새로운 아이디로 로그인한것을 남긴다
+				log_result['selected_login_uId'] = u_id
+				mLog.insertLog(MONGO_COLLECTION_ACCOUNT_LIST_LOG,log_result)
+				##############################
+
 				try:
 					calDavclient = caldavWrapper.getCalDavClient(login_platform,u_id,u_pw)									
 
@@ -523,6 +551,13 @@ class Member(MethodView):
 
 					#구글에서 email이 userId로 들어간다
 					u_id = email
+					
+					######logging#################
+					#로그인하면 해당 새로운 아이디로 로그인한것을 남긴다
+					log_result['selected_login_uId'] = u_id
+					mLog.insertLog(MONGO_COLLECTION_ACCOUNT_LIST_LOG,log_result)
+					##############################
+
 					#회원가입					
 					userAccountModel.setGoogleUserAccount(account_hashkey,user_hashkey,login_platform,u_id,access_token,google_expire_time,subject,refresh_token)
 					

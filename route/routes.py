@@ -40,6 +40,12 @@ def initRoute(app):
 						methods = ['POST', ]
 					)	
 
+	app.add_url_rule(
+						'/v1.0/reco/setLog',
+						defaults = {'action':'setLog'},
+						view_func = reco, 
+						methods = ['POST', ]
+					)	
 	setting = Setting.as_view('setting')
 	app.add_url_rule(
 						'/v1.0/setting/updatePushToken',
@@ -62,6 +68,13 @@ def initRoute(app):
 						view_func = events, 
 						methods = ['POST', ]
 					)
+	app.add_url_rule(
+						'/v1.0/events/setLog',
+						defaults = {'action':'setLog'},
+						view_func = events, 
+						methods = ['POST', ]
+					)	
+
 	
 
 	sync = Sync.as_view('sync')	

@@ -10,6 +10,8 @@ import logging
 from common.util.statics import *
 
 from datetime import datetime
+from model import mLog
+
 
 class Reco(MethodView):
 	def post(self,action):
@@ -39,6 +41,76 @@ class Reco(MethodView):
 											201,
 											{'msg':MSG_RECO_END}
 										)				
+		elif action == 'setLog':
+			log_result = {}
+
+			apikey = flask.request.form['apikey']
+			
+			if not redis.get(apikey):
+				return utils.resErr(
+										{'msg':MSG_INVALID_TOKENKEY}
+									)
+
+			event_hashkey = flask.request.form['eventHashkey']
+			reco_hashkey = None
+			residense_time = None
+
+			#만약 residenseTime이 존재하면 넣고 아니면 None
+			if 'residenseTime' in flask.request.form.keys():
+				residense_time = flask.request.form['residenseTime']
+
+			if 'recoHashkey' in flask.request.form.keys():
+				reco_hashkey = flask.request.form['recoHashkey']
+
+			
+			category = int(flask.request.form['category'])
+			action = int(flask.request.form['action'])
+			label = int(flask.request.form['label'])
+
+			#view일 경우
+			if category == 0:
+				category = 'recoView'
+
+				if label == 0:
+					label = 'allMap'
+				elif label == 1:
+					label = 'restaurant'					
+				elif label == 2:
+					label = 'cafe'										
+				elif label == 3:
+					label = 'place'															
+			
+			#cell일 경우 
+			elif category == 1:
+				category = 'recoCell'
+				if label == 0:
+					label = 'blog'
+				if label == 1:
+					label = 'itemMap'
+				if label == 2:
+					label = 'sharingKakao'										
+			
+				
+
+			if action == 0:
+				action = 'click'	
+			
+			log_result = mLog.getUserInfo(apikey)
+
+
+			log_result['event_hashkey'] = event_hashkey
+			log_result['reco_hashkey'] = reco_hashkey
+			log_result['residense_time'] = residense_time
+			log_result['category'] = category
+			log_result['label'] = label			
+			log_result['action'] = action
+
+
+			mLog.insertLog(MONGO_COLLECTION_RECO_LOG,log_result)
+			return utils.resSuccess(									
+										{'data':'succes'}
+									)
+
 
 		elif action == 'tracking':
 			apikey = flask.request.form['apikey']
