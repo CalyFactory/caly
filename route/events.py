@@ -90,7 +90,7 @@ class Events(MethodView):
 
 			event_hashkey = None
 			if 'eventHashkey' in flask.request.form.keys():
-				residense_time = flask.request.form['eventHashkey']
+				event_hashkey = flask.request.form['eventHashkey']
 
 			#0은 클릭.			
 			category = int(flask.request.form['category'])
@@ -103,11 +103,11 @@ class Events(MethodView):
 				if label == 0:
 					label = 'banner'				
 				elif label == 1:
-					label = 'refresh'	
+					label = 'refreshEventList'	
 
 
 			elif category == 1:
-				category = 'eventcell'
+				category = 'eventCell'
 				if label == 0:
 					label = 'cell'								
 
