@@ -104,6 +104,8 @@ class Events(MethodView):
 					label = 'banner'				
 				elif label == 1:
 					label = 'refreshEventList'	
+				elif label == 2:
+					label = 'bannerClose'						
 
 
 			elif category == 1:

@@ -88,7 +88,7 @@ class Reco(MethodView):
 				if label == 1:
 					label = 'itemMap'
 				if label == 2:
-					label = 'sharing'										
+					label = 'sharingKakao'										
 			
 				
 
