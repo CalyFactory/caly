@@ -11,6 +11,7 @@ import logging
 from common.util.statics import *
 
 from datetime import datetime
+from model import mLog
 
 class Events(MethodView):
 	def post(self,action):
@@ -77,8 +78,57 @@ class Events(MethodView):
 											{'msg':MSG_EVENTS_END}
 										)
 		
+		elif action == 'setLog':
+			log_result = {}
+
+			apikey = flask.request.form['apikey']
+			
+			if not redis.get(apikey):
+				return utils.resErr(
+										{'msg':MSG_INVALID_TOKENKEY}
+									)
+
+			event_hashkey = None
+			if 'eventHashkey' in flask.request.form.keys():
+				residense_time = flask.request.form['eventHashkey']
+
+			#0은 클릭.			
+			category = int(flask.request.form['category'])
+			action = int(flask.request.form['action'])
+			label = int(flask.request.form['label'])
+
+			if category == 0:
+				category = 'eventView'
+				
+				if label == 0:
+					label = 'banner'				
+				elif label == 1:
+					label = 'refresh'	
 
 
+			elif category == 1:
+				category = 'eventcell'
+				if label == 0:
+					label = 'cell'								
+
+			if action == 0:
+				action = 'click'
+
+
+
+			#기본정보세팅
+			log_result = mLog.getUserInfo(apikey)
+			log_result['event_hashkey'] = event_hashkey
+			log_result['category'] = category
+			log_result['label'] = label			
+			log_result['action'] = action
+			
+			
+
+			mLog.insertLog(MONGO_COLLECTION_EVENT_LOG,log_result)
+			return utils.resSuccess(									
+										{'data':'succes'}
+									)
 
 			
 

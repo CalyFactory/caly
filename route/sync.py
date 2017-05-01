@@ -39,6 +39,7 @@ from bot import slackAlarmBot
 from common import FCM
 from model import mFcmModel
 from time import gmtime, strftime
+from model import mLog
 
 class Sync(MethodView):
 #sync는 캘린더 리스트 가져오기 => 이벤트리스트 저장하기.(최신기록 먼저)
@@ -141,6 +142,14 @@ class Sync(MethodView):
 				return utils.resErr(
 										{'msg':MSG_INVALID_TOKENKEY}
 									)
+			log_result = {}
+			log_result = mLog.getUserInfo(apikey)
+			log_result['action'] = 'click'
+			log_result['label'] = 'manualSync'
+			log_result['selected_login_platform'] = login_platform
+			log_result['selected_login_uId'] = user_id
+			mLog.insertLog(MONGO_COLLECTION_ACCOUNT_LIST_LOG,log_result)			
+
 
 			account = userAccountModel.getUserAccountForSync(apikey,user_id,login_platform)			
 			result = caldavPeriodicSync.sync(account[0])			
@@ -161,7 +170,8 @@ class Sync(MethodView):
 				push_result['push_data'] = data_message
 				logging.info('result==>'+str(push_result))
 
-				mFcmModel.insertFcm(push_result)				
+				mFcmModel.insertFcm(push_result)
+
 
 
 				return utils.resSuccess(
