@@ -22,7 +22,8 @@ from model import mFcmModel
 from model import syncEndModel
 from common.util.statics import *
 from common import caldavPeriodicSync
-
+import logging
+import logging.handlers
 
 
 sqla_logger = logging.getLogger('sqlalchemy.engine.base.Engine')
@@ -37,8 +38,6 @@ with open('./key/conf.json') as conf_json:
 
 app = Celery('tasks', broker='amqp://'+conf['rabbitmq']['user']+':'+conf['rabbitmq']['password']+'@'+conf['rabbitmq']['hostname']+'//', queue='periodicSyncQueue')
 app.conf.task_default_queue = 'periodicSyncQueue'
-
-
 
 
 
@@ -63,6 +62,14 @@ def accountDistributor():
 
 @app.task()
 def syncWorker(account):
+    
+    mylogger = logging.getLogger()
+    mylogger.setLevel(logging.DEBUG)
+    rotatingHandler = logging.handlers.TimedRotatingFileHandler(filename='log/'+'log_caldav_worker.log', when='midnight', interval=1, encoding='utf-8')
+    fomatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
+    rotatingHandler.setFormatter(fomatter)
+    mylogger.addHandler(rotatingHandler)
+            
     print('sync')
     caldavPeriodicSync.sync(account)
 

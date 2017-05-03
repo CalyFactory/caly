@@ -1,3 +1,5 @@
+# from manager.log_manager import logging
+
 from manager import db_manager
 from flask.views import MethodView
 from model import eventModel

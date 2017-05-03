@@ -4,6 +4,8 @@
 #
 
 import logging
+# from manager.log_manager import logging
+
 from common import caldavWrapper
 
 from flask.views import MethodView

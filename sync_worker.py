@@ -20,9 +20,8 @@ import threading
 
 from common import syncLogic
 from common.util.statics import *
-
 import logging
-
+import logging.handlers
 
 with open('./key/conf.json') as conf_json:
     conf = json.load(conf_json)
@@ -43,6 +42,14 @@ def shutdown_worker(**kwargs):
 #nametask를 쓰느 이유.
 @app.task(name='task')
 def worker(data):
+	
+	mylogger = logging.getLogger() 
+	mylogger.setLevel(logging.DEBUG)
+	rotatingHandler = logging.handlers.TimedRotatingFileHandler(filename='log/'+'log_sync_worker.log', when='midnight', interval=1, encoding='utf-8')
+	fomatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
+	rotatingHandler.setFormatter(fomatter)
+	mylogger.addHandler(rotatingHandler)
+
 	gameThread = threading.Thread(target=run, args=(data,))
 	gameThread.start()
 
