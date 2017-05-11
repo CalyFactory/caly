@@ -8,6 +8,7 @@ import static
 import uuid
 import requests
 
+from flask import render_template
 from googleapiclient import discovery
 from oauth2client import client
 from manager import db_manager
@@ -146,6 +147,11 @@ def fireFcm():
 	result = FCM.sendOnlyData(token,data_message)
 	logging.info(str(result))
 	return 'FCM.sendOnlyData(token,data_message)'
+
+@app.route("/privacyPolicy", methods = ["GET"])
+def page_login_get():
+    
+    return render_template('privacyPolicy.html')
 
 if __name__ == '__main__':
 	flaskrun(app)
