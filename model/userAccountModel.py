@@ -162,6 +162,24 @@ def getIsActive(apikey):
 					(apikey,)
 				)
 			)	
+#해당 apikey를 가지는 계정과 연동된 모든 계정의 account_hashkey를 가져온다. account_hashkey에 해당하는 active 를 1로바꿔줄것이다.
+def getUserAccountWithApikey(apikey):
+	return utils.fetch_all_json(
+				db_manager.query(
+					"""
+					SELECT USERACCOUNT.user_hashkey FROM USERACCOUNT
+					INNER JOIN 
+					(SELECT USERACCOUNT.user_hashkey FROM USERACCOUNT
+					INNER JOIN USERDEVICE ON USERACCOUNT.account_hashkey = USERDEVICE.account_hashkey
+					WHERE USERACCOUNT.is_active is not null and apikey = %s) as needActiveUser
+					ON needActiveUser.user_hashkey = USERACCOUNT.user_hashkey
+					GROUP BY USERACCOUNT.user_hashkey
+
+					"""
+					,
+					(apikey,)
+				)
+			)		
 def getAnotherConnectionUser(user_hashkey,u_id):
 	return utils.fetch_all_json(
 				db_manager.query(
@@ -173,6 +191,21 @@ def getAnotherConnectionUser(user_hashkey,u_id):
 					(user_hashkey,u_id)
 				)
 			)	
+	
+def updateIsActiveWithUserHasheky(user_hashkey,is_active):
+	return 	db_manager.query(
+				"""
+                   UPDATE USERACCOUNT
+                    SET is_active = %s
+                    WHERE user_hashkey = %s
+				"""
+				,
+				(			
+					is_active,account_hashkey
+				)
+			)
+
+
 def withdrawWithAccountHashkey(account_hashkey):
 	return 	db_manager.query(
 				"""

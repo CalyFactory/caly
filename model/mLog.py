@@ -12,10 +12,10 @@ def getUserInfo(apikey):
 	user_id = user[0]['user_id']
 	login_platform = user[0]['login_platform']
 
-	result['user_id'] = user_id
-	result['login_platform'] = login_platform
+	result['userId'] = user_id
+	result['loginPlatform'] = login_platform
 	result['apikey'] = apikey
-	result['account_hashkey'] = account_hashkey	
+	result['accountHashkey'] = account_hashkey	
 
 	return result
 

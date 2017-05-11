@@ -54,9 +54,9 @@ def caldav(user,apikey,login_platform,time_state):
 
 	
 	state = time_state == SYNC_TIME_STATE_FORWARD and SYNC_END_TIME_STATE_FORWARD or SYNC_END_TIME_STATE_BACKWARD
-	logging.info(str(user))
-	logging.info(str(user[0]['account_hashkey']))
 	
+	logging.info('[syncLogic]user =>' + str(user))
+	logging.info('[syncLogic]time_state =>'+str(time_state))
 	#최초 동기화일경우
 	#syncEnd에 첫번째동기화일경우 동기화 시작! 이라는 상태를 저장한다.
 	if time_state == SYNC_TIME_STATE_FORWARD:		
@@ -64,6 +64,9 @@ def caldav(user,apikey,login_platform,time_state):
 
 
 	syncEndRows = syncEndModel.getSyncEnd(user[0]['account_hashkey'],state)
+	# logging.info('[syncLogic]SyncEndRows =>'+str(syncEndRows))
+	logging.info('[syncLogic]SyncEndRows =>'+str(syncEndModel.getAllSyncEndWithAccountHashkey(user[0]['account_hashkey'])))
+
 
 	#한번이라도 동기화했나?
 	#동기화이미됬다고 리턴
@@ -276,6 +279,13 @@ def caldav(user,apikey,login_platform,time_state):
 	statee.userLife(apikey,log_state)	
 	# 미래것이 끝났고 에러없이 마무리됬다면, 과거꺼를 돌려야한다. 
 	# 미래것일 상태에서만 요청을 하도록 한다.	
+
+	#FIX ME!!!
+	#BG-42 버그로그를 보기위한단순 찍기용
+	syncEndRows = syncEndModel.getSyncEnd(user[0]['account_hashkey'],state)
+	logging.info('[syncLogic]SyncEndRows =>'+str(syncEndModel.getAllSyncEndWithAccountHashkey(user[0]['account_hashkey'])))
+	#############
+
 	if time_state == SYNC_TIME_STATE_FORWARD:
 		logging.info('[synclogic] FORWARD')
 		data_message = {
