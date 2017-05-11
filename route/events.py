@@ -1,3 +1,5 @@
+# from manager.log_manager import logging
+
 from manager import db_manager
 from flask.views import MethodView
 from model import eventModel
@@ -82,6 +84,7 @@ class Events(MethodView):
 			log_result = {}
 
 			apikey = flask.request.form['apikey']
+			sessionKey = flask.request.form['sessionKey']
 			
 			if not redis.get(apikey):
 				return utils.resErr(
@@ -99,7 +102,7 @@ class Events(MethodView):
 
 			if category == 0:
 				category = 'eventView'
-				
+				#banner open
 				if label == 0:
 					label = 'banner'				
 				elif label == 1:
@@ -111,7 +114,11 @@ class Events(MethodView):
 			elif category == 1:
 				category = 'eventCell'
 				if label == 0:
-					label = 'cell'								
+					label = 'cell'		
+				elif label == 1:
+					label = 'analyzing' 
+				elif label == 2:
+					label = 'questionMark'						
 
 			if action == 0:
 				action = 'click'
@@ -120,10 +127,12 @@ class Events(MethodView):
 
 			#기본정보세팅
 			log_result = mLog.getUserInfo(apikey)
-			log_result['event_hashkey'] = event_hashkey
+			log_result['sessionKey'] = sessionKey
+			log_result['eventHashkey'] = event_hashkey
 			log_result['category'] = category
 			log_result['label'] = label			
 			log_result['action'] = action
+
 			
 			
 

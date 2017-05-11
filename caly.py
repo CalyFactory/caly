@@ -8,6 +8,7 @@ import static
 import uuid
 import requests
 
+from flask import render_template
 from googleapiclient import discovery
 from oauth2client import client
 from manager import db_manager
@@ -31,20 +32,45 @@ from flask import redirect, url_for,session
 from caldavclient import CaldavClient
 from common import FCM
 import logging
+import logging.handlers
+
 app = flask.Flask(__name__, static_url_path='')
 from common.flaskrun import flaskrun
 
 initRoute(app)
+# #-*- coding: utf-8 -*-
+import logging
+import logging.handlers
+
+
+## 인스턴스만들기.
+mylogger = logging.getLogger()
+mylogger.setLevel(logging.INFO)
+rotatingHandler = logging.handlers.TimedRotatingFileHandler(filename='log/'+'log_caly.log', when='midnight', interval=1, encoding='utf-8')
+fomatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
+rotatingHandler.setFormatter(fomatter)
+mylogger.addHandler(rotatingHandler)
+
+
 # if debugg
 # logSet.init()
 
 
-# if production
-logging.basicConfig(level=logging.INFO, filename='log/log_caly.log',
-                  format='%(asctime)s %(levelname)s: %(message)s',
-                  datefmt='%Y-%m-%d %H:%M:%S')
+# # if production
+# logging.basicConfig(level=logging.INFO, filename='log/log_caly.log',
+#                   format='%(asctime)s %(levelname)s: %(message)s',
+#                   datefmt='%Y-%m-%d %H:%M:%S')
 
-# logging.info(datetime.now())
+# import logging
+# import logging.handlers
+# #인스턴스만들기.
+# mylogger = logging.getLogger('MyLogger')
+# mylogger.setLevel(logging.INFO)
+# rotatingHandler = logging.handlers.TimedRotatingFileHandler(filename='log/'+ str(datetime.now())+'_log_caly.log', when='m', interval=3, encoding='utf-8')
+# fomatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
+# rotatingHandler.setFormatter(fomatter)
+# mylogger.addHandler(rotatingHandler)
+# logging = mylogger
 
 @app.route('/')
 def hello_wordl():
@@ -121,6 +147,11 @@ def fireFcm():
 	result = FCM.sendOnlyData(token,data_message)
 	logging.info(str(result))
 	return 'FCM.sendOnlyData(token,data_message)'
+
+@app.route("/privacyPolicy", methods = ["GET"])
+def page_login_get():
+    
+    return render_template('privacyPolicy.html')
 
 if __name__ == '__main__':
 	flaskrun(app)

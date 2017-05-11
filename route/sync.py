@@ -464,6 +464,8 @@ class Sync(MethodView):
 				#가장 최근 동기화 값을 가져온다.
 				syncEndRows = syncEndModel.getSynEndLatestState(user[0]['account_hashkey'])				
 				logging.info('syncEndROwsss==> '+ str(syncEndRows))
+				logging.info('[sync]SyncEndRowsAll =>'+str(syncEndModel.getAllSyncEndWithAccountHashkey(user[0]['account_hashkey'])))
+
 				#만약 최신값이 없다면 동기화 하지 않았다.
 				# 다시 동기화해라.
 				if len(syncEndRows) == 0 :
@@ -493,9 +495,13 @@ class Sync(MethodView):
 												)
 					#뒤까지동기화가 끝나 포워드나, 백워드나, 주기적 동기화까지 이루어지고 있다면
 					#아래와같이 추천상태에대한 정보를 넘겨준다.
+
+					#FIXME!!!
+					#SYNC_END_TIME_STATE_PERIOD 일경우에대해 생각해보아야한다!!
 					elif sync_state == SYNC_END_TIME_STATE_FORWARD or sync_state == SYNC_END_TIME_STATE_BACKWARD or sync_state == SYNC_END_TIME_STATE_PERIOD:
 						if len(state) == 1 and state[0]['reco_state'] == 2:
 							logging.info('checkSync Status ===> 200000')
+							
 							return utils.resCustom(
 														200,
 														{'msg':MSG_RECO_SUCCESS}

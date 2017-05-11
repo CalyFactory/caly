@@ -18,6 +18,7 @@ from model import calendarModel
 from model import googleWatchInfoModel
 from common.util.statics import *
 import logging
+import logging.handlers
 import json 
 
 
@@ -48,6 +49,12 @@ def init():
 
 @app.task()
 def retachWorker():
+
+    mylogger.setLevel(logging.DEBUG)
+    rotatingHandler = logging.handlers.TimedRotatingFileHandler(filename='log/'+'log_caldav_worker.log', when='midnight', interval=1, encoding='utf-8')
+    fomatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
+    rotatingHandler.setFormatter(fomatter)
+    mylogger.addHandler(rotatingHandler)
 
     #현재 바꿔야할 캘린더들을 가져온다.
     calendars = calendarModel.getRetachGoogleWatchList()

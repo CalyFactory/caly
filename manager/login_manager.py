@@ -43,7 +43,12 @@ def checkLoginState(flask):
 
 				if activs[0]['is_active'] == 3:
 					return utils.loginState(LOGIN_STATE_CHANGEPW,None)			
-				
+				try:
+					user = userAccountModel.getUserAccountWithApikey(apikey)				
+					userAccountModel.updateIsActiveWithUserHasheky(user[0]['user_hashkey'],1)
+				except Exception as e:
+					logging.info(str(e))
+
 				return utils.loginState(LOGIN_STATE_AUTO,None)		
 			except Exception as e:
 				return utils.loginState(LOGIN_ERROR,None)
@@ -156,6 +161,14 @@ def checkLoginState(flask):
 
 					userDeviceModel.setUserDevice(device_hashkey,account_hashkey,apikey)
 					redis.set(apikey,user_hashkey)
+	
+					try:
+						user = userAccountModel.getUserAccountWithApikey(apikey)				
+						userAccountModel.updateIsActiveWithUserHasheky(user[0]['user_hashkey'],1)
+					except Exception as e:
+						logging.info(str(e))
+
+
 				except Exception as e:
 					logging.error(str(e))
 					return utils.loginState(LOGIN_ERROR,str(e))
@@ -177,8 +190,14 @@ def checkLoginState(flask):
 					logging.error(str(e))
 					return utils.loginState(LOGIN_ERROR,str(e))
 				
-				statee.userLife(apikey,LIFE_STATE_SIGNIN_OTEHRDEVICE)														
-				
+				statee.userLife(apikey,LIFE_STATE_SIGNIN_OTEHRDEVICE)	
+
+				try:
+					user = userAccountModel.getUserAccountWithApikey(apikey)				
+					userAccountModel.updateIsActiveWithUserHasheky(user[0]['user_hashkey'],1)
+				except Exception as e:
+					logging.info(str(e))				
+					
 				return utils.loginState(LOGIN_STATE_OTHERDEVICE,{'apikey':apikey})
 				# return LOGIN_STATE_OTHERDEVICE
 
@@ -215,6 +234,13 @@ def checkLoginState(flask):
 						logging.info('!!!login exsiting ACCOUNT !!!!')
 						userDeviceModel.updateUserApikeyWihtUuid(account_hashkey,uuid,apikey)
 						statee.userLife(apikey,LIFE_STATE_SIGNIN_RELOGIN)
+	
+					try:
+						user = userAccountModel.getUserAccountWithApikey(apikey)				
+						userAccountModel.updateIsActiveWithUserHasheky(user[0]['user_hashkey'],1)
+					except Exception as e:
+						logging.info(str(e))
+	
 					
 				except Exception as e:
 					logging.error(str(e))
