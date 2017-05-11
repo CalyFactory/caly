@@ -19,6 +19,7 @@ class Reco(MethodView):
 			apikey = flask.request.form['apikey']
 			eventHashkey = flask.request.form['eventHashkey']
 			category = flask.request.form['category']
+			
 
 			if not redis.get(apikey):
 				return utils.resErr(
@@ -45,7 +46,8 @@ class Reco(MethodView):
 			log_result = {}
 
 			apikey = flask.request.form['apikey']
-			
+			sessionKey = flask.request.form['sessionKey']
+
 			if not redis.get(apikey):
 				return utils.resErr(
 										{'msg':MSG_INVALID_TOKENKEY}
@@ -70,9 +72,9 @@ class Reco(MethodView):
 			#view일 경우
 			if category == 0:
 				category = 'recoView'
-
+				#지도로보기눌렀을경우
 				if label == 0:
-					label = 'allMap'
+					label = 'fullMap'
 				elif label == 1:
 					label = 'restaurant'					
 				elif label == 2:
@@ -84,13 +86,37 @@ class Reco(MethodView):
 			elif category == 1:
 				category = 'recoCell'
 				if label == 0:
-					label = 'blog'
-				if label == 1:
+					label = 'deepLink'
+				elif label == 1:
 					label = 'itemMap'
-				if label == 2:
-					label = 'sharingKakao'										
-			
+				elif label == 2:
+					label = 'sharingKakaoInCell'
+				elif label == 3:
+					label = 'sharingKakaoInBlog'	
+
+
+			#맵뷰일경우
+			elif category == 2:
+				category = 'recoMapView'
+				if label == 0:
+					label = 'myLocation'
+				elif label == 1:
+					label = 'filterAll'						
+				elif label == 2:
+					label = 'filterRestaurant'					
+				elif label == 3:
+					label = 'filterCafe'										
+				elif label == 4:
+					label = 'filterPlace'		
+			#map detail cell
+			elif category == 3:
+				category = 'recoMapCell'
+				if label == 0:
+					label = 'deepLink'
+				elif label == 1:
+					label = 'sharingKakaoInCell'
 				
+			
 
 			if action == 0:
 				action = 'click'	
@@ -98,12 +124,13 @@ class Reco(MethodView):
 			log_result = mLog.getUserInfo(apikey)
 
 
-			log_result['event_hashkey'] = event_hashkey
-			log_result['reco_hashkey'] = reco_hashkey
-			log_result['residense_time'] = residense_time
+			log_result['eventHashkey'] = event_hashkey
+			log_result['recoHashkey'] = reco_hashkey
+			log_result['residenseTime'] = residense_time
 			log_result['category'] = category
 			log_result['label'] = label			
 			log_result['action'] = action
+			log_result['sessionKey'] = sessionKey
 
 
 			mLog.insertLog(MONGO_COLLECTION_RECO_LOG,log_result)

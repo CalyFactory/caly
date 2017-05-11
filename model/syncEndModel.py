@@ -27,12 +27,25 @@ def delSyncEnd(account_hashkey,sync_time_state):
 					account_hashkey,sync_time_state
 				)
 			)
+def getAllSyncEndWithAccountHashkey(account_hashkey):
+	return utils.fetch_all_json(
+				db_manager.query(
+					"""
+					SELECT * FROM SYNC_END 
+					WHERE account_hashkey = %s 
+					"""
+					,
+					(			
+						account_hashkey,
+					)
+				)
+			)
 
 def getSyncEnd(account_hashkey,sync_time_state):
 	return utils.fetch_all_json(
 				db_manager.query(
 					"""
-					SELECT id FROM SYNC_END 
+					SELECT * FROM SYNC_END 
 					WHERE account_hashkey = %s AND sync_time_state = %s
 					"""
 					,
