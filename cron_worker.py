@@ -43,7 +43,7 @@ app.conf.task_default_queue = 'periodicSyncQueue'
 
 @periodic_task(run_every=timedelta(seconds=300))
 def accountDistributor():
-    print("hello")
+    logging.info("hello")
     accountList = utils.fetch_all_json(
         db_manager.query(
             """
@@ -63,14 +63,13 @@ def accountDistributor():
 @app.task()
 def syncWorker(account):
     
-    mylogger = logging.getLogger()
-    mylogger.setLevel(logging.DEBUG)
-    rotatingHandler = logging.handlers.TimedRotatingFileHandler(filename='log/'+'log_caldav_worker.log', when='midnight', interval=1, encoding='utf-8')
-    fomatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
-    rotatingHandler.setFormatter(fomatter)
-    mylogger.addHandler(rotatingHandler)
-            
-    print('sync')
+    # mylogger = logging.getLogger()
+    # mylogger.setLevel(logging.DEBUG)
+    # rotatingHandler = logging.handlers.TimedRotatingFileHandler(filename='log/'+'log_caldav_worker.log', when='midnight', interval=1, encoding='utf-8')
+    # fomatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
+    # rotatingHandler.setFormatter(fomatter)
+    # mylogger.addHandler(rotatingHandler)
+    logging.info("hello")
     caldavPeriodicSync.sync(account)
 
 

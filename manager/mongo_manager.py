@@ -20,4 +20,5 @@ reco_log = base_db.reco_log
 
 account_list_log = base_db.account_list_log
 
+screen_log = base_db.screen_log
 
