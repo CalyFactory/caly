@@ -109,6 +109,8 @@ class Events(MethodView):
 					label = 'refreshEventList'	
 				elif label == 2:
 					label = 'bannerClose'						
+				elif label == 3:
+					label = 'bannerShowing'											
 
 
 			elif category == 1:
@@ -122,6 +124,8 @@ class Events(MethodView):
 
 			if action == 0:
 				action = 'click'
+			elif action == -1:
+				action = 'none'
 
 
 

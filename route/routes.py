@@ -4,6 +4,7 @@ from route.events import Events
 from route.setting import Setting
 from route.reco import Reco
 from route.support import Support
+from route.log import Log
 
 def initRoute(app):
 	support = Support.as_view('support')
@@ -103,7 +104,6 @@ def initRoute(app):
 						methods = ['POST', ]
 					)
 
-# withdrawal
 	member = Member.as_view('member')
 	app.add_url_rule(
 						'/v1.0/member/removeAccount',
@@ -166,4 +166,10 @@ def initRoute(app):
 						view_func = member, 
 						methods = ['POST', ]
 					)		
-
+	log = Log.as_view('log')
+	app.add_url_rule(
+						'/v1.0/log/screen',
+						defaults = {'action':'screen'},
+						view_func = log, 
+						methods = ['POST', ]
+					)
