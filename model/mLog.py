@@ -7,15 +7,22 @@ from datetime import datetime
 
 def getUserInfo(apikey):
 	result = {}
-	user = userDeviceModel.getUserWithApikey(apikey)
-	account_hashkey = user[0]['account_hashkey']
-	user_id = user[0]['user_id']
-	login_platform = user[0]['login_platform']
+	result['userId'] = 'None'
+	result['loginPlatform'] = 'None'
+	result['apikey'] = 'None'
+	result['accountHashkey'] = 'None'
 
-	result['userId'] = user_id
-	result['loginPlatform'] = login_platform
-	result['apikey'] = apikey
-	result['accountHashkey'] = account_hashkey	
+	if apikey != 'None':
+		user = userDeviceModel.getUserWithApikey(apikey)
+		account_hashkey = user[0]['account_hashkey']
+		user_id = user[0]['user_id']
+		login_platform = user[0]['login_platform']
+
+		result['userId'] = user_id
+		result['loginPlatform'] = login_platform
+		result['apikey'] = apikey
+		result['accountHashkey'] = account_hashkey	
+
 
 	return result
 
@@ -30,6 +37,9 @@ def findAllLog(typee):
 	elif typee == MONGO_COLLECTION_ACCOUNT_LIST_LOG:
 		collection = mongo_manager.account_list_log
 
+	elif typee == MONGO_COLLECTION_SCREEN_LOG:
+		collection = mongo_manager.screen_log
+
 	
 	return dumps(collection.find()) 
 
@@ -42,6 +52,9 @@ def insertLog(typee,json):
 	
 	elif typee == MONGO_COLLECTION_ACCOUNT_LIST_LOG:
 		collection = mongo_manager.account_list_log	
+		
+	elif typee == MONGO_COLLECTION_SCREEN_LOG:
+		collection = mongo_manager.screen_log
 
 	# currentTime
 	json['cTime'] = datetime.now()
