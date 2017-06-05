@@ -44,12 +44,12 @@ import logging.handlers
 
 
 ## 인스턴스만들기.
-mylogger = logging.getLogger()
-mylogger.setLevel(logging.INFO)
-rotatingHandler = logging.handlers.TimedRotatingFileHandler(filename='log/'+'log_caly.log', when='midnight', interval=1, encoding='utf-8')
-fomatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
-rotatingHandler.setFormatter(fomatter)
-mylogger.addHandler(rotatingHandler)
+# mylogger = logging.getLogger()
+# mylogger.setLevel(logging.INFO)
+# rotatingHandler = logging.handlers.TimedRotatingFileHandler(filename='log/'+'log_caly.log', when='midnight', interval=1, encoding='utf-8')
+# fomatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
+# rotatingHandler.setFormatter(fomatter)
+# mylogger.addHandler(rotatingHandler)
 
 
 # if debugg
@@ -57,9 +57,9 @@ mylogger.addHandler(rotatingHandler)
 
 
 # # if production
-# logging.basicConfig(level=logging.INFO, filename='log/log_caly.log',
-#                   format='%(asctime)s %(levelname)s: %(message)s',
-#                   datefmt='%Y-%m-%d %H:%M:%S')
+logging.basicConfig(level=logging.INFO, filename='log/log_caly.log',
+                  format='%(asctime)s %(levelname)s: %(message)s',
+                  datefmt='%Y-%m-%d %H:%M:%S')
 
 # import logging
 # import logging.handlers
