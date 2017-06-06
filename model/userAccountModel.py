@@ -201,7 +201,7 @@ def updateIsActiveWithUserHasheky(user_hashkey,is_active):
 				"""
 				,
 				(			
-					is_active,account_hashkey
+					is_active,user_hashkey
 				)
 			)
 
