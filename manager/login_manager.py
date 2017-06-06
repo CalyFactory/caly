@@ -39,7 +39,6 @@ def checkLoginState(flask):
 			#유저라이프사이클로그저장.
 			statee.userLife(apikey,LIFE_STATE_SIGNIN_AUTO)									
 			try:
-				logging.info('activs->')
 				activs = userAccountModel.getIsActive(apikey)
 
 				if activs[0]['is_active'] == 3:
@@ -47,7 +46,7 @@ def checkLoginState(flask):
 				try:
 					
 					user = userAccountModel.getUserAccountWithApikey(apikey)	
-					logging.info('userss->'+str(user))
+					logging.info('udpated->'+str(user))
 
 					userAccountModel.updateIsActiveWithUserHasheky(user[0]['user_hashkey'],1)
 				except Exception as e:
