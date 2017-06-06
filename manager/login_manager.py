@@ -31,7 +31,7 @@ def checkLoginState(flask):
 	#세션키가 존재한다면 일반로그인이다.
 	#google / caldav 모두같음.	
 	if apikey != 'null':
-		logging.info('apikey->'+apikey)
+		logging.info('apikey!!->'+apikey)
 		
 		
 		if redis.get(apikey):
@@ -44,10 +44,13 @@ def checkLoginState(flask):
 				if activs[0]['is_active'] == 3:
 					return utils.loginState(LOGIN_STATE_CHANGEPW,None)			
 				try:
-					user = userAccountModel.getUserAccountWithApikey(apikey)				
+					
+					user = userAccountModel.getUserAccountWithApikey(apikey)	
+					logging.info('udpated->'+str(user))
+
 					userAccountModel.updateIsActiveWithUserHasheky(user[0]['user_hashkey'],1)
 				except Exception as e:
-					logging.info(str(e))
+					logging.error(str(e))
 
 				return utils.loginState(LOGIN_STATE_AUTO,None)		
 			except Exception as e:
