@@ -239,12 +239,12 @@ def caldav(user,apikey,login_platform,time_state):
 				endIndex = recurrence.index("}")
 				recurrence = recurrence[startIndex+1:endIndex]
 
-			logging.info('hashkey=>' + calendar_hashkey)	
-			logging.info('event_hashkey=>' + event_hashkey)	
-			logging.info('event_id=>' + event_id)	
-			logging.info('caldav_event_url=>' + caldav_event_url)	
-			logging.info('caldav_etag=>' + caldav_etag)	
-			logging.info('summary=>' + summary)
+			logging.info('hashkey=>' + str(calendar_hashkey))	
+			logging.info('event_hashkey=>' + str(event_hashkey))	
+			logging.info('event_id=>' + str(event_id))	
+			logging.info('caldav_event_url=>' + str(caldav_event_url))
+			logging.info('caldav_etag=>' + str(caldav_etag))
+			logging.info('summary=>' + str(summary))
 			logging.info('start_dt=>' + str(start_dt))
 			logging.info('end_dt=>' + str(end_dt))
 			logging.info('created_dt=>' + str(created_dt))
