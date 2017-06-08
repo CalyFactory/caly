@@ -23,6 +23,7 @@ import urllib
 
 from common.util import utils
 from common import logSet
+from common import gAPI
 
 #route 안에 googleAuth파일로 들어가서 클래스인 GoogleAuth를 임포트하겠다.
 from route.routes import initRoute
@@ -108,7 +109,28 @@ def fetchCalendar():
     return flask.Response(event_fetch_calendar(),
                           mimetype="text/event-stream")
 
+@app.route('/testGoogleEvnets')
+def testGoogleEvnets():
 
+	calendar_id = flask.request.args.get('calendar_id')
+	sync_token = flask.request.args.get('sync_token')		
+	URL = 'https://www.googleapis.com/calendar/v3/calendars/'+urllib.request.pathname2url(calendar_id)+'/events'
+	body = {
+		'syncToken':sync_token
+	}
+	# access_token = 'ya29.GlthBLzu4Ont7fCiy9y-tz8bnrfwwbycBB1GfkBBZPw1dAWS5Ng36liEftgaDNgYNFJDHoGRZT-X1Adk75SspXSLpJkusY0zW7P0zVELMB9Ruc4PEBK-W_7SdTO_'
+	# new_access_token = gAPI.checkValidAccessToken(access_token)	
+	# logging.info('newacces=>'+ str(new_access_token))
+
+	headers = {
+		'content-Type': 'application/json',
+		'Authorization' : 'Bearer ' + 'ya29.GlthBB5Js8pU404F_eoYnMzP20kDVverxK_L8cGhiDqQId12FvKsavw7iTN3vb-teIZOZu-R1KIn_ZMAwTwg8d_BoXFKAjCikfqAbkbZUcYfAzZP_MgkVvpPWl-u'		
+	}	
+	response = requests.get(URL,params = body,headers = headers)
+
+	res = json.loads(response.text)				
+	logging.info('new Res' + str(res))
+	return 'hi'	
 
 #test Moudle
 @app.route('/test_fetchFire')

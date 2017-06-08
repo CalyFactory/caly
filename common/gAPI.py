@@ -47,10 +47,10 @@ def getRefreshAccessToken(refresh_token):
     return response.text
 
 def checkValidAccessToken(access_token): 
-    logging.info('checkValidAccesToken')      
+    logging.info('checkValidAccesToken=>'+access_token)      
 
     userAccount = userAccountModel.getUserAccountWithAccessToken(access_token)      
-    logging.info(userAccount)
+    logging.info('account->'+str(userAccount))
     expire_time = userAccount[0]['google_expire_time']
     refresh_token = userAccount[0]['refresh_token']
     logging.info(expire_time)
