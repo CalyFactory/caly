@@ -25,7 +25,7 @@ from common import caldavPeriodicSync
 import logging
 import logging.handlers
 
-
+# 
 sqla_logger = logging.getLogger('sqlalchemy.engine.base.Engine')
 for hdlr in sqla_logger.handlers:
     sqla_logger.removeHandler(hdlr)
