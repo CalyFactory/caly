@@ -32,6 +32,7 @@ fi
 
 # CALDAV_WORKER=$(ps -ef | grep '/home/yenos/caly/envCaly/bin/celery -A cron_worker worker --loglevel=debug -f log/log_caldav_worker.log -B -n periodicSyncWorker' | wc -l) 
 CALDAV_WORKER=$(ps -ef | grep ' -A cron_worker worker' | wc -l) 
+echo CALDAV_WORKER
 if [ $CALDAV_WORKER -ge 3 ]
 then
 	echo first caldavworker
