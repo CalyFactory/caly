@@ -19,6 +19,7 @@ from model import mFcmModel
 from model import syncEndModel
 from common.util.statics import *
 
+from common import recoEngine
 
 with open('./key/conf.json') as conf_json:
     conf = json.load(conf_json)
@@ -278,7 +279,8 @@ def addEvent(calendar, newEventList, addedList):
             startIndex = recurrence.index("{")
             endIndex = recurrence.index("}")
             recurrence = recurrence[startIndex+1:endIndex]       
-                         
+
+        event_hashkey = str(uuid.uuid4())                         
         db_manager.query(
             """
             INSERT INTO EVENT
@@ -314,7 +316,7 @@ def addEvent(calendar, newEventList, addedList):
             """
             ,
             (
-                str(uuid.uuid4()),
+                event_hashkey,
                 calendar.etc, #calendar hashkey
                 event.eventId,
                 event.eventUrl,
@@ -329,6 +331,7 @@ def addEvent(calendar, newEventList, addedList):
 
             )
         )
+        recoEngine.setReco("caldav",event_hashkey,summary,start_dt,end_dt,location) 
     slackAlarmBot.alertEventUpdateEnd("추가")        
     
 

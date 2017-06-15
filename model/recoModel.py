@@ -1,13 +1,36 @@
 from common.util import utils
 from manager import db_manager
+
+
+def setEventReco(event_hashkey,reco_hashkey,idx):
+	return db_manager.query(
+					"""
+					INSERT INTO EVENT_RECO
+					(event_hashkey,reco_hashkey,register,no)
+					values(%s,%s,"calybot",%s)
+					"""
+					,
+					(event_hashkey,reco_hashkey,idx)
+			)
+
 #sync	
 #푸시등록요청한것들 찾기
 def getRecoList(event_hashkey,category):
 	return utils.fetch_all_json(
 				db_manager.query(
 						"""
+						SELECT 
+						recos.reco_hashkey,recos.region,
+						recos.event_hashkey,
+						recos.category,recos.title,
+						recos.img_url,recos.price,
+						recos.map_url,recos.deep_url,
+						recos.distance,recos.source_url,
+						recos.lat,recos.lng,recos.source_user_id,
+						recos.tagNames,er.no						
+						FROM (
 						SELECT RECO_HASHTAG.reco_hashkey, RECOMMENDATION.region, 
-						EVENT_RECO.event_hashkey, 
+						EVENT_RECO.event_hashkey,
 						RECOMMENDATION.category, RECOMMENDATION.title, 						
 						RECOMMENDATION.img_url,RECOMMENDATION.price, 
 						RECOMMENDATION.map_url,RECOMMENDATION.deep_url,
@@ -18,11 +41,20 @@ def getRecoList(event_hashkey,category):
 						LEFT JOIN HASHTAG on RECO_HASHTAG.hash_code = HASHTAG.code 
 						LEFT JOIN RECOMMENDATION on RECOMMENDATION.reco_hashkey = RECO_HASHTAG.reco_hashkey 
 						LEFT JOIN EVENT_RECO on EVENT_RECO.reco_hashkey = RECOMMENDATION.reco_hashkey 
-						WHERE  EVENT_RECO.event_hashkey = %s and category = %s 
+						WHERE  EVENT_RECO.event_hashkey = %s and category = %s
 						GROUP BY reco_hashkey 
+						) as recos 
+						INNER JOIN (
+						select er.reco_hashkey,er.no from EVENT_RECO as er, RECOMMENDATION as re
+						where er.reco_hashkey = re.reco_hashkey 
+						AND er.event_hashkey = %s and re.category = %s
+							
+						) as er
+						ON recos.reco_hashkey = er.reco_hashkey
+						ORDER BY er.no
 						"""						
 						,
-						(event_hashkey,category) 						
+						(event_hashkey,category,event_hashkey,category) 						
 				)
 			)
 

@@ -42,41 +42,6 @@ class Reco(MethodView):
 											201,
 											{'msg':MSG_RECO_END}
 										)	
-		# elif action == 'getAutoList':
-			
-		# 	category = flask.request.form['category']
-		# 	data = {
-		# 		"restaurant":[
-		# 			{
-		# 			"no" : 0,
-		# 			"reco_hashkey" : "95534fec-cf7a-4156-8d39-bbb9aec91344"
-		# 			},
-		# 			{
-		# 			"no" : 1,
-		# 			"reco_hashkey" : "b2da7e49-49d7-4cd1-9e69-76fd20b8dd42"
-		# 			}					
-		# 		],
-		# 		"cafe": [
-		# 			{
-		# 			"no" : 0,
-		# 			"reco_hashkey" : "75689e92-5b17-4928-a341-aa1e7f78138e"
-		# 			},
-		# 			{
-		# 			"no" : 1,
-		# 			"reco_hashkey" : "75458fb0-a33e-41b1-89bf-fad7987d20c6"
-		# 			}									
-		# 		],
-		# 		"place":[
-		# 			{
-		# 			"no" : 0,
-		# 			"reco_hashkey" : "ee7bfecd-8068-4b24-922a-80ccd2e84f2d"
-		# 			},
-		# 			{
-		# 			"no" : 1,
-		# 			"reco_hashkey" : "f140216f-5539-4e25-a8d3-7dd64b99d8a5"
-		# 			}													
-		# 		]
-		# 	}
 
 
 
