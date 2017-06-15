@@ -7,7 +7,7 @@ import json
 with open('./key/conf.json') as conf_json:
     conf = json.load(conf_json)
 
-client = MongoClient('mongodb://'+conf["mongo"]["user"]+':' + conf["mysql"]["password"] + '@127.0.0.1')
+client = MongoClient('mongodb://'+conf["mongo"]["user"]+':' + conf["mongo"]["password"] + '@' + conf["mongo"]["host"])
 base_db = client.calydb
 
 #fcm log

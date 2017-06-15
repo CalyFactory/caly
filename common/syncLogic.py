@@ -37,6 +37,7 @@ from datetime import timedelta,datetime
 from pytz import timezone
 import time
 
+from common import recoEngine
 
 with open('./key/conf.json') as conf_json:
     conf = json.load(conf_json)
@@ -254,9 +255,14 @@ def caldav(user,apikey,login_platform,time_state):
 			try:
 				#이벤트를 저장한다.
 				eventModel.setCaldavEvents(event_hashkey,calendar_hashkey,event_id,summary,start_dt,end_dt,created_dt,updated_dt,location,caldav_event_url,caldav_etag,recurrence)
+				
+				recoEngine.setReco("caldav",event_hashkey,summary,start_dt,end_dt,location)
+				
+
 			except Exception as e:
 				logging.error(str(e))
 				return utils.syncState(SYNC_CALDAV_ERR_SET_EVENTS,str(e))
+
 
 		
 		try:
@@ -540,6 +546,8 @@ def reqEventsList(time_state,apikey,calendar,user,body={}):
 
 		event_hashkey = utils.makeHashKey(event_id)
 		eventModel.setGoogleEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location,recurrence)
+		recoEngine.setReco("google",event_hashkey,summary,start_date,end_date,location)
+
 	logging.info('[timeTest]cnt= '+str(len(res['items']))+'setEVENTS==> '+str(utils.checkTime(datetime.now(),'ing')))
 
 

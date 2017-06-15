@@ -1,3 +1,6 @@
+import os
+os.environ["CALY_DB_CONF"] = "./key/conf.json"
+
 from celery import Celery
 from celery.task import periodic_task
 from celery.schedules import crontab

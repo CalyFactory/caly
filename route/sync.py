@@ -8,6 +8,7 @@ import flask
 
 from common.util import utils
 
+
 from model import userDeviceModel
 from model import userAccountModel
 from model import userModel
@@ -31,7 +32,7 @@ from manager.redis import redis
 from common.util.statics import *
 from common import gAPI
 
-# from model import userLifeModel
+
 from common import statee
 from common import syncLogic
 from common import caldavPeriodicSync
@@ -40,6 +41,10 @@ from common import FCM
 from model import mFcmModel
 from time import gmtime, strftime
 from model import mLog
+
+
+#추천 엔진모듈
+from common import recoEngine
 
 class Sync(MethodView):
 #sync는 캘린더 리스트 가져오기 => 이벤트리스트 저장하기.(최신기록 먼저)
@@ -231,10 +236,7 @@ class Sync(MethodView):
 					#등록 테스트에서 매번등록되면 나중에 변경됬이력이 생겼을때 등록된 수만큼 푸시가 와서 등록하자마 해제하는 로직.
 					###############		
 
-						
-						
-
-						
+															
 						logging.info('resource_id->'+resource_id)
 						logging.info('channel_id->'+channel_id)
 						# result = gAPI.stopWatch(channel_id,resource_id,access_token)
@@ -249,7 +251,6 @@ class Sync(MethodView):
 						###############
 						#####DEBUG#####
 						###############		
-
 
 
 						is_finished_sync = True
@@ -382,13 +383,17 @@ class Sync(MethodView):
 								end_date = utils.date_utc_to_current(str(item['end']['dateTime']))					
 
 						if status == 'confirmed' and created == updated:
-							logging.info('addEvent')
-
+							logging.info('addEvent222	')
 
 							event_hashkey = utils.makeHashKey(event_id)
-
 							eventModel.setGoogleEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location,recurrence)
+							#해당캘린더가 수정해야할 사항이 있는 것이라고 알려준다.
 							calendarModel.updateCalendarRecoState(calendar_hashkey,CALENDAR_RECO_STATE_DO)
+						
+
+							recoEngine.setReco("google",event_hashkey,summary,start_date,end_date,location)
+							
+
 							logging.info('addEnd')							
 							slackAlarmBot.alertEventUpdateEnd("추가")
 						#업데이트 한 경우이다. 
@@ -405,45 +410,7 @@ class Sync(MethodView):
 							logging.info('cancelled')							
 							eventModel.deleteEvents(event_id)				
 			return 'bye';
-		# elif action == 'checkSync':
-			
-		# 	apikey = flask.request.form['apikey']			
-		# 	user_hashkey = redis.get(apikey)
-		# 	if not redis.get(apikey):
-		# 		return utils.resErr(
-		# 								{'msg':MSG_INVALID_TOKENKEY}
-		# 							)
-		# 	try:
-		# 		user = userAccountModel.getUserAccount(user_hashkey)
-		# 		syncEndRows = syncEndModel.getSyncEnd(user[0]['account_hashkey'],SYNC_END_TIME_STATE_FORWARD)
-				
-		# 		#동기화를 하지 않았다. 
-		# 		if len(syncEndRows) == 0 :
-		# 			#201은 다시 동기화를 시도해라!
-		# 			return utils.resCustom(
-		# 										202,
-		# 										{'msg':MSG_SYNC_NEED}
-		# 									)	
-		# 		#동기화를 했다. 	
-		# 		#추천이 되어있나 확인한다.
-		# 		else:
-										
-		# 			state = recoModel.checkAllRecoEndState(apikey)									
-		# 			if len(state) == 1 and state[0]['reco_state'] == 2:
-		# 				return utils.resCustom(
-		# 											200,
-		# 											{'msg':MSG_RECO_SUCCESS}
-		# 										)
 
-		# 			else:
-		# 				return utils.resCustom(
-		# 											201,
-		# 											{'msg':MSG_RECO_ING}
-		# 										)							
-
-		# 	except Exception as e:
-		# 		logging.error(str(e))
-		# 		return utils.resErr(str(e))	
 								
 		elif action == 'checkSync':
 			
@@ -463,8 +430,8 @@ class Sync(MethodView):
 
 				#가장 최근 동기화 값을 가져온다.
 				syncEndRows = syncEndModel.getSynEndLatestState(user[0]['account_hashkey'])				
-				logging.info('syncEndROwsss==> '+ str(syncEndRows))
-				logging.info('[sync]SyncEndRowsAll =>'+str(syncEndModel.getAllSyncEndWithAccountHashkey(user[0]['account_hashkey'])))
+				# logging.info('syncEndROwsss==> '+ str(syncEndRows))
+				# logging.info('[sync]SyncEndRowsAll =>'+str(syncEndModel.getAllSyncEndWithAccountHashkey(user[0]['account_hashkey'])))
 
 				#만약 최신값이 없다면 동기화 하지 않았다.
 				# 다시 동기화해라.

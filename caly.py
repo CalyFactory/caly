@@ -1,8 +1,10 @@
 #-*- coding: utf-8 -*-
 
 
+import os
 import json
 import flask
+os.environ["CALY_DB_CONF"] = "./key/conf.json"
 
 import static
 import uuid
@@ -61,6 +63,32 @@ import logging.handlers
 logging.basicConfig(level=logging.INFO, filename='log/log_caly.log',
                   format='%(asctime)s %(levelname)s: %(message)s',
                   datefmt='%Y-%m-%d %H:%M:%S')
+
+# from datetime import timedelta,datetime
+
+# start_date = "2017-06-08 23:30:00+09:00"
+# start_date = start_date[:start_date.find('+')]
+# print(start_date)
+# start_date = "1992-05-04"
+# start_date = datetime.strptime(start_date, '%Y-%m-%d')
+# # start_date = start_date + datetime.timedelta(hours=00,minutes=00)
+# start_date = start_date.strftime('%Y-%m-%dT%H:%M:%S')
+
+# print(start_date)
+# from reco.reco import Reco
+# from reinforce.reinforce import Reinforce
+# import extractor.event_extractor  
+
+# # extracted_json = extractor.event_extractor.extract_info_from_event('0024337293ce52d7f60a9e0532188b74865c42e8dbec644cfb333cee','선릉 민경이와 데이트','2017-06-13','2017-06-13','누우')
+# logging.info("extrcted=>"+str(extracted_json))
+
+# reinforce_json = Reinforce(extracted_json).event_reco_result
+# logging.info("reinforce ->"+str(reinforce_json))
+
+
+# reco = Reco(reinforce_json["event_info_data"])
+# logging.info("recos==>"+str(reco.get_reco_list()))
+
 
 # import logging
 # import logging.handlers
