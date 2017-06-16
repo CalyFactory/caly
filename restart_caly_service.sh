@@ -1,6 +1,7 @@
 #!/bin/bash
 argv1=$1
 
+bash run_reco_sys.sh
 
 # SERVER=$(ps -ef | grep '/home/yenos/caly/envCaly/bin/gunicorn -w 9 -b 0.0.0.0:55566 caly:app'| wc -l) 
 SERVER=$(ps -ef | grep ' 0.0.0.0:55566 caly:app'| wc -l) 
@@ -81,5 +82,4 @@ else
 	nohup bash run_dailyJob.sh &> /dev/null &
 fi	
 
-bash run_reco_sys.sh
 
