@@ -1,6 +1,17 @@
 from common.util import utils
 from manager import db_manager
 
+def updateEventRecoState(event_hashkey,reco_state):
+	return db_manager.query(
+				"UPDATE EVENT SET reco_state= %s WHERE event_hashkey = %s"
+				,(reco_state,event_hashkey)
+			)
+def updateEventRecoMethodState(event_hashkey,method_state):
+	return db_manager.query(
+				"UPDATE EVENT SET method_state= %s WHERE event_hashkey = %s"
+				,(method_state,event_hashkey)
+			)	
+
 #eventModel
 def setGoogleEvents(event_hashkey,calendar_hashkey,event_id,summary,start_date,end_date,created,updated,location,recurrence):
 	return db_manager.query(
@@ -89,7 +100,10 @@ def getEventsForward(user_hashkey,standard_date,pager,rangee):
 	return utils.fetch_all_json(				
 				db_manager.query(
 					"""
-					SELECT CALENDAR.is_active,CALENDAR.calendar_hashkey,EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,EVENT.event_hashkey,EVENT.recurrence,EVENT.start_dt,EVENT.summary,EVENT.location,EVENT.reco_state,recoInfo.totalRecoCnt
+					SELECT CALENDAR.is_active,CALENDAR.calendar_hashkey,
+					EVENT.created_dt,EVENT.end_dt,CALENDAR.calendar_name,
+					EVENT.event_hashkey,EVENT.recurrence,EVENT.start_dt,
+					EVENT.summary,EVENT.location,EVENT.reco_state,recoInfo.totalRecoCnt
 					FROM USERACCOUNT 
 					INNER JOIN CALENDAR ON USERACCOUNT.account_hashkey = CALENDAR.account_hashkey 
 					INNER JOIN EVENT on CALENDAR.calendar_hashkey = EVENT.calendar_hashkey 
