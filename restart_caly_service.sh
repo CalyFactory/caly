@@ -81,3 +81,5 @@ else
 	nohup bash run_dailyJob.sh &> /dev/null &
 fi	
 
+bash run_reco_sys.sh
+
