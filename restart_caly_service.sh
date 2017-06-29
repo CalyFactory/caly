@@ -1,5 +1,6 @@
 #!/bin/bash
 argv1=$1
+bash run_reco_sys.sh
 
 bash run_reco_sys.sh
 
