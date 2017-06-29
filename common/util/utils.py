@@ -75,10 +75,16 @@ def fetch_all_json(result):
 	return lis
 
 def date_utc_to_current(date):
-	if(date.index('+') != -1):
-		return date[:date.index('+')]	
-	elif(date.index('-') != -1):
-		return date[:date.index('-')]	
+    if(date.find("Z") != -1):        
+        date = date[:-1]
+        return datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
+    else:
+        if(date.find("+") != -1):
+            if(date.index('+') != -1):
+                return date[:date.index('+')]
+        elif(date.find("-") != -1):        
+            if(date.index('-') != -1):
+                return date[:date.index('-')]
 
 def checkTime(date,state):
 
