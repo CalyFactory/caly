@@ -42,7 +42,7 @@ newrelic==2.72.1.53
 nose==1.3.7
 oauth2client==4.0.0
 packaging==16.8
-paramiko==2.1.2
+paramiko==2.10.1
 parsel==1.2.0
 py==1.4.32
 pyasn1==0.1.9
